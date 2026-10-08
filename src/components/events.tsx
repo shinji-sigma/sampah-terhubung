@@ -1,8 +1,8 @@
 "use client";
 import type { CleanupEvent, Region, Workspace } from "@/lib/types";
-import { dateTime, shortId } from "@/lib/types";
+import { dateTime, incidentReference, shortId } from "@/lib/types";
 import { ActionForm, localDateTime, type Field } from "./forms";
-import { Empty, PhotoStrip, SectionTitle, Status } from "./primitives";
+import { PhotoStrip, SectionTitle, Status } from "./primitives";
 const required = (
   name: string,
   label: string,
@@ -16,6 +16,8 @@ export function Events({
   refresh,
   login,
   now,
+  preview = false,
+  onSchedule,
 }: {
   now: Date;
   events: CleanupEvent[];
@@ -24,6 +26,8 @@ export function Events({
   coordinator: boolean;
   refresh: () => void;
   login: () => void;
+  preview?: boolean;
+  onSchedule: () => void;
 }) {
   const visible = coordinator && w ? w.events : events;
   return (
@@ -54,7 +58,13 @@ export function Events({
                 type: "select",
                 options: w.incidents.map((i) => ({
                   value: i.id,
-                  label: shortId(i.id) + " · " + i.public_label,
+                  label:
+                    incidentReference(
+                      i.id,
+                      w.incidents.map((x) => x.id),
+                    ) +
+                    " · " +
+                    i.public_label,
                 })),
               },
               {
@@ -89,7 +99,21 @@ export function Events({
         </details>
       )}
       {!visible.length ? (
-        <Empty>Belum ada kegiatan yang diterbitkan di wilayah ini.</Empty>
+        <div className="empty-state">
+          <h3>Belum ada kegiatan diterbitkan</h3>
+          <p>
+            Rencana kegiatan akan tampil setelah koordinator mengonfirmasi
+            penanggung jawab dan pengangkutan.
+          </p>
+          <button className="text-button" onClick={onSchedule}>
+            Lihat jadwal pengangkutan →
+          </button>
+          {coordinator && (
+            <p className="small-muted">
+              Gunakan “Rencanakan kegiatan” untuk menyiapkan draf.
+            </p>
+          )}
+        </div>
       ) : (
         visible.map((e) => {
           const joined = w?.registrations.some(
@@ -169,10 +193,22 @@ export function Events({
                     )}
                   </>
                 ) : (
-                  <button className="button teal" onClick={login}>
+                  <button
+                    className="button teal"
+                    onClick={login}
+                    disabled={preview}
+                    aria-describedby={
+                      preview ? "event-preview-" + e.id : undefined
+                    }
+                  >
                     Masuk untuk mendaftar
                   </button>
                 ))}
+              {preview && (
+                <p className="small-muted" id={"event-preview-" + e.id}>
+                  Pendaftaran tidak tersedia di pratinjau statis.
+                </p>
+              )}
               {coordinator && w && e.status === "draft" && (
                 <>
                   <details>

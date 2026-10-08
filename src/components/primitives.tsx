@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock3, AlertCircle, MapPin } from "lucide-react";
+import { CheckCircle2, Clock3, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { labels, dateTime, type Photo, type History } from "@/lib/types";
 export function Status({ value }: { value: string }) {
@@ -15,7 +15,6 @@ export function Status({ value }: { value: string }) {
 export function Empty({ children }: { children: React.ReactNode }) {
   return (
     <div className="empty">
-      <MapPin size={28} />
       <p>{children}</p>
     </div>
   );

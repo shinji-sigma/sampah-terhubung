@@ -1,0 +1,47 @@
+### Result
+[{"size":"desktop","view":"home","viewport":1440,"content":1425,"logoWidth":184,"logoRatio":3.000407626756961,"logoNatural":[2172,724],"dateBottom":454,"timeBottom":453.9999942779541,"refs":["#4000-00000001","#4000-00000002"]},{"size":"desktop","view":"schedule","viewport":1440,"content":1425},{"size":"desktop","view":"events-empty","viewport":1440,"content":1440},{"size":"desktop","view":"region","viewport":1440,"content":1440},{"size":"mobile","view":"home","viewport":360,"content":345,"logoWidth":150,"logoRatio":3,"logoNatural":[2172,724],"dateBottom":510.20001220703125,"timeBottom":510.20000648498535,"refs":["#4000-00000001","#4000-00000002"]},{"size":"mobile","view":"schedule","viewport":360,"content":345},{"size":"mobile","view":"events-empty","viewport":360,"content":345},{"size":"mobile","view":"region","viewport":360,"content":345}]
+### Ran Playwright code
+```js
+await (async (page) => {
+  await page.unroute('**/api/**')
+  const results = []
+  for (const [size,width,height] of [['desktop',1440,1000],['mobile',360,800]]) {
+    await page.setViewportSize({width,height})
+    await page.goto('http://localhost:3001/preview')
+    await page.getByRole('heading',{name:'Wilayah Saya',level:1}).waitFor()
+    await page.screenshot({path:`output/playwright/design-revision/after/${size}-home.png`})
+    const home = await page.evaluate(() => {
+      const logo = [...document.querySelectorAll('img[alt="SHINFRAME"]')].find(e=>e.getBoundingClientRect().width>0)
+      const date = document.querySelector('.nearest-schedule .schedule-date').getBoundingClientRect()
+      const time = document.querySelector('.nearest-schedule .schedule-date strong').getBoundingClientRect()
+      const refs = [...document.querySelectorAll('.incident-location .small-muted')].map(e=>e.textContent.split(' · ')[0])
+      return {viewport:innerWidth,content:document.documentElement.scrollWidth,logoWidth:logo.getBoundingClientRect().width,logoRatio:logo.getBoundingClientRect().width/logo.getBoundingClientRect().height,logoNatural:[logo.naturalWidth,logo.naturalHeight],dateBottom:date.bottom,timeBottom:time.bottom,refs}
+    })
+    if (home.content>width || home.dateBottom>height || home.timeBottom>height || new Set(home.refs).size!==home.refs.length || Math.abs(home.logoRatio-3)>.01) throw Error(JSON.stringify(home))
+    results.push({size,view:'home',...home})
+    const navigate = async label => {
+      const button = page.getByRole('button',{name:label,exact:true})
+      if (!(await button.isVisible())) await page.getByRole('button',{name:'Buka navigasi',exact:true}).click()
+      await button.click()
+    }
+    for (const [view,label] of [['schedule','Jadwal angkut'],['events-empty','Kegiatan']]) {
+      await navigate(label)
+      await page.waitForFunction(() => window.scrollY === 0)
+      await page.screenshot({path:`output/playwright/design-revision/after/${size}-${view}.png`})
+      const dimensions = await page.evaluate(()=>({viewport:innerWidth,content:document.documentElement.scrollWidth}))
+      if(dimensions.content>width) throw Error(`${size} ${view}: horizontal overflow`)
+      results.push({size,view,...dimensions})
+    }
+    await page.getByRole('button',{name:'Ganti wilayah, Kawasan Hijau A · Simulasi',exact:true}).click()
+    await page.getByRole('heading',{name:'Temukan lingkungan Anda'}).waitFor()
+    await page.getByText('Leaflet',{exact:true}).waitFor()
+    await page.waitForFunction(() => window.scrollY === 0)
+    await page.screenshot({path:`output/playwright/design-revision/after/${size}-region.png`})
+    const dimensions = await page.evaluate(()=>({viewport:innerWidth,content:document.documentElement.scrollWidth}))
+    if(dimensions.content>width) throw Error(`${size} region: horizontal overflow`)
+    results.push({size,view:'region',...dimensions})
+  }
+  return results
+}
+)(page);
+```

@@ -1,5 +1,13 @@
 # Kemajuan dan handoff
 
+## Checkpoint revisi desain — 9 Oktober 2026
+
+Revisi atas baseline `8f1d1ff` selesai pada aplikasi yang sama: beranda wilayah/jadwal, logo asli SHINFRAME, daftar penanganan dengan referensi berbeda, jadwal berbentuk baris, pemilih wilayah, kegiatan dan tampilan peran. Backend/API/RLS dan dependency dipertahankan. Lint/typecheck/build dan **26 tes lokal** lulus; bukti sebelum/sesudah desktop 1440×1000 dan ponsel 360×800 tersedia pada [REVISI_DESAIN.md](docs/REVISI_DESAIN.md). Jadwal pertama terlihat di layar awal ponsel; tidak ada overflow pada view yang diperiksa. Fixture tetap terisolasi dan HTTP 404 pada produksi.
+
+**Supabase Cloud belum teruji.** Pemeriksaan boolean terbaru masih menunjukkan URL/key/password demo belum tersedia. Langkah pemilik dan handoff Cloud di bawah tetap berlaku, termasuk clone laptop kedua `D:\WebDemo` tanpa Docker. Tidak ada push, publikasi, atau perubahan pada PRD/riset/Personal AI. Catatan 8 Oktober berikut mempertahankan hasil checkpoint sebelumnya.
+
+## Checkpoint implementasi sebelumnya
+
 Checkpoint 8 Oktober 2026. Implementasi dilakukan hanya di `D:\Project\Lomba_UIN\web`, branch lokal `codex/sampah-terhubung-local`. PRD, riset dan desain sumber dipertahankan; Personal AI tidak diubah. Belum ada remote, push atau deployment.
 
 ## Status

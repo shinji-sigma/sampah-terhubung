@@ -10,7 +10,6 @@ import {
   Users,
   BarChart3,
   Bell,
-  ArrowUpRight,
   MapPin,
   ChevronRight,
   Plus,
@@ -19,14 +18,14 @@ import {
   ShieldCheck,
   Menu,
   X,
-  ArrowRight,
-  CheckCircle2,
 } from "lucide-react";
 import type { PublicData, Workspace, Region } from "@/lib/types";
-import { shortId, dateTime } from "@/lib/types";
+import { dateTime, dateLabel } from "@/lib/types";
 import { jakartaDate } from "@/lib/rules";
 import { ActionForm, api, localDateTime } from "./forms";
 import { Empty, SectionTitle, Status } from "./primitives";
+import { BrandLogo } from "./brand";
+import { HomeView } from "./home";
 import { Schedules } from "./schedules";
 import {
   Coordinator,
@@ -103,6 +102,7 @@ export default function Dashboard({
     [until, setUntil] = useState(() => jakartaDate(new Date(initialNow)));
   const [now, setNow] = useState(() => new Date(initialNow));
   const sequence = useRef(0);
+  const menuButton = useRef<HTMLButtonElement>(null);
   const preview = !!previewData;
   const region =
     data.regions.find((r) => r.id === selected) || data.regions[0] || null;
@@ -133,6 +133,20 @@ export default function Dashboard({
         ? "Petugas"
         : "Pelapor";
   const unread = w?.notifications.filter((n) => !n.read_at).length || 0;
+  useEffect(() => {
+    if (!menu) return;
+    document
+      .querySelector<HTMLButtonElement>("#main-navigation button")
+      ?.focus();
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMenu(false);
+        menuButton.current?.focus();
+      }
+    };
+    window.addEventListener("keydown", escape);
+    return () => window.removeEventListener("keydown", escape);
+  }, [menu]);
   const load = useCallback(async (current: string, signal?: AbortSignal) => {
     const version = ++sequence.current;
     const stale = () => signal?.aborted || version !== sequence.current;
@@ -204,6 +218,9 @@ export default function Dashboard({
     setView(next);
     setMenu(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
+    requestAnimationFrame(() =>
+      document.getElementById("main")?.focus({ preventScroll: true }),
+    );
   };
   const choose = (id: string) => {
     if (preview || id === selected) {
@@ -293,6 +310,9 @@ export default function Dashboard({
         jakartaDate(new Date(r.created_at)) >= from &&
         jakartaDate(new Date(r.created_at)) <= until,
     ) || [];
+  const matchingRegions = data.regions.filter((r) =>
+    r.name.toLowerCase().includes(search.toLowerCase()),
+  );
   return (
     <div className="app-shell">
       <a className="skip-link" href="#main">
@@ -300,19 +320,13 @@ export default function Dashboard({
       </a>
       <aside className={"sidebar " + (menu ? "visible" : "")}>
         <Link className="brand" href="/" aria-label="Sampah Terhubung beranda">
-          <span className="brand-mark">
-            <Leaf size={25} />
-          </span>
-          <span>
-            Sampah
-            <br />
-            <b>
-              Terhubung<span className="brand-dot">.</span>
-            </b>
-          </span>
+          <BrandLogo />
         </Link>
-        <p className="sidebar-caption">MERAWAT LINGKUNGAN BERSAMA</p>
-        <nav aria-label="Navigasi utama">
+        <div className="product-identity">
+          <strong>Sampah Terhubung</strong>
+          <p>Jadwal & penanganan wilayah</p>
+        </div>
+        <nav id="main-navigation" aria-label="Navigasi utama">
           {nav.map((item) => (
             <button
               key={item.key}
@@ -363,15 +377,6 @@ export default function Dashboard({
           )}
         </nav>
         <div className="sidebar-bottom">
-          <div className="collaboration-note">
-            <Leaf size={24} />
-            <strong>
-              Satu lingkungan.
-              <br />
-              Tanggung jawab bersama.
-            </strong>
-            <p>Informasi yang jelas untuk langkah yang lebih terarah.</p>
-          </div>
           <p className="small-muted">
             {demo ? "Lingkungan demo · Data simulasi" : "Koordinasi lingkungan"}
           </p>
@@ -380,23 +385,38 @@ export default function Dashboard({
       </aside>
       <div className="main-shell">
         <header className="topbar">
+          <div className="header-identity">
+            <button
+              className="icon-button mobile-menu"
+              ref={menuButton}
+              aria-label={menu ? "Tutup navigasi" : "Buka navigasi"}
+              aria-expanded={menu}
+              aria-controls="main-navigation"
+              onClick={() => setMenu(!menu)}
+            >
+              {menu ? <X /> : <Menu />}
+            </button>
+            <Link
+              className="mobile-brand"
+              href="/"
+              aria-label="Sampah Terhubung beranda"
+            >
+              <BrandLogo />
+            </Link>
+          </div>
           <button
-            className="icon-button mobile-menu"
-            aria-label={menu ? "Tutup navigasi" : "Buka navigasi"}
-            onClick={() => setMenu(!menu)}
+            className="region-button"
+            aria-label={"Ganti wilayah, " + (region?.name || "Pilih wilayah")}
+            onClick={() => go("region")}
           >
-            {menu ? <X /> : <Menu />}
-          </button>
-          <button className="region-button" onClick={() => go("region")}>
             <MapPin size={18} />
             <span>
-              <small>WILAYAH SAYA</small>
+              <small>Wilayah Saya</small>
               <strong>{region?.name || "Pilih wilayah"}</strong>
             </span>
             <ChevronRight size={16} />
           </button>
           <div className="header-actions">
-            {demo && <span className="demo-badge">Data simulasi</span>}
             <button
               className="icon-button"
               aria-label={
@@ -404,6 +424,12 @@ export default function Dashboard({
                 (unread ? ", " + unread + " belum dibaca" : "")
               }
               onClick={() => go(w ? "notifications" : "login")}
+              disabled={preview}
+              title={
+                preview
+                  ? "Pemberitahuan tidak tersedia di pratinjau"
+                  : undefined
+              }
             >
               <Bell size={20} />
               {unread > 0 && <span className="notification-dot" />}
@@ -411,6 +437,7 @@ export default function Dashboard({
             {w ? (
               <button
                 className="account-button"
+                aria-label={"Keluar dari akun " + w.profile.display_name}
                 onClick={async () => {
                   try {
                     await api("/api/auth", { action: "logout" });
@@ -435,18 +462,29 @@ export default function Dashboard({
                 className="button secondary small-button"
                 onClick={login}
                 disabled={preview}
+                title={
+                  preview ? "Login tidak tersedia di pratinjau" : undefined
+                }
               >
                 Masuk
               </button>
             )}
           </div>
         </header>
-        <main id="main" className="main-content">
-          {preview && (
-            <p className="notice warn" role="status">
-              Pratinjau antarmuka • Contoh statis, belum terhubung ke backend.
-              Pelaporan, akun, dan pendaftaran tidak tersedia di halaman ini.
-            </p>
+        <main id="main" className="main-content" tabIndex={-1}>
+          {demo && (
+            <details className="simulation-note">
+              <summary>
+                {preview ? "Data simulasi · Pratinjau statis" : "Data simulasi"}
+              </summary>
+              <p>
+                {preview &&
+                  "Akun, pelaporan dan pendaftaran tidak tersedia di pratinjau. "}
+                Wilayah, jadwal dan pengelola merupakan contoh. Bukan layanan
+                pemerintah atau layanan aktif kampus; lokasi pilot belum
+                dikonfirmasi.
+              </p>
+            </details>
           )}
           {!configured && !preview && (
             <div className="setup-notice">
@@ -479,203 +517,18 @@ export default function Dashboard({
             </p>
           )}
           {view === "home" && (
-            <>
-              <div className="welcome-line">
-                <p>
-                  {w
-                    ? "Halo, " + w.profile.display_name + "."
-                    : "Selamat datang."}{" "}
-                  Mari rawat lingkungan kita.
-                </p>
-                <span>
-                  <CalendarDays size={15} />
-                  {new Intl.DateTimeFormat("id-ID", {
-                    dateStyle: "long",
-                    timeZone: "Asia/Jakarta",
-                  }).format(now)}
-                </span>
-              </div>
-              <section className="hero">
-                <div className="hero-copy">
-                  <span className="hero-kicker">
-                    <span /> TERHUBUNG UNTUK LINGKUNGAN
-                  </span>
-                  <h1>
-                    Lingkungan bersih,
-                    <br />
-                    dimulai dari <em>terhubung.</em>
-                  </h1>
-                  <p>
-                    Temukan jadwal angkut, sampaikan laporan, dan ikuti
-                    penanganannya. Setiap langkah punya penanggung jawab.
-                  </p>
-                  <div className="hero-actions">
-                    <button
-                      className="button hero-primary"
-                      onClick={() => go("schedule")}
-                    >
-                      <CalendarDays size={19} />
-                      Lihat jadwal angkut
-                      <ArrowUpRight size={18} />
-                    </button>
-                    <button
-                      className="hero-link"
-                      onClick={() => go(w ? "report" : "login")}
-                      disabled={!configured || preview}
-                    >
-                      Buat laporan <ArrowRight size={18} />
-                    </button>
-                  </div>
-                  <span className="hero-foot">
-                    <ShieldCheck size={16} /> Laporan privat sampai diperiksa
-                    koordinator
-                  </span>
-                </div>
-                <div className="hero-art" aria-hidden="true">
-                  <div className="orbit orbit-one" />
-                  <div className="orbit orbit-two" />
-                  <div className="art-node node-person">
-                    <Users size={27} />
-                    <span>Warga</span>
-                  </div>
-                  <div className="art-node node-truck">
-                    <TruckIcon />
-                    <span>Petugas</span>
-                  </div>
-                  <div className="art-center">
-                    <Leaf size={75} strokeWidth={1.3} />
-                  </div>
-                  <div className="art-label">
-                    <span className="tiny-check">
-                      <CheckCircle2 size={16} />
-                    </span>
-                    <span>
-                      Langkah kecil,
-                      <br />
-                      <strong>terhubung bersama.</strong>
-                    </span>
-                  </div>
-                </div>
-              </section>
-              <section className="quick-actions">
-                <button onClick={() => go("schedule")}>
-                  <span className="quick-icon green">
-                    <CalendarDays />
-                  </span>
-                  <span>
-                    <strong>Jadwal pengangkutan</strong>
-                    <small>Kenali layanan wilayah Anda</small>
-                  </span>
-                  <ChevronRight />
-                </button>
-                <button
-                  onClick={() => go(w ? "report" : "login")}
-                  disabled={!configured || preview}
-                >
-                  <span className="quick-icon amber">
-                    <ClipboardList />
-                  </span>
-                  <span>
-                    <strong>Laporkan penumpukan</strong>
-                    <small>Temukan penanganan yang tepat</small>
-                  </span>
-                  <ChevronRight />
-                </button>
-                <button onClick={() => go("events")}>
-                  <span className="quick-icon teal">
-                    <Users />
-                  </span>
-                  <span>
-                    <strong>Ikut kegiatan</strong>
-                    <small>Rawat lingkungan bersama</small>
-                  </span>
-                  <ChevronRight />
-                </button>
-              </section>
-              <div className="home-grid">
-                <section className="panel">
-                  <SectionTitle
-                    title="Jadwal terdekat"
-                    description={
-                      region?.name || "Pilih wilayah untuk melihat jadwal"
-                    }
-                    action={
-                      <button
-                        className="text-button"
-                        onClick={() => go("schedule")}
-                      >
-                        Semua jadwal <ArrowRight size={16} />
-                      </button>
-                    }
-                  />
-                  <Schedules data={data} start={jakartaDate(now)} compact />
-                </section>
-                <aside className="panel region-panel">
-                  <span className="eyebrow">LINGKUNGAN ANDA</span>
-                  <div className="region-illustration">
-                    <MapPin size={40} />
-                    <span className="region-line" />
-                  </div>
-                  <h3>{region?.name || "Belum memilih wilayah"}</h3>
-                  <p>
-                    {region?.coverage ||
-                      "Pilih kawasan untuk menemukan informasi pengangkutan yang sesuai."}
-                  </p>
-                  <p className="owner-line">
-                    Pengelola: {region?.owner_label || "Belum ditetapkan"}
-                  </p>
-                  <button
-                    className="button secondary"
-                    onClick={() => go("region")}
-                  >
-                    Ganti wilayah <ArrowRight size={16} />
-                  </button>
-                  {demo && (
-                    <small>
-                      Wilayah dan pengelola ini merupakan simulasi. Lokasi pilot
-                      belum dikonfirmasi.
-                    </small>
-                  )}
-                </aside>
-              </div>
-              <section className="panel">
-                <SectionTitle
-                  title="Penanganan di wilayah"
-                  description="Hanya insiden yang telah diperiksa koordinator. Jumlah insiden berbeda dari jumlah laporan."
-                />
-                {!data.incidents.length ? (
-                  <Empty>Belum ada insiden tervalidasi yang dibagikan.</Empty>
-                ) : (
-                  <div className="incident-grid">
-                    {data.incidents.slice(0, 6).map((i) => (
-                      <article className="incident-tile" key={i.id}>
-                        <span className="small-muted">
-                          INSIDEN #{shortId(i.id)}
-                        </span>
-                        <h3>{i.public_label}</h3>
-                        <Status value={i.status} />
-                        <small>Validasi {dateTime(i.verified_at)}</small>
-                      </article>
-                    ))}
-                  </div>
-                )}
-              </section>
-              <section className="community-banner">
-                <span className="community-icon">
-                  <Users size={30} />
-                </span>
-                <div>
-                  <h3>Lingkungan kita, dirawat bersama.</h3>
-                  <p>
-                    Kegiatan bersih lingkungan dimulai dari rencana dan
-                    pengangkutan yang jelas.
-                  </p>
-                </div>
-                <button className="button teal" onClick={() => go("events")}>
-                  Lihat kegiatan <ArrowUpRight size={18} />
-                </button>
-              </section>
-            </>
+            <HomeView
+              data={data}
+              w={w}
+              region={region}
+              today={jakartaDate(now)}
+              reportingAvailable={configured && !preview && !!region?.active}
+              preview={preview}
+              onRegion={() => go("region")}
+              onSchedule={() => go("schedule")}
+              onReport={() => go(w ? "report" : "login")}
+              onEvents={() => go("events")}
+            />
           )}
           {view === "region" && (
             <>
@@ -684,45 +537,42 @@ export default function Dashboard({
                 title="Temukan lingkungan Anda"
                 description="Cari dan pilih kawasan secara manual. GPS bersifat opsional dan tetap memerlukan konfirmasi."
               />
-              <div className="panel">
-                <label className="field">
-                  Cari wilayah
-                  <input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Nama kawasan…"
-                  />
-                </label>
-                <button className="button secondary" onClick={suggestGps}>
-                  <Navigation size={18} />
-                  Gunakan GPS untuk saran
-                </button>
-                {gpsMessage && (
-                  <p className="notice info" role="status">
-                    {gpsMessage}
-                  </p>
-                )}
-                {gps && (
-                  <div className="inset">
-                    <strong>Saran terdekat: {gps.region.name}</strong>
-                    <p>{gps.region.coverage}</p>
-                    <small>
-                      Kedekatan lokasi tidak memastikan cakupan layanan Anda.
-                    </small>
-                    <button
-                      className="button primary"
-                      onClick={() => choose(gps.region.id)}
-                    >
-                      Konfirmasi wilayah ini
-                    </button>
-                  </div>
-                )}
-                <div className="region-list">
-                  {data.regions
-                    .filter((r) =>
-                      r.name.toLowerCase().includes(search.toLowerCase()),
-                    )
-                    .map((r) => (
+              <div className="region-layout">
+                <section className="region-selector">
+                  <label className="field">
+                    Cari wilayah
+                    <input
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                      placeholder="Nama kawasan…"
+                    />
+                  </label>
+                  <button className="button secondary" onClick={suggestGps}>
+                    <Navigation size={18} />
+                    Gunakan GPS untuk saran
+                  </button>
+                  {gpsMessage && (
+                    <p className="notice info" role="status">
+                      {gpsMessage}
+                    </p>
+                  )}
+                  {gps && (
+                    <div className="inset">
+                      <strong>Saran terdekat: {gps.region.name}</strong>
+                      <p>{gps.region.coverage}</p>
+                      <small>
+                        Kedekatan lokasi tidak memastikan cakupan layanan Anda.
+                      </small>
+                      <button
+                        className="button primary"
+                        onClick={() => choose(gps.region.id)}
+                      >
+                        Konfirmasi wilayah ini
+                      </button>
+                    </div>
+                  )}
+                  <div className="region-list">
+                    {matchingRegions.map((r) => (
                       <button key={r.id} onClick={() => choose(r.id)}>
                         <MapPin />
                         <span>
@@ -739,16 +589,22 @@ export default function Dashboard({
                         <ChevronRight />
                       </button>
                     ))}
-                </div>
-                {!data.regions.length && (
-                  <Empty>Daftar wilayah belum tersedia.</Empty>
+                  </div>
+                  {!matchingRegions.length && (
+                    <Empty>
+                      {data.regions.length
+                        ? "Tidak ada wilayah yang cocok. Coba nama lain."
+                        : "Daftar wilayah belum tersedia."}
+                    </Empty>
+                  )}
+                </section>
+                {region && (
+                  <details className="region-map" open>
+                    <summary>Peta pusat wilayah</summary>
+                    <Map region={region} />
+                  </details>
                 )}
               </div>
-              {region && (
-                <div className="panel">
-                  <Map region={region} />
-                </div>
-              )}
             </>
           )}
           {view === "schedule" && (
@@ -758,15 +614,28 @@ export default function Dashboard({
                 title="Jadwal pengangkutan"
                 description="Bedakan rencana, perubahan tanggal, dan pelaksanaan yang sudah dicatat."
               />
-              <div className="panel">
+              <div className="service-section schedule-page">
                 <label className="field narrow">
                   Mulai tanggal
                   <input
                     type="date"
+                    lang="id"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                   />
                 </label>
+                <p className="period-label">
+                  Periode: {dateLabel(date)} –{" "}
+                  {dateLabel(
+                    date
+                      ? jakartaDate(
+                          new Date(
+                            Date.parse(date + "T12:00:00Z") + 13 * 86400000,
+                          ),
+                        )
+                      : "",
+                  )}
+                </p>
                 <Schedules data={data} start={date} />
               </div>
               {w && (coordinator || worker) && region && (
@@ -991,6 +860,8 @@ export default function Dashboard({
           )}
           {view === "events" && (
             <Events
+              preview={preview}
+              onSchedule={() => go("schedule")}
               now={now}
               events={data.events}
               w={w}
@@ -1162,22 +1033,5 @@ export default function Dashboard({
         </footer>
       </div>
     </div>
-  );
-}
-function TruckIcon() {
-  return (
-    <svg
-      width="29"
-      height="29"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.7"
-      aria-hidden="true"
-    >
-      <path d="M1 3h14v13H1zM15 8h4l3 4v4h-7" />
-      <circle cx="5" cy="18" r="2" />
-      <circle cx="18" cy="18" r="2" />
-    </svg>
   );
 }

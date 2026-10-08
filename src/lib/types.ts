@@ -232,3 +232,29 @@ export const dateTime = (value: string | null) =>
       }).format(new Date(value)) + " WIB"
     : "Belum dicatat";
 export const shortId = (id: string) => id.slice(0, 8).toUpperCase();
+export function incidentReference(id: string, ids: readonly string[]) {
+  const normalized = id.replaceAll("-", "").toUpperCase();
+  const peers = [
+    ...new Set(ids.map((value) => value.replaceAll("-", "").toUpperCase())),
+  ];
+  // Include both ends; extend the prefix if another incident shares the label.
+  for (let prefix = 4; prefix < normalized.length - 8; prefix++) {
+    const label = normalized.slice(0, prefix) + "-" + normalized.slice(-8);
+    if (
+      !peers.some(
+        (peer) =>
+          peer !== normalized &&
+          peer.slice(0, prefix) + "-" + peer.slice(-8) === label,
+      )
+    )
+      return label;
+  }
+  return normalized;
+}
+export const dateLabel = (value: string) =>
+  value
+    ? new Intl.DateTimeFormat("id-ID", {
+        dateStyle: "long",
+        timeZone: "Asia/Jakarta",
+      }).format(new Date(value + "T12:00:00+07:00"))
+    : "Tanggal belum dipilih";

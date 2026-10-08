@@ -7,7 +7,13 @@ import {
   Timeline,
   SectionTitle,
 } from "./primitives";
-import { dateTime, shortId, type Workspace, type Region } from "@/lib/types";
+import {
+  dateTime,
+  shortId,
+  incidentReference,
+  type Workspace,
+  type Region,
+} from "@/lib/types";
 import { recurrence, jakartaDate } from "@/lib/rules";
 const required = (
   name: string,
@@ -42,7 +48,13 @@ export function Coordinator({
     .filter((i) => i.status !== "closed")
     .map((i) => ({
       value: i.id,
-      label: shortId(i.id) + " · " + i.public_label,
+      label:
+        incidentReference(
+          i.id,
+          w.incidents.map((x) => x.id),
+        ) +
+        " · " +
+        i.public_label,
     }));
   const points = w.points.map((p) => ({ value: p.id, label: p.label }));
   const pending = w.reports.filter((r) => r.status === "pending");
@@ -149,8 +161,12 @@ export function Coordinator({
               <Status value={i.status} />
             </div>
             <small>
-              #{shortId(i.id)} ·{" "}
-              {w.reports.filter((r) => r.incident_id === i.id).length} laporan
+              #
+              {incidentReference(
+                i.id,
+                w.incidents.map((x) => x.id),
+              )}{" "}
+              · {w.reports.filter((r) => r.incident_id === i.id).length} laporan
               pendukung · Validasi {dateTime(i.verified_at)}
             </small>
             {w.tasks
@@ -308,7 +324,15 @@ export function Worker({
   refresh: () => void;
   now: Date;
 }) {
-  const tasks = w.tasks.filter((t) => t.worker_id === w.profile.id);
+  const tasks = w.tasks
+    .filter((t) => t.worker_id === w.profile.id)
+    .sort((a, b) => {
+      const active = (status: string) =>
+        ["offered", "accepted", "submitted"].includes(status) ? 0 : 1;
+      return (
+        active(a.status) - active(b.status) || a.due_at.localeCompare(b.due_at)
+      );
+    });
   return (
     <>
       <SectionTitle
@@ -529,8 +553,12 @@ export function PreventionPanel({
             <ul>
               {counts.get(p.id)?.map((i) => (
                 <li key={i.id}>
-                  #{shortId(i.id)} · {dateTime(i.verified_at)} ·{" "}
-                  <Status value={i.status} />
+                  #
+                  {incidentReference(
+                    i.id,
+                    w.incidents.map((x) => x.id),
+                  )}{" "}
+                  · {dateTime(i.verified_at)} · <Status value={i.status} />
                 </li>
               ))}
             </ul>

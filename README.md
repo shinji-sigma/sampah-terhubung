@@ -64,7 +64,7 @@ npm run test:integration
 
 Tes PostgreSQL terisolasi memakai PGlite dengan schema Auth/Storage tiruan. Tes ini menjalankan migrasi dan kebijakan peran database, namun **tidak membuktikan Supabase Cloud terhubung**. Pengujian Cloud melakukan login sungguhan, upload foto melalui server, permintaan Data API/RPC, izin antarwilayah, konkurensi tugas dan pendaftaran. Artefak uji dibersihkan berdasarkan ID yang dibuat; backend tidak di-reset.
 
-Skill Playwright dipakai untuk pengujian browser melalui CLI. Halaman `/ui-test` hanya tersedia di `next dev` dengan `ALLOW_UI_FIXTURES=true`; responsnya dimock oleh alat uji dan diberi label besar. Halaman itu mengembalikan 404 pada produksi. Jangan gunakan mock sebagai pembuktian alur backend.
+Skill Playwright dipakai untuk pengujian browser melalui CLI. Halaman `/ui-test` hanya tersedia di `next dev` dengan `ALLOW_UI_FIXTURES=true`; responsnya dimock oleh alat uji dan diberi pemberitahuan MOCK yang dapat dibuka. Halaman itu mengembalikan 404 pada produksi. Jangan gunakan mock sebagai pembuktian alur backend.
 
 ## Dokumentasi
 
@@ -72,7 +72,10 @@ Skill Playwright dipakai untuk pengujian browser melalui CLI. Halaman `/ui-test`
 - [Arsitektur, akses, dan keputusan desain](docs/ARSITEKTUR.md)
 - [Status fitur terhadap PRD](docs/FITUR_PRD.md)
 - [Hasil pengujian](docs/HASIL_UJI.md)
+- [Revisi desain dan screenshot sebelum/sesudah](docs/REVISI_DESAIN.md)
 - [Deployment dan pemulihan](docs/DEPLOYMENT_DAN_BACKUP.md)
 - [Kemajuan dan handoff](PROGRESS.md)
 
 Foto seed berupa ilustrasi SVG buatan proyek yang dirender menjadi JPEG, berlabel DATA SIMULASI. Tidak berisi identitas nyata. Ikon memakai lucide-react (ISC) dan Leaflet (BSD-2-Clause); basemap OpenStreetMap memiliki atribusi dan mengikuti kebijakan tile tanpa prefetch/offline-download. Arsip berita/jurnal tidak disalin ke repository aplikasi.
+
+Logo SHINFRAME berasal dari aset pengguna `D:\Project\Logo\Startup\Logo.png` (2172 × 724, PNG transparan). Salinan identik berada di `public/brand/shinframe.png` dan ikut Git, sehingga clone di `D:\WebDemo` tidak bergantung pada folder logo eksternal. Gambar ditampilkan utuh pada sidebar desktop dan header ponsel; favicon yang ada dipertahankan.

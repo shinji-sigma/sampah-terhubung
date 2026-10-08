@@ -59,6 +59,24 @@ const publicData = {
   incidents: [incident],
   events: [],
 };
+const event = {
+  id: "b0000000-0000-4000-8000-000000000001",
+  region_id: region.id,
+  title: "Kerja bakti taman · MOCK",
+  location: "Taman bersama · lokasi MOCK",
+  starts_at: new Date(Date.now() + 7 * 86400000).toISOString(),
+  capacity: 15,
+  participants: 0,
+  pic: "Koordinator MOCK",
+  duties: "Pengumpulan dan dokumentasi",
+  equipment: "Sarung tangan dan karung",
+  transporter: "Pengangkut MOCK",
+  pickup_at: new Date(Date.now() + 7 * 86400000 + 7200000).toISOString(),
+  destination: "TPS simulasi · MOCK",
+  transport_confirmed: true,
+  status: "published",
+  version: 1,
+};
 const common = {
   regions: [region],
   profiles: [
@@ -97,6 +115,7 @@ for (const [role, profileId, roleName] of [
 ] as const) {
   const workspace = {
     ...common,
+    events: [event],
     profile: common.profiles.find((p) => p.id === profileId),
     memberships: roleName
       ? [
@@ -115,6 +134,6 @@ for (const [role, profileId, roleName] of [
         ]
       : [],
   };
-  const code = `async (page) => { const publicData=${JSON.stringify(publicData)}; const workspace=${JSON.stringify(workspace)}; await page.unroute('**/api/**'); await page.route('**/api/**', async route => { const path=new URL(route.request().url()).pathname; if(path==='/api/public')return route.fulfill({json:publicData}); if(path==='/api/workspace')return route.fulfill({json:workspace}); if(path==='/api/commands')return route.fulfill({status:422,json:{error:'Periksa isian yang ditandai. MOCK — tidak tersimpan.',fields:{description:'Jelaskan kondisi lebih lengkap.',public_label:'Patokan publik wajib diisi.',action_taken:'Jelaskan tindakan lebih lengkap.'}}}); if(path==='/api/photos')return route.fulfill({json:{ids:['a0000000-0000-4000-8000-000000000001']}}); return route.fulfill({status:503,json:{error:'Endpoint tidak disimulasikan.'}}); }); await page.goto('http://localhost:3002/ui-test'); }`;
+  const code = `async (page) => { const publicData=${JSON.stringify({ ...publicData, events: [event] })}; const workspace=${JSON.stringify(workspace)}; await page.unroute('**/api/**'); await page.route('**/api/**', async route => { const path=new URL(route.request().url()).pathname; if(path==='/api/public')return route.fulfill({json:publicData}); if(path==='/api/workspace')return route.fulfill({json:workspace}); if(path==='/api/commands')return route.fulfill({status:422,json:{error:'Periksa isian yang ditandai. MOCK — tidak tersimpan.',fields:{description:'Jelaskan kondisi lebih lengkap.',public_label:'Patokan publik wajib diisi.',action_taken:'Jelaskan tindakan lebih lengkap.'}}}); if(path==='/api/photos')return route.fulfill({json:{ids:['a0000000-0000-4000-8000-000000000001']}}); return route.fulfill({status:503,json:{error:'Endpoint tidak disimulasikan.'}}); }); await page.goto('http://localhost:3002/ui-test'); }`;
   await writeFile("output/playwright/mock-" + role + ".js", code);
 }

@@ -1,5 +1,13 @@
 # Hasil pengujian — 8 Oktober 2026
 
+## Pembaruan revisi desain — 9 Oktober 2026
+
+Lint, typecheck, build produksi dan **26/26 tes lokal** lulus setelah revisi antarmuka. Dua tes baru mencakup referensi insiden yang berbeda dan format tanggal Indonesia. Screenshot sebelum/sesudah tersedia untuk beranda, jadwal, wilayah, kegiatan kosong dan tiga keadaan peran di viewport desktop 1440×1000 / ponsel 360×800; kegiatan berisi memakai fixture tambahan. Hasil dan tautan lengkap: [REVISI_DESAIN.md](REVISI_DESAIN.md).
+
+Browser produksi baru pada preview: 0 error / 0 warning. Tidak ada overflow pada view yang diperiksa. Logo utuh pada lebar 184/150 px; tanggal dan jam terdekat berada di dalam layar awal ponsel (sekitar y=510 px). Keyboard menu Escape, detail sumber dan referensi lengkap berhasil. Metadata beranda minimum 14 px dan tinggi tombol aktif terlihat minimum 44 px. Form peran diperiksa dalam keadaan error kolom, gagal jaringan, loading dan pesan berhasil **MOCK terisolasi**, tanpa penyimpanan backend. `/ui-test` tetap 404, API tanpa konfigurasi 503, favicon 200. Hash dokumen sumber dan logo identik.
+
+Pemeriksaan konfigurasi boolean terbaru: URL/publishable key/server secret/password demo belum tersedia. Auth/database/Storage Cloud dan laptop kedua belum diverifikasi. Catatan di bawah adalah hasil checkpoint 8 Oktober; hasil mock tetap bukan hasil backend nyata.
+
 **Backend Cloud belum terhubung.** `.env.local` disiapkan dari template pada akhir sesi; URL masih placeholder dan semua key/password belum diisi. Tidak ada seed, akun, foto, atau perubahan database Supabase nyata yang dibuat. P0/P1 tidak dinyatakan selesai menurut kriteria penerimaan integrasi.
 
 ## Lingkungan dan pemeriksaan teknis

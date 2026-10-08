@@ -1,0 +1,38 @@
+### Result
+{"isolated":true,"backendVerified":false,"fieldError":true,"networkRetainsInput":true,"busyDisablesSubmit":true,"successMessageRendered":true}
+### Ran Playwright code
+```js
+await (async (page) => {
+  const evidence = page.getByText('Kirim bukti penanganan',{exact:true})
+  const form = evidence.locator('..').locator('form')
+  if (!(await form.isVisible())) await evidence.click()
+  await page.getByRole('textbox',{name:'Tindakan yang dilakukan',exact:true}).fill('Tindakan MOCK untuk menguji keadaan formulir.')
+  await form.locator('input[type=file]').setInputFiles('public/brand/shinframe.png')
+  await page.getByRole('button',{name:'Kirim untuk pemeriksaan',exact:true}).click()
+  await form.getByRole('alert').filter({hasText:'MOCK — tidak tersimpan'}).waitFor()
+  if ((await page.getByRole('textbox',{name:'Tindakan yang dilakukan',exact:true}).getAttribute('aria-invalid')) !== 'true') throw Error('Missing field error')
+  await page.screenshot({path:'output/playwright/design-revision/after/mobile-worker-field-error.png',fullPage:true})
+  await page.route('**/api/commands',route=>route.abort('failed'))
+  await page.getByRole('button',{name:'Kirim untuk pemeriksaan',exact:true}).click()
+  await form.getByRole('alert').filter({hasText:'Koneksi terputus'}).waitFor()
+  if(!(await page.getByRole('textbox',{name:'Tindakan yang dilakukan',exact:true}).inputValue()).includes('MOCK')) throw Error('Input lost after network failure')
+  let release
+  const gate = new Promise(resolve=>{release=resolve})
+  await page.route('**/api/commands',async route=>{await gate;await route.fulfill({json:{message:'SIMULASI UI — pesan berhasil; tidak disimpan ke backend.'}})})
+  await page.getByRole('button',{name:'Kirim untuk pemeriksaan',exact:true}).click()
+  await page.getByRole('button',{name:'Menyimpan…',exact:true}).waitFor()
+  if (!(await page.getByRole('button',{name:'Menyimpan…',exact:true}).isDisabled())) throw Error('Double submission possible')
+  await page.screenshot({path:'output/playwright/design-revision/after/mobile-worker-loading-mock.png',fullPage:true})
+  release()
+  await form.getByRole('status').filter({hasText:'SIMULASI UI — pesan berhasil'}).waitFor()
+  await page.screenshot({path:'output/playwright/design-revision/after/mobile-worker-success-mock.png',fullPage:true})
+  return {isolated:true,backendVerified:false,fieldError:true,networkRetainsInput:true,busyDisablesSubmit:true,successMessageRendered:true}
+}
+)(page);
+```
+### Page
+- Page URL: http://localhost:3002/ui-test
+- Page Title: Sampah Terhubung — Koordinasi lingkungan
+- Console: 2 errors, 0 warnings
+### Events
+- New console entries: .playwright-cli\console-2026-10-08T16-15-48-111Z.log#L100-L101
