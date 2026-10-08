@@ -1,0 +1,4 @@
+-- Auth users and private Storage objects require the application seed script.
+-- On a dedicated Cloud simulation project, configure .env.local and run:
+-- npm run demo:seed
+-- No passwords or operational data are embedded in SQL seed files.

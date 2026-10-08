@@ -1,0 +1,174 @@
+async (page) => {
+  const publicData = {
+    regions: [
+      {
+        id: "10000000-0000-4000-8000-000000000001",
+        name: "Kawasan Uji A · MOCK",
+        coverage: "Cakupan pengujian UI terisolasi",
+        active: true,
+        owner_label: "Pengelola MOCK",
+        lat: -7.3,
+        lng: 112.7,
+        recurrence_count: 2,
+        recurrence_days: 30,
+        version: 1,
+      },
+    ],
+    schedules: [],
+    exceptions: [],
+    runs: [],
+    incidents: [
+      {
+        id: "70000000-0000-4000-8000-000000000001",
+        region_id: "10000000-0000-4000-8000-000000000001",
+        point_id: "80000000-0000-4000-8000-000000000001",
+        status: "working",
+        public_label: "Titik uji MOCK",
+        version: 1,
+        verified_at: "2026-10-08T15:06:38.808Z",
+        observed_at: "2026-10-08T15:06:38.808Z",
+        created_at: "2026-10-08T15:06:38.808Z",
+      },
+    ],
+    events: [],
+  };
+  const workspace = {
+    regions: [
+      {
+        id: "10000000-0000-4000-8000-000000000001",
+        name: "Kawasan Uji A · MOCK",
+        coverage: "Cakupan pengujian UI terisolasi",
+        active: true,
+        owner_label: "Pengelola MOCK",
+        lat: -7.3,
+        lng: 112.7,
+        recurrence_count: 2,
+        recurrence_days: 30,
+        version: 1,
+      },
+    ],
+    profiles: [
+      {
+        id: "20000000-0000-4000-8000-000000000003",
+        display_name: "Koordinator MOCK",
+        is_admin: false,
+      },
+      {
+        id: "20000000-0000-4000-8000-000000000001",
+        display_name: "Pelapor MOCK",
+        is_admin: false,
+      },
+      {
+        id: "20000000-0000-4000-8000-000000000004",
+        display_name: "Petugas MOCK",
+        is_admin: false,
+      },
+    ],
+    points: [
+      {
+        id: "80000000-0000-4000-8000-000000000001",
+        region_id: "10000000-0000-4000-8000-000000000001",
+        label: "Titik uji MOCK",
+        lat: -7.3,
+        lng: 112.7,
+      },
+    ],
+    reports: [
+      {
+        id: "60000000-0000-4000-8000-000000000001",
+        region_id: "10000000-0000-4000-8000-000000000001",
+        reporter_id: "20000000-0000-4000-8000-000000000001",
+        landmark: "Patokan uji UI",
+        description: "Laporan MOCK untuk menguji kolom dan jaringan.",
+        category: "Penumpukan",
+        observed_at: "2026-10-08T15:06:38.807Z",
+        created_at: "2026-10-08T15:06:38.808Z",
+        status: "pending",
+        version: 1,
+        incident_id: null,
+        hidden: false,
+      },
+    ],
+    incidents: [
+      {
+        id: "70000000-0000-4000-8000-000000000001",
+        region_id: "10000000-0000-4000-8000-000000000001",
+        point_id: "80000000-0000-4000-8000-000000000001",
+        status: "working",
+        public_label: "Titik uji MOCK",
+        version: 1,
+        verified_at: "2026-10-08T15:06:38.808Z",
+        observed_at: "2026-10-08T15:06:38.808Z",
+        created_at: "2026-10-08T15:06:38.808Z",
+      },
+    ],
+    tasks: [
+      {
+        id: "90000000-0000-4000-8000-000000000001",
+        region_id: "10000000-0000-4000-8000-000000000001",
+        incident_id: "70000000-0000-4000-8000-000000000001",
+        worker_id: "20000000-0000-4000-8000-000000000004",
+        status: "accepted",
+        due_at: "2026-10-08T15:06:38.808Z",
+        version: 1,
+        blocker: null,
+      },
+    ],
+    feedback: [],
+    schedules: [],
+    exceptions: [],
+    runs: [],
+    preventions: [],
+    events: [],
+    registrations: [],
+    photos: [],
+    history: [],
+    notifications: [],
+    profile: {
+      id: "20000000-0000-4000-8000-000000000004",
+      display_name: "Petugas MOCK",
+      is_admin: false,
+    },
+    memberships: [
+      {
+        user_id: "20000000-0000-4000-8000-000000000004",
+        region_id: "10000000-0000-4000-8000-000000000001",
+        role: "worker",
+        active: true,
+      },
+      {
+        user_id: "20000000-0000-4000-8000-000000000004",
+        region_id: "10000000-0000-4000-8000-000000000001",
+        role: "worker",
+        active: true,
+      },
+    ],
+  };
+  await page.unroute("**/api/**");
+  await page.route("**/api/**", async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    if (path === "/api/public") return route.fulfill({ json: publicData });
+    if (path === "/api/workspace") return route.fulfill({ json: workspace });
+    if (path === "/api/commands")
+      return route.fulfill({
+        status: 422,
+        json: {
+          error: "Periksa isian yang ditandai. MOCK — tidak tersimpan.",
+          fields: {
+            description: "Jelaskan kondisi lebih lengkap.",
+            public_label: "Patokan publik wajib diisi.",
+            action_taken: "Jelaskan tindakan lebih lengkap.",
+          },
+        },
+      });
+    if (path === "/api/photos")
+      return route.fulfill({
+        json: { ids: ["a0000000-0000-4000-8000-000000000001"] },
+      });
+    return route.fulfill({
+      status: 503,
+      json: { error: "Endpoint tidak disimulasikan." },
+    });
+  });
+  await page.goto("http://localhost:3002/ui-test");
+};
