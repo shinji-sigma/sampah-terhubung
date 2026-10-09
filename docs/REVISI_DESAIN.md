@@ -1,5 +1,7 @@
 # Revisi desain — 9 Oktober 2026
 
+**Keputusan terbaru:** revisi hero/navbar/palet di atas baseline `268136b` dijelaskan pada [KEPUTUSAN_VISUAL_HERO.md](KEPUTUSAN_VISUAL_HERO.md), dengan [QA visual](../design-qa.md) dan bukti di `output/hero-design`. Ketentuan hero dihapus serta sidebar/palet lama dalam catatan berikut merupakan checkpoint historis dan sudah digantikan oleh pilihan pengguna terbaru. Fitur dan batas privasi tetap mengikuti PRD.
+
 Baseline: commit lokal `8f1d1ff`, branch `codex/sampah-terhubung-local`. Revisi menerapkan permintaan pengguna pada aplikasi yang sama. PRD, riset, desain sumber, Personal AI, API, autentikasi, migrasi/RLS, dependency, dan favicon dipertahankan. Tidak ada push atau publikasi.
 
 ## Keputusan dan perubahan

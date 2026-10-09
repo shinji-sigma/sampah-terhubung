@@ -1,0 +1,74 @@
+[
+  {
+    "state": "body",
+    "foreground": "#172C29",
+    "background": "#F7F5EF",
+    "ratio": 13.48
+  },
+  {
+    "state": "muted",
+    "foreground": "#4E625C",
+    "background": "#F7F5EF",
+    "ratio": 5.97
+  },
+  {
+    "state": "primary",
+    "foreground": "#FFFFFF",
+    "background": "#235E52",
+    "ratio": 7.52
+  },
+  {
+    "state": "lime",
+    "foreground": "#193C38",
+    "background": "#D5E675",
+    "ratio": 8.83
+  },
+  {
+    "state": "limeHover",
+    "foreground": "#193C38",
+    "background": "#DDECE7",
+    "ratio": 9.87
+  },
+  {
+    "state": "navActive",
+    "foreground": "#6758B5",
+    "background": "#FFFFFF",
+    "ratio": 5.77
+  },
+  {
+    "state": "warning",
+    "foreground": "#92400E",
+    "background": "#FEF3C7",
+    "ratio": 6.37
+  },
+  {
+    "state": "error",
+    "foreground": "#B91C1C",
+    "background": "#FEE2E2",
+    "ratio": 5.3
+  },
+  {
+    "state": "verified",
+    "foreground": "#166534",
+    "background": "#DCFCE7",
+    "ratio": 6.49
+  },
+  {
+    "state": "info",
+    "foreground": "#1D4ED8",
+    "background": "#DBEAFE",
+    "ratio": 5.49
+  },
+  {
+    "state": "disabled",
+    "foreground": "#4E625C",
+    "background": "#F1F5F9",
+    "ratio": 5.94
+  },
+  {
+    "state": "focusOnIvory",
+    "foreground": "#1D4ED8",
+    "background": "#F7F5EF",
+    "ratio": 6.15
+  }
+]

@@ -94,6 +94,7 @@ export default function Dashboard({
     } | null>(null),
     [gpsMessage, setGpsMessage] = useState(""),
     [menu, setMenu] = useState(false),
+    [heroSeen, setHeroSeen] = useState(false),
     [date, setDate] = useState(() => jakartaDate(new Date(initialNow))),
     [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null),
     [from, setFrom] = useState(() =>
@@ -132,6 +133,7 @@ export default function Dashboard({
       : worker
         ? "Petugas"
         : "Pelapor";
+  const markHeroSeen = useCallback(() => setHeroSeen(true), []);
   const unread = w?.notifications.filter((n) => !n.read_at).length || 0;
   useEffect(() => {
     if (!menu) return;
@@ -318,104 +320,78 @@ export default function Dashboard({
       <a className="skip-link" href="#main">
         Langsung ke isi
       </a>
-      <aside className={"sidebar " + (menu ? "visible" : "")}>
-        <Link className="brand" href="/" aria-label="Sampah Terhubung beranda">
-          <BrandLogo />
-        </Link>
-        <div className="product-identity">
-          <strong>Sampah Terhubung</strong>
-          <p>Jadwal & penanganan wilayah</p>
-        </div>
-        <nav id="main-navigation" aria-label="Navigasi utama">
-          {nav.map((item) => (
-            <button
-              key={item.key}
-              onClick={() => go(item.key)}
-              className={view === item.key ? "active" : ""}
-              aria-current={view === item.key ? "page" : undefined}
-            >
-              <item.icon size={20} />
-              {item.label}
-              {view === item.key && <span className="nav-dot" />}
-            </button>
-          ))}
-          {(coordinator || worker) && (
-            <button
-              className={view === "manage" ? "active" : ""}
-              onClick={() => go("manage")}
-            >
-              <ShieldCheck size={20} />
-              Ruang kerja
-            </button>
-          )}
-          {coordinator && (
-            <>
-              <button
-                className={view === "prevention" ? "active" : ""}
-                onClick={() => go("prevention")}
-              >
-                <Leaf size={20} />
-                Pencegahan
-              </button>
-              <button
-                className={view === "summary" ? "active" : ""}
-                onClick={() => go("summary")}
-              >
-                <BarChart3 size={20} />
-                Ringkasan wilayah
-              </button>
-            </>
-          )}
-          {w?.profile.is_admin && (
-            <button
-              onClick={() => go("admin")}
-              className={view === "admin" ? "active" : ""}
-            >
-              <ShieldCheck size={20} />
-              Administrasi
-            </button>
-          )}
-        </nav>
-        <div className="sidebar-bottom">
-          <p className="small-muted">
-            {demo ? "Lingkungan demo · Data simulasi" : "Koordinasi lingkungan"}
-          </p>
-          <small>© 2026 Sampah Terhubung</small>
-        </div>
-      </aside>
       <div className="main-shell">
-        <header className="topbar">
+        <header
+          className={
+            "topbar " + (coordinator || worker ? "has-role-navigation" : "")
+          }
+        >
           <div className="header-identity">
-            <button
-              className="icon-button mobile-menu"
-              ref={menuButton}
-              aria-label={menu ? "Tutup navigasi" : "Buka navigasi"}
-              aria-expanded={menu}
-              aria-controls="main-navigation"
-              onClick={() => setMenu(!menu)}
-            >
-              {menu ? <X /> : <Menu />}
-            </button>
             <Link
-              className="mobile-brand"
+              className="brand"
               href="/"
               aria-label="Sampah Terhubung beranda"
             >
               <BrandLogo />
             </Link>
+            <div className="product-identity">
+              <strong>Sampah Terhubung</strong>
+              <p>Jadwal & penanganan wilayah</p>
+            </div>
           </div>
-          <button
-            className="region-button"
-            aria-label={"Ganti wilayah, " + (region?.name || "Pilih wilayah")}
-            onClick={() => go("region")}
+          <nav
+            className={"main-navigation " + (menu ? "visible" : "")}
+            id="main-navigation"
+            aria-label="Navigasi utama"
           >
-            <MapPin size={18} />
-            <span>
-              <small>Wilayah Saya</small>
-              <strong>{region?.name || "Pilih wilayah"}</strong>
-            </span>
-            <ChevronRight size={16} />
-          </button>
+            {nav.map((item) => (
+              <button
+                key={item.key}
+                onClick={() => go(item.key)}
+                className={view === item.key ? "active" : ""}
+                aria-current={view === item.key ? "page" : undefined}
+              >
+                <item.icon size={20} />
+                {item.label}
+              </button>
+            ))}
+            {(coordinator || worker) && (
+              <button
+                className={view === "manage" ? "active" : ""}
+                onClick={() => go("manage")}
+              >
+                <ShieldCheck size={20} />
+                Ruang kerja
+              </button>
+            )}
+            {coordinator && (
+              <>
+                <button
+                  className={view === "prevention" ? "active" : ""}
+                  onClick={() => go("prevention")}
+                >
+                  <Leaf size={20} />
+                  Pencegahan
+                </button>
+                <button
+                  className={view === "summary" ? "active" : ""}
+                  onClick={() => go("summary")}
+                >
+                  <BarChart3 size={20} />
+                  Ringkasan wilayah
+                </button>
+              </>
+            )}
+            {w?.profile.is_admin && (
+              <button
+                onClick={() => go("admin")}
+                className={view === "admin" ? "active" : ""}
+              >
+                <ShieldCheck size={20} />
+                Administrasi
+              </button>
+            )}
+          </nav>{" "}
           <div className="header-actions">
             <button
               className="icon-button"
@@ -470,8 +446,28 @@ export default function Dashboard({
               </button>
             )}
           </div>
+          <button
+            className="icon-button mobile-menu"
+            ref={menuButton}
+            aria-label={menu ? "Tutup navigasi" : "Buka navigasi"}
+            aria-expanded={menu}
+            aria-controls="main-navigation"
+            onClick={() => setMenu(!menu)}
+          >
+            {menu ? <X /> : <Menu />}
+          </button>
         </header>
-        <main id="main" className="main-content" tabIndex={-1}>
+
+        <main
+          id="main"
+          className={
+            "main-content " +
+            (view === "home" && !coordinator && !worker && !w?.profile.is_admin
+              ? "has-intro"
+              : "")
+          }
+          tabIndex={-1}
+        >
           {demo && (
             <details className="simulation-note">
               <summary>
@@ -516,8 +512,19 @@ export default function Dashboard({
               aktif untuk {region.name}.
             </p>
           )}
+          {view !== "home" && (
+            <div className="current-region">
+              <span>{region?.name || "Belum memilih wilayah"}</span>
+              <button className="text-button" onClick={() => go("region")}>
+                Ganti wilayah
+              </button>
+            </div>
+          )}
           {view === "home" && (
             <HomeView
+              showIntro={!coordinator && !worker && !w?.profile.is_admin}
+              animateIntro={!heroSeen}
+              onIntroSeen={markHeroSeen}
               data={data}
               w={w}
               region={region}

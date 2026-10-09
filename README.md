@@ -25,6 +25,8 @@ Jika port 3000 sedang dipakai aplikasi lain, gunakan `npm start -- --port 3001` 
 
 Tanpa konfigurasi, halaman utama menampilkan keadaan backend belum tersedia. `/preview` adalah **pratinjau statis**, tanpa sesi atau penyimpanan. Antarmuka tidak menganggap pratinjau sebagai backend aktif.
 
+Revisi visual terbaru memakai navbar horizontal, hero beranda warga, dan palet petrol–gading–sage–lime–violet. Keputusan, aset, ukuran bundle, serta batas verifikasi: [addendum visual](docs/KEPUTUSAN_VISUAL_HERO.md) dan [QA desain](design-qa.md). Logo dan ilustrasi runtime ikut repository sehingga tersedia pada clone `D:\WebDemo`.
+
 ## Konfigurasi privat
 
 Isi URL proyek, publishable key, `SUPABASE_SECRET_KEY` (atau alternatif legacy `SUPABASE_SERVICE_ROLE_KEY`), `DEMO_MODE=true`, `APP_ORIGIN`, dan `DEMO_PASSWORD` pilihan sendiri (12+ karakter). URL/publishable key boleh masuk browser; secret khusus server tidak memakai awalan `NEXT_PUBLIC_`.

@@ -8,7 +8,8 @@ import {
   Status,
   Timeline,
 } from "./primitives";
-import { Schedules } from "./schedules";
+import { Schedules, ScheduleMetadata } from "./schedules";
+import { IntroHero } from "./intro-hero";
 
 export function HomeView({
   data,
@@ -21,6 +22,9 @@ export function HomeView({
   onSchedule,
   onReport,
   onEvents,
+  showIntro,
+  animateIntro,
+  onIntroSeen,
 }: {
   data: PublicData;
   w: Workspace | null;
@@ -32,16 +36,28 @@ export function HomeView({
   onSchedule: () => void;
   onReport: () => void;
   onEvents: () => void;
+  showIntro: boolean;
+  animateIntro: boolean;
+  onIntroSeen: () => void;
 }) {
   const incidentIds = data.incidents.map((i) => i.id);
+  const RegionHeading = showIntro ? "h2" : "h1";
   return (
     <>
+      {showIntro && (
+        <IntroHero
+          animate={animateIntro}
+          onSeen={onIntroSeen}
+          signedIn={!!w}
+          onSchedule={region ? onSchedule : onRegion}
+        />
+      )}
       <div className="page-heading">
         <div>
-          <h1>Wilayah Saya</h1>
-          <p className="selected-region">
+          <p className="region-eyebrow">Wilayah Saya</p>
+          <RegionHeading className="selected-region">
             {region?.name || "Belum memilih wilayah"}
-          </p>
+          </RegionHeading>
         </div>
         <button className="button secondary" onClick={onRegion}>
           <MapPin size={18} />
@@ -53,15 +69,8 @@ export function HomeView({
           className="service-section nearest-schedule"
           aria-label="Jadwal terdekat"
         >
-          <SectionTitle
-            title="Pengangkutan terdekat"
-            action={
-              <button className="text-button" onClick={onSchedule}>
-                Semua jadwal <ArrowRight size={16} />
-              </button>
-            }
-          />
-          <Schedules data={data} start={today} compact />
+          <h2 className="visually-hidden">Pengangkutan terdekat</h2>
+          <Schedules data={data} start={today} compact hideSources />
         </section>
         <aside className="report-prompt">
           <h2>Ada penumpukan sampah?</h2>
@@ -87,6 +96,10 @@ export function HomeView({
                   ? "Pelaporan tersedia setelah layanan terhubung."
                   : "Laporan dan foto bersifat privat sampai diperiksa."}
           </p>
+        </aside>
+        <aside className="source-note">
+          <h2>Sumber jadwal</h2>
+          <ScheduleMetadata services={data.schedules} compact />
         </aside>
         <section className="service-section handling-section">
           <SectionTitle

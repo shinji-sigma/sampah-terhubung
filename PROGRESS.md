@@ -1,5 +1,11 @@
 # Kemajuan dan handoff
 
+## Checkpoint hero dan navbar terpilih — 9 Oktober 2026
+
+Revisi di atas baseline `268136b` memakai navbar horizontal, hero publik/pelapor, ilustrasi ImageGen mandiri, kalender lime dan palet petrol–gading–sage–lime–violet. Menu operasional dipertahankan. Detail dan batas: `docs/KEPUTUSAN_VISUAL_HERO.md`, `design-qa.md`, dan `output/hero-design`. Checkpoint visual lama di bawah merupakan riwayat; ketentuan penghapusan hero sudah digantikan oleh pilihan pengguna terbaru.
+
+Lint, typecheck, build dan 26 tes lokal lulus. Browser produksi dan fixture peran terisolasi diperiksa pada desktop/ponsel; pengujian Cloud belum dapat dijalankan karena boolean konfigurasi masih kosong. Petunjuk `D:\WebDemo` tanpa Docker tetap berlaku. Tidak ada push/publikasi; PRD, riset dan Personal AI tetap dipertahankan.
+
 ## Checkpoint revisi desain — 9 Oktober 2026
 
 Revisi atas baseline `8f1d1ff` selesai pada aplikasi yang sama: beranda wilayah/jadwal, logo asli SHINFRAME, daftar penanganan dengan referensi berbeda, jadwal berbentuk baris, pemilih wilayah, kegiatan dan tampilan peran. Backend/API/RLS dan dependency dipertahankan. Lint/typecheck/build dan **26 tes lokal** lulus; bukti sebelum/sesudah desktop 1440×1000 dan ponsel 360×800 tersedia pada [REVISI_DESAIN.md](docs/REVISI_DESAIN.md). Jadwal pertama terlihat di layar awal ponsel; tidak ada overflow pada view yang diperiksa. Fixture tetap terisolasi dan HTTP 404 pada produksi.

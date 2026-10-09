@@ -7,10 +7,12 @@ export function Schedules({
   data,
   start,
   compact = false,
+  hideSources = false,
 }: {
   data: PublicData;
   start: string;
   compact?: boolean;
+  hideSources?: boolean;
 }) {
   if (!start) return <Empty>Pilih tanggal untuk melihat jadwal.</Empty>;
   const dates = Array.from({ length: 14 }, (_, index) =>
@@ -39,15 +41,39 @@ export function Schedules({
       <div className={"schedule-list " + (compact ? "compact" : "")}>
         {rows.map((row) => (
           <article className="schedule-row" key={row.schedule.id + row.date}>
+            <div className="calendar-date">
+              {compact ? (
+                <time dateTime={row.date} aria-label={dateLabel(row.date)}>
+                  <span>
+                    {new Intl.DateTimeFormat("id-ID", {
+                      weekday: "long",
+                      timeZone: "Asia/Jakarta",
+                    }).format(new Date(row.date + "T12:00:00+07:00"))}
+                  </span>
+                  <strong>{row.date.slice(-2)}</strong>
+                  <span>
+                    {new Intl.DateTimeFormat("id-ID", {
+                      month: "long",
+                      year: "numeric",
+                      timeZone: "Asia/Jakarta",
+                    }).format(new Date(row.date + "T12:00:00+07:00"))}
+                  </span>
+                </time>
+              ) : (
+                <time dateTime={row.date}>{dateLabel(row.date)}</time>
+              )}
+            </div>
             <div className="schedule-date">
-              <time dateTime={row.date}>
-                {new Intl.DateTimeFormat("id-ID", {
-                  weekday: "long",
-                  day: "numeric",
-                  month: "short",
-                  timeZone: "Asia/Jakarta",
-                }).format(new Date(row.date + "T12:00:00+07:00"))}
-              </time>
+              {!compact && (
+                <time dateTime={row.date}>
+                  {new Intl.DateTimeFormat("id-ID", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "short",
+                    timeZone: "Asia/Jakarta",
+                  }).format(new Date(row.date + "T12:00:00+07:00"))}
+                </time>
+              )}
               <strong>
                 <Clock3 size={16} />
                 {row.cancelled
@@ -92,6 +118,24 @@ export function Schedules({
           </article>
         ))}
       </div>
+      {!hideSources && (
+        <ScheduleMetadata services={services} compact={compact} />
+      )}
+    </>
+  );
+}
+
+export function ScheduleMetadata({
+  services,
+  compact = false,
+}: {
+  services: PublicData["schedules"];
+  compact?: boolean;
+}) {
+  if (!services.length)
+    return <p className="small-muted">Belum ada sumber jadwal tersedia.</p>;
+  return (
+    <>
       {compact && (
         <p className="schedule-source">
           Sumber: {services.map((s) => s.source).join("; ")}

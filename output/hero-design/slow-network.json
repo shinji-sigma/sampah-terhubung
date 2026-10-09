@@ -1,0 +1,28 @@
+{
+  "configuration": {
+    "latencyMs": 150,
+    "downloadBytesPerSecond": 204800,
+    "uploadBytesPerSecond": 102400,
+    "cpuRate": 4,
+    "cacheDisabled": true,
+    "reducedMotion": true
+  },
+  "automationVisibleMs": 783,
+  "images": [
+    {
+      "url": "http://localhost:3001/_next/image?url=%2Fillustrations%2Fcoordination.webp&w=640&q=75",
+      "status": 200,
+      "encodedBytes": 32092
+    }
+  ],
+  "normalMotionNavigationAfterHydration": true,
+  "reducedMotionNavigationAfterHydration": true,
+  "earlyClickBeforeHydrationHadNoVisibleEffect": true,
+  "visibilityTimingIsNotInteractionReadiness": true,
+  "afterStreamingFix": {
+    "visibleMs": 664,
+    "firstClickAfterSnapshotWorked": false,
+    "afterHydrationNavigationWorked": true,
+    "normalMotionNavigationAfterHydration": true
+  }
+}

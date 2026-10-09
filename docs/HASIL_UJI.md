@@ -68,3 +68,31 @@ Hash SHA-256 lima dokumen sumber (PRD, riset, palet, JSON kontras, pustaka) sama
 3. Signup publik dengan email konfirmasi/SMTP sebenarnya; akun `.invalid` yang dikonfirmasi seed tidak menguji email.
 4. Audit keyboard/kontras/screen reader pada seluruh alur, GPS izin OS dan pengukuran kinerja dengan backend/jaringan demo.
 5. Backup dan restore basis data **serta foto** pada proyek latihan terpisah (NF08), sesuai DEPLOYMENT_DAN_BACKUP.md.
+
+## Revisi hero dan navbar terpilih — 9 Oktober 2026
+
+Baseline `268136b`, aplikasi yang sama. Addendum terbaru: [KEPUTUSAN_VISUAL_HERO.md](KEPUTUSAN_VISUAL_HERO.md). QA dengan referensi dan render gabungan: [design-qa.md](../design-qa.md), hasil `passed` setelah perbaikan kepadatan dan navbar peran. Ketentuan visual lama yang menghapus hero merupakan riwayat.
+
+| Pemeriksaan terbaru | Hasil dan batas |
+| --- | --- |
+| Lint / typecheck / build | Lulus |
+| Tes lokal | 26/26; SQL/RLS menggunakan PGlite terisolasi, tanpa Supabase Auth/Storage |
+| Produksi 1440×1024 / 360×800 / 390×844 | Navbar, hero, wilayah, jadwal dan penanganan diperiksa; tidak ada overflow horizontal |
+| Informasi mobile | Hero 222,4 px; tanggal pertama sampai y≈621 dan jam sampai y≈496; nama wilayah utuh |
+| Keyboard | Enter membuka CTA/sumber dan memilih kawasan; Escape menutup menu serta mengembalikan fokus |
+| Scope hero | Publik/pelapor; tidak di ruang kerja, jadwal, formulir atau kegiatan; kembali/ubah wilayah tidak mengulang entrance |
+| Peran dan kegiatan berisi | Koordinator, petugas, pelapor/form laporan dan kegiatan memakai MOCK dev harness; bukan sesi/penyimpanan nyata |
+| Reduced motion / JavaScript gagal | Animation none, opacity 1; teks dan jadwal SSR tetap terlihat saat skrip dinonaktifkan. Kontrol JS memerlukan skrip |
+| Simulasi produksi | 150 ms latency, 200/100 KiB per detik down/up, CPU 4×, cache disabled. Navigasi setelah hidrasi berfungsi; klik terlalu dini belum bereaksi |
+| Ilustrasi | WebP 89.304 byte; respons optimizer desktop diamati 32.092 byte. Reload 360 px: 0 request ilustrasi dan currentSrc kosong |
+| Bundle | Semua chunks JS gzip 247.687→248.449 byte; CSS gzip 6.837→8.123 byte. Bukan payload satu route |
+| Console | Sesi produksi dan dev bersih yang diperiksa: 0 error/0 warning. Sesi HMR awal dengan markup lama menghasilkan mismatch, direstart dan diambil ulang |
+| Guard dan endpoint | /ui-test 404; /api/public 503 tanpa konfigurasi; /icon.svg 200; Origin mutasi palsu 403 |
+| Konfigurasi Cloud | File ada, URL/publishable key/secret/password demo false; hanya boolean dibaca |
+| Batas sumber | Hash PRD, riset, palet sumber, JSON kontras dan pustaka sama; hash logo asli sama. Personal AI/API/auth/RLS/dependency/favicon dipertahankan |
+
+Bukti terbaru: `output/hero-design/before`, `after`, perbandingan penuh dan detail, JSON ukuran/kontras, serta [QA visual](../design-qa.md). Pengukuran 783 ms hanya sampai CTA terlihat menurut otomasi, bukan siap interaksi atau NF07 terpenuhi. CPU/jaringan adalah simulasi, bukan pengukuran HP fisik atau bukti 60 fps. Pengaturan browser dikembalikan setelah uji.
+
+Supabase Cloud, foto privat dan isolasi wilayah nyata serta sinkronisasi laptop kedua masih menunggu konfigurasi. Panduan [SUPABASE_CLOUD.md](SUPABASE_CLOUD.md) tetap berlaku untuk clone `D:\WebDemo`, tanpa Docker. Tidak ada push/publikasi dan tidak ada secret dimasukkan ke Git.
+
+Pemeriksaan visual tanpa JavaScript membuka kembali QA sebelum commit: boundary loading halaman lama hanya memperlihatkan fallback, meskipun HTML tersembunyi sudah terbaca oleh inspeksi DOM. `src/app/loading.tsx` dihapus; dashboard, peta dan submit masih memiliki indikator loading masing-masing. Screenshot `desktop-no-javascript-iteration1.jpg` menyimpan kegagalan, dan `desktop-no-javascript.jpg` memperlihatkan halaman produksi sesudah perbaikan. Simulasi lambat diulang: sampel sampai hero terlihat 664 ms (sampel sebelumnya 783 ms); klik pertama masih terjadi sebelum hidrasi siap, klik setelah skrip siap menampilkan jadwal. Ini tetap bukan ukuran waktu siap interaksi atau NF07.

@@ -2,7 +2,9 @@
 
 ## Pengunjung
 
-1. Klik **Wilayah Saya**, cari kawasan, lalu pilih. Pilihan tersimpan pada perangkat. GPS hanya menyarankan kawasan; konfirmasi Anda tetap diperlukan. Menolak GPS tidak menghalangi pemilihan manual.
+Pada ponsel, gunakan **Buka navigasi** untuk menu halaman. Escape menutup menu. Hero hanya ada di beranda warga; **Lihat jadwal wilayah** membuka jadwal atau pilihan wilayah.
+
+1. Klik **Ganti wilayah**, cari kawasan, lalu pilih. Pilihan tersimpan pada perangkat. GPS hanya menyarankan kawasan; konfirmasi Anda tetap diperlukan. Menolak GPS tidak menghalangi pemilihan manual.
 2. Buka **Jadwal angkut**, pilih tanggal awal, baca layanan, jam WIB, sumber konfirmasi, masa berlaku, perubahan tanggal, dan pelaksanaan aktual. “Belum dikonfirmasi” bukan janji layanan.
 3. Baca insiden yang sudah divalidasi dan kegiatan publik. Laporan privat, identitas, dan foto tidak ditampilkan kepada pengunjung.
 
