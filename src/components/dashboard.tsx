@@ -845,11 +845,14 @@ export default function Dashboard({
                 </div>
               </>
             ) : (
-              <Empty>
-                {w
-                  ? "Wilayah ini belum terlayani."
-                  : "Masuk dahulu untuk mengirim laporan."}
-              </Empty>
+              <>
+                <SectionTitle level={1} title="Buat laporan" />
+                <Empty>
+                  {w
+                    ? "Wilayah ini belum terlayani."
+                    : "Masuk dahulu untuk mengirim laporan."}
+                </Empty>
+              </>
             ))}
           {view === "mine" &&
             (w ? (
@@ -868,6 +871,7 @@ export default function Dashboard({
               </>
             ) : (
               <div className="panel">
+                <SectionTitle level={1} title="Laporan saya" />
                 <Empty>
                   Masuk untuk melihat laporan pribadi dan riwayat penanganan.
                 </Empty>
@@ -1087,7 +1091,10 @@ export default function Dashboard({
                 )}
               </>
             ) : (
-              <Empty>Masuk untuk melihat pemberitahuan.</Empty>
+              <>
+                <SectionTitle level={1} title="Pemberitahuan" />
+                <Empty>Masuk untuk melihat pemberitahuan.</Empty>
+              </>
             ))}
           {view === "admin" && w?.profile.is_admin && (
             <Admin w={w} refresh={refresh} />
