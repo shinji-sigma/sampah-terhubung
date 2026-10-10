@@ -24,16 +24,16 @@ export function failure(error: unknown) {
           error.issues.map((i) => [i.path.at(-1), i.message]),
         ),
       },
-      { status: 422 },
+      { status: 422, headers: privateHeaders },
     );
   if (error instanceof HttpError)
     return NextResponse.json(
       { error: error.message },
-      { status: error.status },
+      { status: error.status, headers: privateHeaders },
     );
   return NextResponse.json(
     { error: "Layanan belum tersedia. Periksa koneksi lalu coba lagi." },
-    { status: 503 },
+    { status: 503, headers: privateHeaders },
   );
 }
 export const privateHeaders = { "Cache-Control": "private, no-store" };

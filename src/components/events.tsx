@@ -33,6 +33,7 @@ export function Events({
   return (
     <>
       <SectionTitle
+        level={1}
         eyebrow="BERGERAK BERSAMA"
         title="Kegiatan lingkungan"
         description="Pembersihan terencana, dengan penanggung jawab dan tujuan pengangkutan yang jelas."

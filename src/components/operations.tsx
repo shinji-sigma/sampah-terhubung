@@ -61,6 +61,7 @@ export function Coordinator({
   return (
     <>
       <SectionTitle
+        level={1}
         eyebrow="RUANG KOORDINASI"
         title="Yang perlu ditindaklanjuti"
         description="Periksa laporan, tentukan penanggung jawab, dan pastikan pekerjaan selesai."
@@ -336,6 +337,7 @@ export function Worker({
   return (
     <>
       <SectionTitle
+        level={1}
         eyebrow="RUANG PETUGAS"
         title="Pekerjaan saya"
         description="Terima penugasan sebelum mulai. Catat kendala dan bukti sesudah penanganan."
@@ -449,6 +451,7 @@ export function MyReports({
   return (
     <>
       <SectionTitle
+        level={1}
         title="Laporan saya"
         description="Laporan menunggu validasi hanya dapat dibaca oleh Anda dan koordinator."
       />
@@ -537,6 +540,7 @@ export function PreventionPanel({
   return (
     <>
       <SectionTitle
+        level={1}
         title="Titik berulang & pencegahan"
         description={`Ambang tinjauan: ${region.recurrence_count} kejadian berbeda dalam ${region.recurrence_days} hari. Laporan pendukung dan pembukaan kembali tidak menambah kejadian.`}
       />
@@ -828,6 +832,7 @@ export function Admin({ w, refresh }: { w: Workspace; refresh: () => void }) {
   return (
     <>
       <SectionTitle
+        level={1}
         title="Administrasi wilayah"
         description="Penunjukan peran memerlukan pemeriksaan manusia. Semua perubahan menyimpan alasan."
       />

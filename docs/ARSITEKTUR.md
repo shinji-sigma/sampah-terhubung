@@ -42,7 +42,7 @@ Ruang kerja/CSV dibatasi 1000 baris per entitas/periode untuk pilot kecil. Bila 
 
 ## Desain dan batas keputusan
 
-Hijau `#166534` menyatakan kepedulian dan tanggung jawab dalam identitas produk; teal `#0F766E` menyatakan kolaborasi. Latar `#F8FAFC`, permukaan putih, teks `#0F172A`/`#475569`. Label informasi, perhatian, kesalahan, dan selesai mengikuti pasangan PRD. Makna itu merupakan keputusan identitas, bukan psikologi universal.
+Palet implementasi terkini mengikuti `KEPUTUSAN_VISUAL_HERO.md`: petrol `#193C38`, jade `#235E52`, gading `#F7F5EF`, sage, lime dan violet. Warna status tetap berlabel. Palet hijau/teal lama dalam PRD adalah dasar historis yang dipertahankan; keputusan visual terbaru pengguna menjadi acuan kode. Makna warna merupakan keputusan identitas, bukan psikologi universal.
 
 Font sistem, dasar 16 px, tombol utama 44 px, fokus biru yang terlihat, label/ikon status selain warna, kesalahan kolom, keadaan kosong/loading/gagal/berhasil, serta daftar/patokan saat peta gagal disediakan. Tile OSM hanya dimuat sesuai viewport dan atribusi tetap ditampilkan; tidak ada prefetch atau unduhan offline. Koordinat pusat wilayah simulasi bukan bukti batas geografis pilot.
 

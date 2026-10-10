@@ -225,11 +225,13 @@ export const labels: Record<string, string> = {
 };
 export const dateTime = (value: string | null) =>
   value
-    ? new Intl.DateTimeFormat("id-ID", {
-        dateStyle: "medium",
-        timeStyle: "short",
-        timeZone: "Asia/Jakarta",
-      }).format(new Date(value)) + " WIB"
+    ? !Number.isFinite(Date.parse(value))
+      ? "Waktu tidak tersedia"
+      : new Intl.DateTimeFormat("id-ID", {
+          dateStyle: "medium",
+          timeStyle: "short",
+          timeZone: "Asia/Jakarta",
+        }).format(new Date(value)) + " WIB"
     : "Belum dicatat";
 export const shortId = (id: string) => id.slice(0, 8).toUpperCase();
 export function incidentReference(id: string, ids: readonly string[]) {
@@ -253,8 +255,10 @@ export function incidentReference(id: string, ids: readonly string[]) {
 }
 export const dateLabel = (value: string) =>
   value
-    ? new Intl.DateTimeFormat("id-ID", {
-        dateStyle: "long",
-        timeZone: "Asia/Jakarta",
-      }).format(new Date(value + "T12:00:00+07:00"))
+    ? !Number.isFinite(Date.parse(value + "T12:00:00+07:00"))
+      ? "Tanggal tidak tersedia"
+      : new Intl.DateTimeFormat("id-ID", {
+          dateStyle: "long",
+          timeZone: "Asia/Jakarta",
+        }).format(new Date(value + "T12:00:00+07:00"))
     : "Tanggal belum dipilih";

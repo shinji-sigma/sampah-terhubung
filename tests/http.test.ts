@@ -1,7 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readLimited } from "../src/lib/body";
-import { checkOrigin } from "../src/lib/http";
+import { checkOrigin, failure, HttpError } from "../src/lib/http";
+import { z } from "zod";
 test("chunked requests cannot bypass maximum body size by omitting content-length", async () => {
   const stream = new ReadableStream({
     start(controller) {
@@ -25,6 +26,23 @@ test("chunked requests cannot bypass maximum body size by omitting content-lengt
     ).byteLength,
     5,
   );
+});
+test("private errors and validation failures cannot be cached or leak internal details", async () => {
+  const invalid = z.object({ name: z.string() }).safeParse({});
+  assert.equal(invalid.success, false);
+  for (const [error, status] of [
+    [new HttpError("Silakan masuk.", 401), 401],
+    [new HttpError("Foto tidak tersedia.", 404), 404],
+    [invalid.error, 422],
+    [new Error("sensitive internal provider details"), 503],
+  ] as const) {
+    const response = failure(error);
+    assert.equal(response.status, status);
+    assert.equal(response.headers.get("cache-control"), "private, no-store");
+    assert.ok(
+      !(await response.text()).includes("sensitive internal provider details"),
+    );
+  }
 });
 test("cross-origin mutation is rejected before authentication/database access", () => {
   assert.throws(

@@ -60,17 +60,20 @@ export function SectionTitle({
   title,
   description,
   action,
+  level = 2,
 }: {
   eyebrow?: string;
   title: string;
   description?: string;
   action?: React.ReactNode;
+  level?: 1 | 2;
 }) {
+  const Heading = level === 1 ? "h1" : "h2";
   return (
     <div className="section-title">
       <div>
         {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        <h2>{title}</h2>
+        <Heading>{title}</Heading>
         {description && <p className="muted">{description}</p>}
       </div>
       {action}

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { dateLabel, incidentReference } from "../src/lib/types";
+import { dateTime, dateLabel, incidentReference } from "../src/lib/types";
 
 test("incident display references distinguish common UUID prefixes and suffixes without changing IDs", () => {
   const ids = [
@@ -28,4 +28,8 @@ test("service metadata dates use Indonesian month names and empty-state text", (
   const iso = "2026-10-08";
   assert.equal(dateLabel(iso), "8 Oktober 2026");
   assert.equal(dateLabel(""), "Tanggal belum dipilih");
+  assert.equal(dateLabel("-infinity"), "Tanggal tidak tersedia");
+  assert.equal(dateTime("-infinity"), "Waktu tidak tersedia");
+  assert.equal(dateTime("invalid imported date"), "Waktu tidak tersedia");
+  assert.equal(dateTime(null), "Belum dicatat");
 });

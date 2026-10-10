@@ -103,6 +103,7 @@ export default function Dashboard({
     [until, setUntil] = useState(() => jakartaDate(new Date(initialNow)));
   const [now, setNow] = useState(() => new Date(initialNow));
   const sequence = useRef(0);
+  const hadWorkspace = useRef(false);
   const menuButton = useRef<HTMLButtonElement>(null);
   const preview = !!previewData;
   const region =
@@ -185,16 +186,37 @@ export default function Dashboard({
       setNow(new Date());
       setError("");
       if (chosen) {
-        const response = await fetch("/api/workspace?region=" + chosen, {
-          signal,
-          cache: "no-store",
-        });
-        if (response.status === 401) {
-          setW(null);
-        } else {
-          const workspace = await response.json();
-          if (!response.ok) throw new Error(workspace.error);
-          if (!stale()) setW(workspace);
+        try {
+          const response = await fetch("/api/workspace?region=" + chosen, {
+            signal,
+            cache: "no-store",
+          });
+          if (response.status === 401) {
+            if (!stale()) setW(null);
+            if (!stale() && hadWorkspace.current)
+              setError(
+                "Sesi berakhir. Masuk kembali untuk membuka data pribadi.",
+              );
+            if (!stale()) hadWorkspace.current = false;
+          } else {
+            const workspace = await response.json();
+            if (!response.ok) {
+              if (!stale()) setW(null);
+              throw new Error(
+                workspace.error || "Ruang kerja belum dapat dimuat. Coba lagi.",
+              );
+            }
+            if (!stale()) {
+              setW(workspace);
+              hadWorkspace.current = true;
+            }
+          }
+        } catch (error) {
+          if (!stale()) {
+            setW(null);
+            hadWorkspace.current = false;
+          }
+          throw error;
         }
       }
     } catch (e) {
@@ -219,7 +241,12 @@ export default function Dashboard({
   const go = (next: View) => {
     setView(next);
     setMenu(false);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({
+      top: 0,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "instant"
+        : "smooth",
+    });
     requestAnimationFrame(() =>
       document.getElementById("main")?.focus({ preventScroll: true }),
     );
@@ -239,6 +266,7 @@ export default function Dashboard({
     }
     sequence.current++;
     setW(null);
+    hadWorkspace.current = false;
     setData((previous) => ({
       ...previous,
       schedules: [],
@@ -419,6 +447,7 @@ export default function Dashboard({
                     await api("/api/auth", { action: "logout" });
                     sequence.current++;
                     setW(null);
+                    hadWorkspace.current = false;
                     go("home");
                     refresh();
                   } catch (e) {
@@ -540,6 +569,7 @@ export default function Dashboard({
           {view === "region" && (
             <>
               <SectionTitle
+                level={1}
                 eyebrow="WILAYAH SAYA"
                 title="Temukan lingkungan Anda"
                 description="Cari dan pilih kawasan secara manual. GPS bersifat opsional dan tetap memerlukan konfirmasi."
@@ -617,6 +647,7 @@ export default function Dashboard({
           {view === "schedule" && (
             <>
               <SectionTitle
+                level={1}
                 eyebrow="LAYANAN WILAYAH"
                 title="Jadwal pengangkutan"
                 description="Bedakan rencana, perubahan tanggal, dan pelaksanaan yang sudah dicatat."
@@ -658,6 +689,7 @@ export default function Dashboard({
           {view === "login" && (
             <>
               <SectionTitle
+                level={1}
                 title="Masuk ke lingkungan Anda"
                 description="Akun pelapor untuk laporan dan kegiatan. Pengelola ditunjuk administrator setelah pemeriksaan."
               />
@@ -733,6 +765,7 @@ export default function Dashboard({
             (w && region?.active ? (
               <>
                 <SectionTitle
+                  level={1}
                   eyebrow="LAPORAN BARU"
                   title="Sampaikan yang Anda temukan"
                   description="Laporan akan diperiksa koordinator wilayah sebelum dibagikan atau ditugaskan."
@@ -854,9 +887,40 @@ export default function Dashboard({
               <Coordinator now={now} w={w} region={region} refresh={refresh} />
             ) : worker ? (
               <Worker now={now} w={w} refresh={refresh} />
-            ) : (
-              <Empty>Anda belum memiliki akses pengelola wilayah ini.</Empty>
-            ))}
+            ) : null)}
+          {(["manage", "prevention", "summary", "admin"] as View[]).includes(
+            view,
+          ) &&
+            (!w ||
+              !region ||
+              (view === "manage"
+                ? !coordinator && !worker
+                : view === "admin"
+                  ? !w.profile.is_admin
+                  : !coordinator)) && (
+              <section className="panel">
+                <SectionTitle level={1} title="Ruang kerja belum tersedia" />
+                <p role="status">
+                  {busy
+                    ? "Memeriksa akses wilayah…"
+                    : !w
+                      ? "Masuk kembali atau coba muat ulang untuk membuka data pribadi."
+                      : "Anda belum memiliki akses pengelola wilayah ini."}
+                </p>
+                {!w && (
+                  <button className="button primary" onClick={login}>
+                    Masuk kembali
+                  </button>
+                )}
+                <button
+                  className="button secondary"
+                  onClick={refresh}
+                  disabled={busy}
+                >
+                  Muat ulang akses
+                </button>
+              </section>
+            )}
           {view === "prevention" && coordinator && w && region && (
             <PreventionPanel
               now={now}
@@ -881,6 +945,7 @@ export default function Dashboard({
           {view === "summary" && coordinator && w && region && (
             <>
               <SectionTitle
+                level={1}
                 title="Ringkasan wilayah"
                 description="Periode dalam WIB. Laporan dan insiden dihitung sebagai entitas berbeda."
               />
@@ -997,6 +1062,7 @@ export default function Dashboard({
             (w ? (
               <>
                 <SectionTitle
+                  level={1}
                   title="Pemberitahuan"
                   description="Perubahan yang relevan dengan laporan dan tanggung jawab Anda."
                 />

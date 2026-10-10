@@ -350,8 +350,9 @@ select[aria-invalid="true"] {
   gap: 16px;
   margin-bottom: 20px;
 }
-.section-title h2 {
+.section-title :is(h1, h2) {
   margin-bottom: 8px;
+  font-size: 28px;
 }
 .section-title .muted {
   font-size: 16px;
@@ -376,7 +377,7 @@ select[aria-invalid="true"] {
   border-radius: 12px;
   margin-bottom: 24px;
 }
-.panel .section-title h2 {
+.panel .section-title :is(h1, h2) {
   font-size: 20px;
 }
 .card {
@@ -1104,7 +1105,7 @@ details > p {
   .nearest-schedule .text-button {
     margin: -4px 0 0;
   }
-  .nearest-schedule .section-title h2 {
+  .nearest-schedule .section-title :is(h1, h2) {
     margin: 0;
   }
   .schedule-row,
@@ -1893,7 +1894,7 @@ h3 {
 }
 
 .handling-section .section-title h2,
-.home-events .section-title h2 {
+.home-events .section-title :is(h1, h2) {
   font-size: 24px;
 }
 @media (min-width: 1001px) {
@@ -1977,7 +1978,7 @@ h3 {
   .incident-location strong {
     margin-bottom: 2px;
   }
-  .handling-section .section-title h2 {
+  .handling-section .section-title :is(h1, h2) {
     margin-bottom: 4px;
   }
 }

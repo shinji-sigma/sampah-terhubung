@@ -3,7 +3,7 @@
 Aplikasi ini memakai satu backend Supabase Cloud untuk kedua laptop. Docker bukan syarat menjalankan aplikasi. Pakai proyek khusus **Data simulasi**, bukan proyek yang berisi data pengguna nyata.
 
 1. Masuk ke [Supabase Dashboard](https://supabase.com/dashboard), buat proyek jika belum ada, pilih region yang sesuai dan rencana yang Anda setujui sendiri. Simpan password basis data di pengelola password. Aplikasi tidak memerlukan password basis data.
-2. Buka SQL Editor. Pada proyek kosong, jalankan `supabase/migrations/202610080001_core.sql`, lalu `supabase/migrations/202610080002_notifications.sql`, masing-masing satu kali dan dalam urutan tersebut. Migrasi pertama membuat tabel, aturan akses, fungsi transaksi, dan bucket foto privat; migrasi kedua melengkapi penerima pemberitahuan. Jangan jalankan ulang pada proyek yang telah dipakai tanpa migrasi lanjutan.
+2. Buka SQL Editor pada proyek simulasi kosong. Jalankan seluruh `supabase/migrations/*.sql` menurut urutan nama: `202610080001_core.sql`, `202610080002_notifications.sql`, lalu `202610100003_audit_controls.sql`, masing-masing satu kali. Migrasi ketiga memperbaiki izin jadwal, waktu bukti, dan pemberitahuan petugas nonaktif. Pada proyek yang telah memakai 001/002, hanya jalankan 003 setelah meninjau backup dan target; jangan ulangi migrasi pembuat tabel. Audit lokal ini tidak menjalankan migrasi Cloud.
 3. Ambil **Project URL** dan **publishable key** dari dialog Connect/API Keys. Ambil **secret key** pada bagian API Keys untuk server. Jika proyek hanya memakai kunci lama, `anon` dapat dipakai sebagai publishable dan `service_role` sebagai kunci server. Jangan memasukkan secret ke chat, screenshot publik, atau Git.
 4. Salin `.env.example` menjadi `.env.local`. Isi:
 
@@ -43,5 +43,7 @@ npm start
 Buka `http://localhost:3000`. Isi konfigurasi backend proyek Cloud yang sama dan `APP_ORIGIN=http://localhost:3000`. Jangan seed ulang dari laptop kedua. Internet diperlukan untuk Auth, data, dan foto; peta boleh gagal tanpa menghalangi daftar atau patokan manual. Port lain memerlukan `APP_ORIGIN` dan konfigurasi redirect yang sesuai.
 
 File `.env.local` tidak ikut clone. Transfer rahasia hanya melalui mekanisme privat yang Anda kelola. Bila laptop kedua tidak dipercaya untuk memegang kunci server, gunakan deployment server yang sudah dikonfigurasi pada tahap berikutnya; server lokal penuh memerlukan kunci server untuk unggahan.
+
+Sebelum memakai data asli, verifikasi Auth, Storage, sesi, izin lintas akun/wilayah, dan konkurensi di proyek pengujian terpisah dengan data sintetis yang diizinkan. Bila 001/002 pernah menerima penulisan, pengelola perlu meninjau tugas `submitted` atau kegiatan `completed` tanpa `performed_at` dan pemberitahuan ke petugas nonaktif. Migrasi 003 mempertahankan baris lama; perbaikan data lama memerlukan pemeriksaan manusia dan tidak dilakukan otomatis.
 
 Pada laptop pengembangan, port 3000 sedang dipakai proses lain. Gunakan `APP_ORIGIN=http://localhost:3001`, tambahkan `http://localhost:3001/**` ke daftar redirect Auth, lalu jalankan `npm start -- --port 3001`. Laptop kedua boleh tetap memakai port 3000. Pilihan port tidak mengubah proyek Cloud bersama.

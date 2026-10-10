@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
 import { jakartaDate } from "../src/lib/rules";
@@ -36,12 +36,10 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
       "-- gen_random_uuid built in; pgcrypto extension omitted only in PGlite harness",
     ),
   );
-  await db.exec(
-    await readFile(
-      "supabase/migrations/202610080002_notifications.sql",
-      "utf8",
-    ),
-  );
+  for (const name of (await readdir("supabase/migrations")).sort()) {
+    if (name.endsWith(".sql") && name !== "202610080001_core.sql")
+      await db.exec(await readFile("supabase/migrations/" + name, "utf8"));
+  }
   await db.query(
     "insert into regions(id,name,coverage,active,lat,lng) values($1,'Simulasi A','Zona A',true,-7.3,112.7),($2,'Simulasi B','Zona B',true,-7.31,112.71)",
     [ids.a, ids.b],
@@ -759,6 +757,232 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
         [incidentId],
       );
       assert.ok(histories.rows.length > 5);
+    },
+  );
+  await t.test(
+    "schedule runs reject unassigned, different and inactive workers; public data omits identities",
+    async () => {
+      const schedule = randomUUID();
+      const day = jakartaDate(new Date());
+      const weekday = new Date(day + "T12:00:00+07:00").getUTCDay();
+      await db.query(
+        "insert into schedules(id,region_id,service,zone,weekdays,start_time,end_time,valid_from,valid_until,source,confirmed_at) values($1,$2,'Audit service','Audit zone',$3,'08:00','10:00',$4,$4,'Audit synthetic',now())",
+        [schedule, ids.a, [weekday], day],
+      );
+      const run = {
+        op: "schedule.run",
+        id: schedule,
+        date: day,
+        actual_at: new Date().toISOString(),
+        reason: "Audit actual run",
+      };
+      await assert.rejects(() => command(ids.worker, run), /tanggung jawab/);
+      await db.query("update schedules set worker_id=$1 where id=$2", [
+        ids.reporter,
+        schedule,
+      ]);
+      await assert.rejects(() => command(ids.worker, run), /tanggung jawab/);
+      await db.query("update schedules set worker_id=$1 where id=$2", [
+        ids.worker,
+        schedule,
+      ]);
+      await db.query(
+        "update memberships set active=false where user_id=$1 and role='worker'",
+        [ids.worker],
+      );
+      await assert.rejects(() => command(ids.worker, run), /tanggung jawab/);
+      await db.query(
+        "update memberships set active=true where user_id=$1 and role='worker'",
+        [ids.worker],
+      );
+      await command(ids.worker, run);
+      for (const actor of [null, ids.other, ids.coordB]) {
+        const rows = (await as(actor, () =>
+          db.query("select worker_id from schedules where id=$1", [schedule]),
+        )) as { rows: unknown[] };
+        assert.equal(rows.rows.length, 0);
+        const runs = (await as(actor, () =>
+          db.query("select actor_id from schedule_runs where schedule_id=$1", [
+            schedule,
+          ]),
+        )) as { rows: unknown[] };
+        assert.equal(runs.rows.length, 0);
+      }
+      const authorized = (await as(ids.worker, () =>
+        db.query("select id from schedules where id=$1", [schedule]),
+      )) as { rows: unknown[] };
+      assert.equal(authorized.rows.length, 1);
+      const publicData = (await as(null, () =>
+        db.query("select public_region_data($1) data", [ids.a]),
+      )) as {
+        rows: {
+          data: {
+            schedules: { id: string }[];
+            runs: { schedule_id: string }[];
+          };
+        }[];
+      };
+      assert.ok(
+        publicData.rows[0].data.schedules.some((s) => s.id === schedule),
+      );
+      assert.ok(
+        publicData.rows[0].data.runs.some((r) => r.schedule_id === schedule),
+      );
+      assert.ok(!JSON.stringify(publicData.rows[0].data).includes(ids.worker));
+    },
+  );
+  await t.test(
+    "direct RPC cannot submit task/event evidence without time; active-only worker notifications",
+    async () => {
+      const point = randomUUID(),
+        incident = randomUUID(),
+        task = randomUUID(),
+        event = randomUUID();
+      await db.query(
+        "insert into points(id,region_id,label) values($1,$2,'Audit point')",
+        [point, ids.a],
+      );
+      await db.query(
+        "insert into incidents(id,region_id,point_id,status,public_label,observed_at) values($1,$2,$3,'working','Audit incident',now())",
+        [incident, ids.a, point],
+      );
+      await db.query(
+        "insert into tasks(id,incident_id,region_id,worker_id,status,due_at) values($1,$2,$3,$4,'accepted',now())",
+        [task, incident, ids.a, ids.worker],
+      );
+      const evidence = {
+        op: "task.evidence",
+        id: task,
+        version: 1,
+        action_taken: "Audit action taken",
+        moved: false,
+        photos: [await photo(ids.worker)],
+      };
+      for (const performed_at of [
+        undefined,
+        null,
+        "",
+        new Date(Date.now() + 3600000).toISOString(),
+      ])
+        await assert.rejects(
+          () => command(ids.worker, { ...evidence, performed_at }),
+          /Waktu pekerjaan/,
+        );
+      const taskBefore = await db.query<{ status: string }>(
+        "select status from tasks where id=$1",
+        [task],
+      );
+      assert.equal(taskBefore.rows[0].status, "accepted");
+      await command(ids.worker, {
+        ...evidence,
+        performed_at: new Date().toISOString(),
+      });
+      await db.query(
+        "update memberships set active=false where user_id=$1 and role='worker'",
+        [ids.worker],
+      );
+      const before = await db.query<{ count: number }>(
+        "select count(*)::int count from notifications where user_id=$1 and entity_id=$2",
+        [ids.worker, incident],
+      );
+      await command(ids.coord, {
+        op: "incident.review",
+        id: incident,
+        version: 2,
+        approved: false,
+        reason: "Audit private review note",
+      });
+      const after = await db.query<{ count: number }>(
+        "select count(*)::int count from notifications where user_id=$1 and entity_id=$2",
+        [ids.worker, incident],
+      );
+      assert.equal(after.rows[0].count, before.rows[0].count);
+      await db.query(
+        "update memberships set active=true where user_id=$1 and role='worker'",
+        [ids.worker],
+      );
+      const next = await db.query<{ version: number }>(
+        "select version from tasks where id=$1",
+        [task],
+      );
+      await command(ids.worker, {
+        ...evidence,
+        version: next.rows[0].version,
+        photos: [await photo(ids.worker)],
+        performed_at: new Date().toISOString(),
+      });
+      const activeNotice = await db.query<{ count: number }>(
+        "select count(*)::int count from notifications where user_id=$1 and entity_id=$2",
+        [ids.worker, incident],
+      );
+      assert.ok(activeNotice.rows[0].count > after.rows[0].count);
+      await db.query(
+        "insert into events(id,region_id,title,location,starts_at,capacity,pic,duties,equipment,transporter,destination,status) values($1,$2,'Audit event','Audit location',now()-interval '1 day',1,'Audit PIC','Audit duties','Audit equipment','Audit transporter','Audit destination','published')",
+        [event, ids.a],
+      );
+      const completion = {
+        op: "event.complete",
+        id: event,
+        version: 1,
+        completion_note: "Audit completion",
+        transport_status: "Sudah diangkut",
+        photos: [await photo(ids.coord)],
+      };
+      for (const performed_at of [
+        undefined,
+        null,
+        "",
+        new Date(Date.now() + 3600000).toISOString(),
+      ])
+        await assert.rejects(
+          () => command(ids.coord, { ...completion, performed_at }),
+          /belum dapat diselesaikan/,
+        );
+      const eventBefore = await db.query<{ status: string }>(
+        "select status from events where id=$1",
+        [event],
+      );
+      assert.equal(eventBefore.rows[0].status, "published");
+      await command(ids.coord, {
+        ...completion,
+        performed_at: new Date().toISOString(),
+      });
+      const eventAfter = await db.query<{ status: string }>(
+        "select status from events where id=$1",
+        [event],
+      );
+      assert.equal(eventAfter.rows[0].status, "completed");
+    },
+  );
+  await t.test(
+    "direct RPC rejects nonfinite PostgreSQL dates without creating poisoned records",
+    async () => {
+      const p = {
+        op: "report.create",
+        region_id: ids.a,
+        category: "Penumpukan",
+        landmark: "Audit patokan",
+        description: "Audit kondisi sintetis",
+        photos: [await photo()],
+      };
+      for (const observed_at of [
+        "-infinity",
+        "infinity",
+        "12000-01-01T00:00:00Z",
+      ])
+        await assert.rejects(
+          () => command(ids.reporter, { ...p, observed_at }),
+          /Waktu harus/,
+        );
+      const created = await command(ids.reporter, {
+        ...p,
+        observed_at: new Date().toISOString(),
+      });
+      assert.ok(created.id);
+      const poisoned = await db.query<{ count: number }>(
+        "select count(*)::int count from reports where not isfinite(observed_at)",
+      );
+      assert.equal(poisoned.rows[0].count, 0);
     },
   );
   await db.close();

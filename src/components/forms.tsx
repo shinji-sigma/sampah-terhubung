@@ -49,7 +49,15 @@ export async function api(url: string, body?: unknown) {
   } catch {
     throw new ApiError("Koneksi terputus. Isian tetap tersedia; coba lagi.");
   }
-  const result = await response.json();
+  let result;
+  try {
+    result = await response.json();
+    if (!result || typeof result !== "object") throw new Error();
+  } catch {
+    throw new ApiError(
+      "Respons layanan tidak dapat dibaca. Isian tetap tersedia; coba lagi.",
+    );
+  }
   if (!response.ok)
     throw new ApiError(result.error || "Permintaan gagal.", result.fields);
   return result;
@@ -280,11 +288,13 @@ export function ActionForm({
             aria-invalid={!!errors.photos}
             aria-describedby={prefix + "-photos-help"}
           />
-          <small id={prefix + "-photos-help"}>
-            Maksimal 5 MB per foto. Hindari wajah, pelat kendaraan, dan bagian
-            rumah yang tidak diperlukan.
-          </small>
-          {errors.photos && <p className="field-error">{errors.photos}</p>}
+          <div id={prefix + "-photos-help"}>
+            <small>
+              Maksimal 5 MB per foto. Hindari wajah, pelat kendaraan, dan bagian
+              rumah yang tidak diperlukan.
+            </small>
+            {errors.photos && <p className="field-error">{errors.photos}</p>}
+          </div>
         </div>
       )}
       {message && (
