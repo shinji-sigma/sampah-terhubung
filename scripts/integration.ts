@@ -28,8 +28,18 @@ async function check(name: string, fn: () => Promise<void>) {
     await fn();
     results.push({ name, result: "Lulus" });
     console.log("Lulus: " + name);
-  } catch {
+  } catch (error) {
+    if (error instanceof assert.AssertionError)
+      console.error(
+        "Assertion gagal: " + error.operator + " (" + error.code + ")",
+      );
+    else if (
+      error instanceof Error &&
+      error.message.startsWith("RPC uji gagal")
+    )
+      console.error(error.message);
     results.push({ name, result: "Gagal" });
+    // eslint-disable-next-line preserve-caught-error -- Do not expose response bodies or credential-bearing causes in Cloud diagnostics.
     throw new Error(
       "Pemeriksaan gagal: " +
         name +
@@ -121,16 +131,19 @@ const [reporter, reporter2, coordinator, worker, coordinatorB] =
     login(accounts.worker),
     login(accounts.coordinatorB),
   ]);
-const [httpReporter, httpWorker, httpCoordB] = await Promise.all([
-  httpSession(accounts.reporter),
-  httpSession(accounts.worker),
-  httpSession(accounts.coordinatorB),
-]);
+const [httpReporter, httpWorker, httpCoordB, httpCoordinator] =
+  await Promise.all([
+    httpSession(accounts.reporter),
+    httpSession(accounts.worker),
+    httpSession(accounts.coordinatorB),
+    httpSession(accounts.coordinator),
+  ]);
 const stamp = "Uji integrasi " + new Date().toISOString();
 let incidentId = "",
   taskId = "",
   eventId = "",
-  pointId = "";
+  pointId = "",
+  closedAt = "";
 try {
   await check("Auth Cloud + sesi HTTP benar-benar terverifikasi", async () => {
     const {
@@ -313,23 +326,31 @@ try {
         [1, 2].map(() => {
           const request_key = randomUUID();
           keys.push(request_key);
-          return worker.db.rpc("command", {
-            p: { op: "task.accept", id: taskId, version: 1 },
-            request_key,
-          });
+          return worker.db
+            .rpc("command", {
+              p: { op: "task.accept", id: taskId, version: 1 },
+              request_key,
+            })
+            .abortSignal(AbortSignal.timeout(20000));
         }),
       );
       console.log(
         "Hasil konkurensi (kode saja): " +
-          JSON.stringify(attempts.map((attempt) => ({
-            error: !!attempt.error,
-            code: attempt.error?.code || null,
-            status: attempt.status,
-            dataPresent: !!attempt.data,
-          }))),
+          JSON.stringify(
+            attempts.map((attempt) => ({
+              error: !!attempt.error,
+              code: attempt.error?.code || null,
+              status: attempt.status,
+              dataPresent: !!attempt.data,
+            })),
+          ),
       );
       assert.equal(attempts.filter((a) => !a.error).length, 1);
-      assert.equal(attempts.filter((a) => a.error?.code === "40001").length, 1);
+      assert.equal(
+        attempts.filter((a) => a.error?.code === "PT409" && a.status === 409)
+          .length,
+        1,
+      );
       await command(worker.db, {
         op: "task.block",
         id: taskId,
@@ -377,12 +398,16 @@ try {
       assert.equal(inc.data?.status, "closed");
       assert.equal(inc.data?.reviewer_id, coordinator.id);
       assert.ok(inc.data?.closed_at);
+      closedAt = inc.data!.closed_at;
     },
   );
   await check(
     "Kejadian baru setelah penutupan terpisah dari laporan duplikat",
     async () => {
-      const observed = new Date().toISOString();
+      // Simulated observation follows the server's closure even with small clock skew.
+      const observed = new Date(
+        Math.max(Date.now(), Date.parse(closedAt) + 1),
+      ).toISOString();
       const later = await command(reporter.db, {
         op: "report.create",
         region_id: regionIds.a,
@@ -413,8 +438,14 @@ try {
         .select("*")
         .eq("point_id", pointId);
       assert.equal(incidents.error, null);
+      const serverNow = new Date(
+        Math.max(
+          Date.now(),
+          ...incidents.data!.map((i) => Date.parse(i.verified_at)),
+        ),
+      );
       assert.equal(
-        recurrence(incidents.data as Incident[], new Date()).get(pointId)
+        recurrence(incidents.data as Incident[], serverNow).get(pointId)
           ?.length,
         2,
       );
@@ -613,6 +644,120 @@ try {
         r: regionIds.a,
       });
       assert.ok(!JSON.stringify(data).includes(reporter.id));
+    },
+  );
+  await check(
+    "Alur HTTP tiga sesi: laporan + foto, penugasan, bukti, konflik 409, pembaruan dan logout",
+    async () => {
+      async function send(
+        request: typeof httpReporter,
+        p: Record<string, unknown>,
+      ) {
+        const request_key = randomUUID();
+        keys.push(request_key);
+        const response = await request("/api/commands", { p, request_key });
+        assert.equal(response.status, 200);
+        assert.match(response.headers.get("cache-control") || "", /no-store/);
+        return response.json();
+      }
+      async function workspace(request: typeof httpReporter) {
+        const response = await request("/api/workspace?region=" + regionIds.a);
+        assert.equal(response.status, 200);
+        return response.json();
+      }
+      const report = await send(httpReporter, {
+        op: "report.create",
+        region_id: regionIds.a,
+        category: "Penumpukan",
+        landmark: stamp,
+        description: "Alur HTTP nyata dengan data simulasi.",
+        observed_at: new Date(Date.now() - 60000).toISOString(),
+        photos: await photo(httpReporter),
+      });
+      reportIds.push(report.id);
+      assert.ok(
+        (await workspace(httpCoordinator)).reports.some(
+          (r: { id: string }) => r.id === report.id,
+        ),
+      );
+      await send(httpCoordinator, {
+        op: "report.validate",
+        id: report.id,
+        version: 1,
+        public_label: stamp,
+      });
+      let data = await workspace(httpCoordinator);
+      const incident = data.incidents.find(
+        (i: { id: string }) =>
+          i.id ===
+          data.reports.find((r: { id: string }) => r.id === report.id)
+            .incident_id,
+      );
+      incidentIds.push(incident.id);
+      pointIds.push(incident.point_id);
+      await send(httpCoordinator, {
+        op: "incident.assign",
+        id: incident.id,
+        version: incident.version,
+        worker_id: worker.id,
+        due_at: new Date().toISOString(),
+        reason: stamp,
+      });
+      const task = (await workspace(httpWorker)).tasks.find(
+        (t: { incident_id: string }) => t.incident_id === incident.id,
+      );
+      await send(httpWorker, {
+        op: "task.accept",
+        id: task.id,
+        version: task.version,
+      });
+      const staleKey = randomUUID();
+      keys.push(staleKey);
+      const conflict = await httpWorker("/api/commands", {
+        p: { op: "task.accept", id: task.id, version: task.version },
+        request_key: staleKey,
+      });
+      assert.equal(conflict.status, 409);
+      assert.match((await conflict.json()).error, /sudah berubah/);
+      await send(httpWorker, {
+        op: "task.evidence",
+        id: task.id,
+        version: task.version + 1,
+        action_taken: "Pengangkutan simulasi selesai",
+        performed_at: new Date().toISOString(),
+        moved: true,
+        destination: "TPS simulasi",
+        photos: await photo(httpWorker),
+      });
+      data = await workspace(httpCoordinator);
+      const awaiting = data.incidents.find(
+        (i: { id: string }) => i.id === incident.id,
+      );
+      await send(httpCoordinator, {
+        op: "incident.review",
+        id: incident.id,
+        version: awaiting.version,
+        approved: true,
+        reason: "Bukti HTTP simulasi diperiksa",
+      });
+      assert.equal(
+        (await workspace(httpReporter)).incidents.find(
+          (i: { id: string }) => i.id === incident.id,
+        ).status,
+        "closed",
+      );
+      assert.equal(
+        (await httpReporter("/api/photos/" + photoIds.at(-1))).status,
+        200,
+      );
+      assert.equal(
+        (await httpWorker("/api/auth", { action: "logout" })).status,
+        200,
+      );
+      assert.equal(
+        (await httpWorker("/api/workspace?region=" + regionIds.a)).status,
+        401,
+      );
     },
   );
   console.log("Pemeriksaan Cloud lulus. Memeriksa pembersihan artefak uji.");

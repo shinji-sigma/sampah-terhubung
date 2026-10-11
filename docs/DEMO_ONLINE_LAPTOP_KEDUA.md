@@ -1,73 +1,109 @@
 # Demo online dari laptop kedua
 
-Semua perintah dijalankan dari `D:\WebDemo`. Checkout dibuat dari salinan lokal yang bersih pada `7461875`; histori memuat perbaikan `0f9d055`. Folder sumber tidak diubah. Repository baru **privat**: https://github.com/shinji-sigma/sampah-terhubung. Tidak ada `.env.local` dalam Git.
+URL demo: https://sampah-terhubung-langgamramadhan9-3266.vercel.app
 
-## Status persiapan
+Semua perintah persiapan, build, tes, push dan deployment dijalankan dari `D:\WebDemo`. Repository privat: https://github.com/shinji-sigma/sampah-terhubung. Histori memuat perbaikan audit `0f9d055` dan laporan `7461875`. Personal AI, PRD, riset dan checkout laptop utama tidak diubah.
 
-URL produksi: https://sampah-terhubung-langgamramadhan9-3266.vercel.app. Pratinjau statis: https://sampah-terhubung-langgamramadhan9-3266.vercel.app/preview. Deployment pertama memuat commit `dacd026`; kode audit `0f9d055` dan laporan `7461875` termasuk dalam histori. Backend Cloud telah dikonfigurasi dan data simulasi di-seed; deployment berikutnya memakai konfigurasi tersebut. URL `/preview` tetap statis.
+## Backend dan hosting
 
-- Node 24.21.0, npm 11.19.0; `npm ci` berhasil dan registry audit melaporkan 0 vulnerability saat instalasi.
-- Baseline 31 tes/lint/build lulus; penyesuaian foto menambah tes retry parsial, total 32 tes lokal.
-- Preview lokal memakai `http://localhost:3001/preview`; port 3000 milik aplikasi lain dipertahankan.
-- GitHub melalui Git Credential Manager dapat melakukan push. Repository privat dibuat dan histori audit dipush ke `main`.
-- CLI Vercel berhasil login; scope `langgamramadhan9-3266` terverifikasi sebagai OWNER pada paket Hobby aktif. Deployment dilakukan langsung dari checkout laptop kedua. Integrasi GitHub Vercel belum dipasang; push GitHub berikutnya perlu diikuti deployment CLI.
-- `.env.local` dibuat tanpa menyalin secret laptop utama. URL, publishable key, tepat satu `SUPABASE_SERVICE_ROLE_KEY`, dan password akun simulasi tersedia secara privat. Pemeriksaan boolean seluruhnya true. Password demo acak disimpan hanya dalam file lokal, tidak di chat/Git/hosting.
-- Build lokal dan Vercel lulus (Next.js 16.4.0, Node 24.x); deployment `dpl_4Q3Efr9h48umXjFeXppEnALuTNmg` READY. Settings project memakai framework Next.js. Vercel Authentication memakai Standard Protection: URL produksi stabil publik, URL deployment/preview tetap dilindungi.
-- HTTP tanpa sesi Vercel: `/` dan `/preview` 200; `/ui-test` 404; `/api/public` dan `/api/workspace` 503 karena backend kosong. Browser desktop tanpa error/warning console; viewport 390px tanpa overflow horizontal. Ini emulasi ukuran HP, bukan pengujian perangkat fisik.
-- Manifest CLI dry-run membuktikan `.env.local`, `.env.example`, `.git`, seluruh output pengujian dan dependencies dikecualikan dari upload kode. `npm run test:integration` berhenti pada pemeriksaan konfigurasi; belum ada hasil integrasi Cloud.
-- Organisasi Supabase **Sampah Terhubung Demo** terverifikasi **Free Plan**. Pengguna telah membuat proyek kosong `sampah-terhubung-demo` (`jrozalhfgmzpxvpvzgcf`), Healthy, Nano, South Asia (Mumbai). Password database dibuat/disimpan sendiri oleh pengguna.
-- Migrasi 001, 002, 003 diterapkan melalui SQL Editor dan masing-masing menghasilkan Success. Riwayat migration CLI tidak diisi otomatis oleh SQL Editor; jangan mengulang 001 pada database ini. Delapan akun dan dataset simulasi berhasil di-seed. Skrip seed diperbaiki dengan `defaultToNull:false` agar baris bulk yang tidak mengisi kolom tertentu memakai default database.
-- Integrasi nyata awal: Auth/sesi HTTP, unggahan foto JPEG, penolakan SVG, bucket privat, laporan/idempotensi, RLS/foto lintas akun, validasi dan penugasan ulang lulus. Pemeriksaan konkurensi penerimaan tugas masih gagal dan sedang ditelusuri; pemeriksaan berikutnya belum dinyatakan lulus. Cleanup percobaan yang telah selesai tidak melaporkan kegagalan.
-- Lima environment variables produksi terpasang melalui API Vercel secara privat menggunakan `npm run deploy:env`. Nilai dilewatkan melalui stdin; output kunci/response tidak ditampilkan. Hanya konfigurasi runtime yang diunggah; `DEMO_PASSWORD` tidak disertakan.
+- Vercel project `sampah-terhubung`, scope `langgamramadhan9-3266`, paket **Hobby**. URL produksi stabil publik; URL deployment/preview tetap memakai Vercel Authentication. Tidak ada domain/paket berbayar dibeli.
+- Supabase organisasi **Sampah Terhubung Demo**, **Free**, project `sampah-terhubung-demo`, ref `jrozalhfgmzpxvpvzgcf`, Nano, Mumbai. Hanya data simulasi. Docker tidak diperlukan.
+- Migrasi 001–003 berhasil diterapkan melalui SQL Editor, kemudian **004** memperbaiki kode konflik bisnis menjadi `PT409`. Semua migrasi lama dan data dipertahankan. SQL Editor tidak mencatat histori migrasi CLI otomatis; jangan mengulang pembuat tabel 001 pada database ini.
+- Delapan akun dan dataset simulasi telah di-seed. Jangan menjalankan seed ulang untuk memakai demo pada perangkat lain.
+- `.env.local`, konfigurasi CLI, artefak privat dan output tes dikecualikan dari Git/unggahan kode. Runtime Vercel memakai URL/publishable key, tepat satu server key, `DEMO_MODE=true`, dan origin produksi. `DEMO_PASSWORD` hanya lokal.
+- GitHub app Vercel belum dipasang; push GitHub saja belum melakukan redeploy. Gunakan CLI dari laptop kedua.
 
-## Konfigurasi privat yang diperlukan
+## Masuk dari kedua laptop dan HP
 
-Pada proyek Supabase **baru, kosong, khusus simulasi** dan paket gratis:
+Buka URL demo yang sama melalui browser. Tidak perlu clone, Node atau Docker untuk mengakses demo online. Pilih Masuk dan gunakan akun berikut; semuanya memakai password pada **DEMO_PASSWORD di `D:\WebDemo\.env.local`**. Baca nilainya sendiri secara privat; jangan mengirim file/kunci/password ke chat atau Git.
 
-1. Jalankan SQL Editor dalam urutan `202610080001_core.sql`, `202610080002_notifications.sql`, `202610100003_audit_controls.sql`. Tiga file tersedia di `supabase/migrations/`. Pada proyek yang telah memakai 001/002, jangan mengulang pembuat tabel; hanya terapkan tambahan yang belum ada setelah memeriksa target/backup.
-2. Isi `D:\WebDemo\.env.local` dengan `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, **tepat satu** `SUPABASE_SECRET_KEY` atau `SUPABASE_SERVICE_ROLE_KEY`, `DEMO_PASSWORD` minimal 12 karakter, `DEMO_MODE=true`, `APP_ORIGIN=http://localhost:3001`. Secret tidak dikirim ke chat, Git atau screenshot.
-3. Atur Auth Site URL/Redirect URLs untuk origin aplikasi sebenarnya. Untuk lokal izinkan `http://localhost:3001/**`. Setelah URL online stabil tersedia, tambahkan origin HTTPS tersebut; Site URL diarahkan ke demo online.
-4. Konfirmasi target memang khusus simulasi, baru jalankan `npm run check:env`, `npm run demo:seed` **sekali**, rebuild/restart lokal, lalu `npm run test:integration`. Pemeriksaan integration memakai akun/foto sintetis dan melakukan cleanup ID yang dibuatnya. Jika cleanup gagal, periksa hasil privat sebelum mengulang.
+| Peran | Email |
+| --- | --- |
+| Pelapor wilayah A | pelapor.a@demo.invalid |
+| Pelapor kedua A | pelapor.2@demo.invalid |
+| Koordinator A | koordinator.a@demo.invalid |
+| Petugas A | petugas.a@demo.invalid |
+| Pelapor B | pelapor.b@demo.invalid |
+| Koordinator B | koordinator.b@demo.invalid |
+| Petugas B | petugas.b@demo.invalid |
+| Admin simulasi | admin@demo.invalid |
 
-Jangan melakukan seed ulang dari laptop pertama atau HP. Keduanya membuka URL HTTPS yang sama, sehingga Auth/data/foto memakai satu backend Cloud. Docker tidak diperlukan.
+Gunakan sesi browser terpisah untuk setiap peran. Pelapor mengirim laporan dengan foto; koordinator memvalidasi dan menugaskan; petugas menerima lalu mengirim bukti; koordinator memeriksa dan menutup. Muat ulang pada sesi/perangkat lain untuk memperoleh data terbaru. Ini berbagi backend Cloud, tanpa push realtime otomatis. `/preview` tetap pratinjau statis dan tidak membuktikan data backend.
 
-## Hosting Vercel
+## Menjalankan checkout lokal
 
-Gunakan akun Hobby yang tersedia untuk demo pribadi nonkomersial. Jangan memilih Pro, trial berbayar, domain atau add-on berbayar. Framework **Next.js**, root directory `./`, Node **24.x**, install `npm ci`, build `npm run build`, output default. `.vercelignore` mengecualikan seluruh file `.env*` dan output pengujian dari unggahan kode; `.vercel/` diabaikan Git.
+Node yang diperiksa: 24.21.0; npm 11.19.0. Dari PowerShell:
 
-Deployment CLI dari `D:\WebDemo` menggunakan `npm exec --yes --package=vercel@63.1.2 -- vercel deploy --prod --skip-domain --yes --project sampah-terhubung --scope langgamramadhan9-3266`. Periksa deployment lalu gunakan `vercel promote <URL>` dengan scope yang sama. Login CLI tetap privat; jangan memakai token pada argument command.
+```powershell
+Set-Location D:\WebDemo
+npm ci
+npm run check:env
+npm run build
+npm start -- --port 3001
+```
 
-Isi Environment Variables di dashboard Vercel secara privat untuk environment demo:
+Buka http://localhost:3001. Port 3000 milik aplikasi lain dipertahankan. Server lokal hanya mendengarkan pada 127.0.0.1; perangkat lain menggunakan URL HTTPS online.
+
+Untuk clone baru di `D:\WebDemo`, clone repository privat menggunakan akses GitHub sendiri; jangan menimpa perubahan lokal. `.env.local` tidak ikut clone. Salin `.env.example`, lalu isi konfigurasi secara privat melalui dashboard proyek simulasi yang sama. Jangan seed ulang pada backend yang sudah disiapkan.
+
+## Konfigurasi privat
 
 | Variabel | Isi |
 | --- | --- |
-| `NEXT_PUBLIC_SUPABASE_URL` | URL proyek simulasi yang sama |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Publishable key proyek tersebut |
-| `SUPABASE_SECRET_KEY` | Server secret; jangan memakai awalan NEXT_PUBLIC |
-| `SUPABASE_SERVICE_ROLE_KEY` | Alternatif legacy; kosongkan bila secret key sudah diisi |
-| `DEMO_MODE` | `true` |
-| `APP_ORIGIN` | Origin HTTPS stabil **persis**, tanpa path atau slash akhir |
+| NEXT_PUBLIC_SUPABASE_URL | URL proyek simulasi |
+| NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | Publishable key proyek tersebut |
+| SUPABASE_SECRET_KEY | Server secret, atau alternatif legacy di bawah; tepat satu |
+| SUPABASE_SERVICE_ROLE_KEY | Alternatif legacy; jangan isi keduanya |
+| DEMO_MODE | true |
+| APP_ORIGIN | http://localhost:3001 untuk lokal; origin HTTPS stabil untuk hosting |
+| DEMO_PASSWORD | Password akun seed/integration, minimal 12 karakter, hanya lokal |
 
-`DEMO_PASSWORD` hanya diperlukan untuk seed/integration lokal; jangan menaruhnya di environment runtime hosting. `ALLOW_UI_FIXTURES` tidak diisi pada hosting. URL/publishable menjadi konfigurasi browser; perubahan variabel `NEXT_PUBLIC_*` memerlukan redeploy/build baru.
+Konfigurasi laptop kedua dan hosting sudah tersedia. Auth Site URL sudah diarahkan ke demo HTTPS. Redirect konfirmasi email yang perlu terdaftar adalah `http://localhost:3001/auth/confirm` dan `https://sampah-terhubung-langgamramadhan9-3266.vercel.app/auth/confirm`; penyimpanan allowlist ini belum terverifikasi karena koneksi kontrol Chrome terputus. Login akun demo yang sudah dikonfirmasi tidak bergantung pada pengiriman email baru.
 
-Untuk proyek demo ini, `npm run deploy:env` memasang lima variabel tersebut dari `.env.local` melalui CLI resmi. Skrip dikunci pada ID proyek/team Vercel dan URL Supabase simulasi di atas, serta memaksa `APP_ORIGIN` menjadi URL produksi stabil. `.env.local` tetap memakai origin lokal 3001. Skrip menolak konfigurasi kosong atau dua kunci server; jangan menggunakannya pada proyek lain tanpa meninjau target terlebih dahulu.
+Untuk backend baru kosong, jalankan keempat SQL di `supabase/migrations` menurut nama, isi env, lalu `npm run demo:seed` sekali. Seed memakai Auth/Storage sungguhan dan `defaultToNull:false` agar insert bulk mempertahankan default database.
 
-Jika URL awal berubah, jangan menghapus validasi Origin. Perbarui `APP_ORIGIN` dan redirect Auth untuk domain stabil, kemudian redeploy. API mutasi dari deployment preview lain memang ditolak jika Origin-nya tidak sesuai.
+## Pengujian
 
-## Foto dan batas host
+```powershell
+Set-Location D:\WebDemo
+npm test
+npm run lint
+npm run typecheck
+npm run test:integration
+```
 
-Vercel membatasi body/response Functions pada 4,5 MB. Form mengirim foto satu per satu; foto di atas 3,5 MiB diperkecil menjadi JPEG maksimal 1920px sebelum dikirim. Berkas asli tetap maksimal 5 MiB dan maksimal tiga foto. Browser yang tidak mendukung persiapan foto besar akan meminta berkas lebih kecil. Server tetap memvalidasi/decode ulang, membuang EXIF dan menyimpan pada bucket privat; browser bukan pengganti validasi server.
+32 tes lokal, lint, typecheck dan build lulus. Tes PostgreSQL lokal memakai PGlite dengan Auth/Storage tiruan; hasil itu terpisah dari verifikasi Cloud.
 
-ID foto yang sudah berhasil diunggah disimpan selama retry parsial agar tidak diunggah ulang. Objek yang berhasil tersimpan tetapi belum tertaut akibat pembatalan/lost response tetap memerlukan kebijakan retensi; demo ini belum memiliki pembersihan otomatis. Pengujian kompresi asli di browser/HP dan batas hosting tetap harus dicatat sesudah backend tersedia, bukan disimpulkan dari unit test.
+14 pemeriksaan integrasi nyata dengan Cloud dan server lokal lulus, mencakup Auth/sesi HTTP, upload JPEG dan penolakan SVG, bucket privat, idempotensi laporan, RLS/izin foto antarwilayah, dua laporan untuk satu insiden, penolakan/penugasan ulang, konkurensi penerimaan, bukti/penutupan, kejadian baru, jadwal aktual, P1 pencegahan/kegiatan, kapasitas pendaftaran, CSV, serta satu alur lengkap melalui HTTP dengan tiga sesi. Pemeriksaan konflik HTTP mengharuskan 409 dan pesan yang dapat ditindaklanjuti; setelah logout workspace harus 401. Cleanup hanya ID uji yang dibuat dan tidak melaporkan kegagalan.
 
-## Pengujian setelah deploy
+Hasil privat tersedia di `output/private/cloud-integration.json`. Jangan commit artefak privat. Hasil sanitasi dapat disimpan di `output/deployment`; tidak memuat token, password atau data pribadi.
 
-1. Periksa `/preview` 200, `/ui-test` 404, label Data simulasi, desktop/ponsel serta error console. Preview statis tidak membuktikan backend.
-2. Login akun pelapor, unggah foto nyata sintetis dan kirim laporan. Catat nomor laporan, periksa foto hanya dapat dibaca pihak berhak.
-3. Login koordinator pada perangkat lain: laporan yang sama muncul setelah muat ulang; validasi, tugaskan petugas. Petugas menerima tugas, mengirim bukti/waktu/tindakan/tujuan pengangkutan; koordinator memeriksa dan menutup. Pelapor melihat perkembangan yang sama.
-4. Coba ID foto/data wilayah lain dengan akun yang tidak berhak; pastikan server/database menolak. Jalankan integration script dengan `APP_ORIGIN` origin HTTPS itu dari laptop kedua.
-5. Uji laptop pertama, kedua dan HP pada URL yang sama. Klaim antarperangkat hanya setelah hasil benar-benar teramati; respons MOCK, viewport emulasi dan SQL terisolasi tidak cukup.
+Pengujian server produksi memakai origin HTTPS tanpa mengubah env lokal:
 
-Email signup/konfirmasi, peta pada jaringan HP, upload besar, konkurensi, logout/expiry, backup foto+database/restore dan perangkat fisik tetap dicatat sebagai belum teruji sampai benar-benar diperiksa.
+```powershell
+$env:APP_ORIGIN = 'https://sampah-terhubung-langgamramadhan9-3266.vercel.app'
+npm run test:integration
+Remove-Item Env:APP_ORIGIN
+```
 
-Sumber resmi: [Vercel Functions limits](https://vercel.com/docs/functions/limitations), [Hobby plan](https://vercel.com/docs/plans/hobby), [API keys Supabase](https://supabase.com/docs/guides/api/api-keys), [redirect URL Auth](https://supabase.com/docs/guides/auth/redirect-urls).
+## Memperbarui deployment
+
+Dari `D:\WebDemo`, pastikan Git bersih, commit terbaru dipush dan pemeriksaan lulus. Konfigurasi runtime dapat dikirim secara privat dengan `npm run deploy:env`; helper dikunci pada proyek/team demo ini dan mengirim nilai melalui stdin, tanpa menampilkan secret.
+
+```powershell
+npm exec --yes --package=vercel@63.1.2 -- vercel deploy --prod --skip-domain --yes --project sampah-terhubung --scope langgamramadhan9-3266
+npm exec --yes --package=vercel@63.1.2 -- vercel inspect <URL-deployment> --scope langgamramadhan9-3266
+npm exec --yes --package=vercel@63.1.2 -- vercel promote <URL-deployment> --scope langgamramadhan9-3266
+```
+
+Framework Next.js 16.4.0, Node 24.x, install `npm ci`, build `npm run build`. Jangan memakai token pada argumen CLI. Variabel NEXT_PUBLIC memerlukan build/redeploy baru. Jangan menghapus pemeriksaan Origin untuk membuat URL preview lain dapat melakukan mutasi.
+
+## Perbaikan Cloud dan batas pengujian
+
+PostgREST 14 mengulang custom SQLSTATE `40001` sampai timeout. Migrasi 004 hanya mengganti exception konflik aplikasi dengan `PT409`, tanpa mengubah aturan peran/transisi. API Next.js memetakan PT409 ke HTTP 409. Pemeriksaan Cloud membuktikan dua penerimaan bersamaan menghasilkan satu 200 dan satu 409. Tidak ditemukan backend authenticator aktif lebih dari satu menit setelah perbaikan. [Dokumentasi Supabase](https://supabase.com/docs/guides/troubleshooting/high-cpu-and-infinite-transaction-retries-when-using-custom-error-codes-in-rpc-functions-77326b).
+
+Waktu database sekitar 0,8 detik lebih maju dari laptop saat diuji. Fixture kejadian setelah penutupan memakai timestamp penutupan server sebagai acuan; aturan validasi aplikasi tetap berlaku. Atur jam perangkat otomatis sebelum demo.
+
+Foto dikirim satu per satu; foto di atas 3,5 MiB diperkecil browser menjadi JPEG maksimal 1920px untuk body Functions Vercel maksimal 4,5 MB. Berkas asli maksimal 5 MiB, tiga foto. Server tetap decode ulang, menghapus EXIF, dan menyimpan di bucket privat. [Batas Functions](https://vercel.com/docs/functions/limitations).
+
+Belum terverifikasi: kedua laptop dan HP fisik secara bersamaan; kamera/GPS/jaringan seluler; kompresi foto besar asli di browser; signup/konfirmasi email; expiry sesi; backup dan restore. Pengujian beberapa sesi HTTP dan viewport 390px bukan bukti pengujian perangkat fisik. Foto yang terunggah namun belum tertaut akibat pembatalan masih memerlukan kebijakan retensi; pembersihan orphan otomatis belum tersedia. Demo memakai muat ulang, bukan sinkronisasi realtime.
