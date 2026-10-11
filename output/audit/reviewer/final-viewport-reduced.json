@@ -1,0 +1,34 @@
+[
+  {
+    "animation": "none",
+    "h1": "Dari laporan warga, ke lingkungan terawat.",
+    "opacity": "1",
+    "scrollBehavior": "auto",
+    "scrollWidth": 1425,
+    "width": 1440
+  },
+  {
+    "animation": "none",
+    "h1": "Dari laporan warga, ke lingkungan terawat.",
+    "opacity": "1",
+    "scrollBehavior": "auto",
+    "scrollWidth": 753,
+    "width": 768
+  },
+  {
+    "animation": "none",
+    "h1": "Dari laporan warga, ke lingkungan terawat.",
+    "opacity": "1",
+    "scrollBehavior": "auto",
+    "scrollWidth": 375,
+    "width": 390
+  },
+  {
+    "animation": "none",
+    "h1": "Dari laporan warga, ke lingkungan terawat.",
+    "opacity": "1",
+    "scrollBehavior": "auto",
+    "scrollWidth": 345,
+    "width": 360
+  }
+]

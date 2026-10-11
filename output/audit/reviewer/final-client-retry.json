@@ -1,0 +1,12 @@
+{
+  "snapshot": "9d67c3a0da095ed93bc88aebc8e501ec16dec729",
+  "mode": "MOCK only",
+  "html503": "actionable message and input preserved",
+  "network": "actionable message and input preserved",
+  "field422": "field aria-invalid and help binding, input preserved",
+  "mutation401": "input preserved",
+  "doubleClick": "one request while in flight",
+  "retrySamePayloadSameKey": true,
+  "workspace401": "workspace cleared with recovery panel",
+  "workspace503": "workspace cleared with recovery panel"
+}

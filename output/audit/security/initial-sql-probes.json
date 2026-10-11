@@ -1,0 +1,65 @@
+{
+  "backend": "isolated PGlite with auth/storage stubs; no real Supabase",
+  "findings": [
+    {
+      "name": "worker can record unassigned schedule run",
+      "result": "allowed",
+      "actual": [
+        {
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "anonymous direct confirmed schedule SELECT",
+      "result": "allowed",
+      "actual": [
+        {
+          "worker_id_present": true
+        }
+      ]
+    },
+    {
+      "name": "event completion missing performed_at bypasses RPC validation",
+      "result": "allowed",
+      "actual": [
+        {
+          "status": "completed",
+          "performed_at_missing": true
+        }
+      ]
+    },
+    {
+      "name": "task evidence missing performed_at bypasses RPC validation",
+      "result": "allowed",
+      "actual": [
+        {
+          "status": "submitted",
+          "performed_at_missing": true
+        }
+      ]
+    },
+    {
+      "name": "inactive worker receives new review notification",
+      "result": "allowed",
+      "actual": {
+        "task_rows": 0,
+        "new_notification_rows": 1
+      }
+    },
+    {
+      "name": "reporter direct RPC negative-infinity observation",
+      "result": "allowed",
+      "actual": [
+        {
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "negative-infinity frontend rendering",
+      "result": "throws",
+      "message": "Invalid time value"
+    }
+  ]
+}

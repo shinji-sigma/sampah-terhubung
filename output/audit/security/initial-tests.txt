@@ -1,0 +1,39 @@
+
+> sampah-terhubung@0.1.0 test
+> tsx --test tests/*.test.ts
+
+▶ PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supabase Auth/Storage)
+  ✔ signup metadata cannot grant manager/admin; direct tables are immutable (11.4724ms)
+  ✔ server rules require photos, valid dates, coordinate ranges and active region (14.1243ms)
+  ✔ report submit is idempotent and preserves ownership; reusing key with new payload fails (18.0005ms)
+  ✔ pending report and private photo are invisible to strangers, workers and other coordinators (23.5015ms)
+  ✔ coordinator merges two reports into one incident, preserving both reporters (17.3421ms)
+  ✔ offered task is not working; rejection requires reason and returns verified; reassignment preserves history (17.1044ms)
+  ✔ only assigned worker can accept; stale acceptance fails; blocker does not close incident (13.4531ms)
+  ✔ evidence needs destination for moved waste; coordinator verifies before closure (23.8111ms)
+  ✔ feedback does not change worker status; reopen uses same incident; recurrence requires new observation after closure (27.7658ms)
+  ✔ schedule exceptions append history, enforce valid date and roles; actual runs are unique (39.4815ms)
+  ✔ event draft cannot publish without confirmed transport; last seat is locked and duplicate signup is safe (21.9088ms)
+  ✔ prevention creation/evaluation enforces regional access and optimistic versions (13.1572ms)
+  ✔ event completion records photos and transport but does not close related incident (7.2711ms)
+  ✔ coordinator receives task changes and reporter receives rejection notifications (13.0196ms)
+  ✔ anonymous storage writes and unsafe internal RPC calls are denied (2.8762ms)
+  ✔ public projection hides identities and precise points; moderation keeps operational history (7.7725ms)
+✔ PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supabase Auth/Storage) (2219.7549ms)
+✔ chunked requests cannot bypass maximum body size by omitting content-length (5.5428ms)
+✔ cross-origin mutation is rejected before authentication/database access (1.3395ms)
+✔ incident display references distinguish common UUID prefixes and suffixes without changing IDs (1.8167ms)
+✔ service metadata dates use Indonesian month names and empty-state text (19.7484ms)
+✔ five supporting reports / reopening still count one distinct incident; new incident after closure counts twice (1.1482ms)
+✔ dated schedule change affects only one date; actual and unconfirmed states remain distinct (0.3599ms)
+✔ CSV protects formula prefixes, whitespace tricks and escapes quoted multiline text (0.4202ms)
+✔ image validation decodes real image, strips metadata, rejects wrong mime, SVG, oversized and invalid bytes (20.8898ms)
+✔ server command schema rejects absent versions, invalid coords, forged photo UUIDs and too many images (8.3543ms)
+ℹ tests 26
+ℹ suites 0
+ℹ pass 26
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2716.7933

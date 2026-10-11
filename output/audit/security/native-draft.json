@@ -1,0 +1,891 @@
+{
+  "scanId": "c88a04c9-d84b-47d8-8179-dea7daa25ff2",
+  "complete": true,
+  "scope": {
+    "summary": "User-authorized source/local controlled security audit with fixes independently verified; source target D:/Project/Lomba_UIN/web. Findings record baseline, all fixed locally at9d67c3a, not open-currentlocal findings.",
+    "artifactsReviewed": [
+      "Application lib and API/auth routes",
+      "Migrations001/002/003 and RLS/grants",
+      "Scripts, package/lockfile, public fixture and privatephoto consumers",
+      "PRD and architecture/feature/test/operational/design documentation",
+      "docs/audit/SECURITY_REVIEW.md and output/audit/security sanitized reproductions"
+    ],
+    "runtimeStatus": "41/41 isolatedSQL checks,13 productionlocalhostHTTPprobes,31/31 suite tests; no Supabase Cloud/seed/integration execution.",
+    "validationMode": "Offline source + actualfinaldiff + isolatedPostgreSQL + boundedproductionlocalHTTP",
+    "limitations": [
+      "Coverage partial for concrete liveAuth/Storage/RLSDataAPI/session/distributedconcurrency/restore unknowns.",
+      "No actual user data, credentials or .env.local contents accessed."
+    ]
+  },
+  "threatModel": {
+    "origin": "generated",
+    "summary": "SampahTerhubung local Next16/React UI -> server Auth getUser/user-scoped Supabase DataAPI -> PostgreSQL RLS and transactional command; validated JPEG upload and photo proxy use server-only Storage administration. Supported local two-laptop Cloud setup has no Docker requirement. No Cloud backend configured in this audit. src/lib/supabase.ts:12-58; src/app/api/commands/route.ts:15-34; supabase/migrations/202610080001_core.sql:69-113.",
+    "assets": [
+      "Private reports and precise points; identities, role memberships, photos and sessions (core.sql22-35,54).",
+      "Integrity of state/evidence/version/idempotency/history, schedules/capacity and region CSV (core.sql141-329; src/app/api/export/route.ts).",
+      "Server-only Supabase secret and availability of regional workspace/photoStorage (src/lib/supabase.ts:39-58; uploads.ts)."
+    ],
+    "trustBoundaries": [
+      "Browser attacker JSON/multipart -> Next origin+stream limits+Zod+getUser (http.ts,body.ts,validation.ts; APIcommands/auth/photos).",
+      "User session / publishable key -> RLS SELECT and security-definer command; direct Supabase RPC callers bypass HTTP Zod and must be independently validated (core.sql69-113,141-334;00315-28).",
+      "Image bytes -> Sharp decoder -> clean random-path JPEG -> service-role Storage writes; proxy first enforces photo metadata RLS then privileged download (uploads.ts;photos routes;primitives.tsx).",
+      "Private operational tables -> public projection/export;00195-104 overbroad baseline reads corrected0034-7; CSV verifies regional coordinator and escaping (api/export;rules).",
+      "Operator -> administrative seed/integration/backup; demo flag and private artifacts do not themselves prove a separate approved synthetic project (scripts/env.ts;integration.ts;DEPLOYMENT_DAN_BACKUP.md)."
+    ],
+    "attackerCapabilities": [
+      "Anonymous publishable DataAPI caller; authenticated reporter/worker can substitute IDs, repeat keys, omit/alterJSON and send invalid photos using their own account.",
+      "Workers/coordinators may be assigned/reassigned/inactive in one region; other-region roles should gain no private access.",
+      "No operator machine/admin/server secret assumed, no third-party active scanning permitted."
+    ],
+    "securityObjectives": [
+      "Auth verified server-side; private data scoped to actor/role/region; direct SQL/Storage calls retain restrictions.",
+      "Workflow requires evidence/time/reviewer, valid transitions/version/locks, owner+payload idempotency and immutable history.",
+      "Public results omit private identities/photos/precise points; private responses including errors no-store; CSV inert; input bounds and image reencode enforce sizes/type/metadata removal.",
+      "Keep user files/PRD/research/logo/PersonalAI unchanged; no Cloudactive testing/seed/deploy/push; evidence contains no credentials."
+    ],
+    "assumptions": [
+      "Rootprovided baseline clean541a2ad, final application snapshot9d67c3a. Security independently read actual finaldiff; reports/evidence appended afterwards do not alter app.",
+      "Auth/Storage schemas and auth.uid are stubs in PGlite; actual Cloud Auth/signatures/cookies/SMTP/rate policy not established by local tests or config.toml.",
+      "All six findings are historical confirmed baseline flaws closed by finallocal source/probes. Unmigrated Cloud or legacy-invalid rows may retain risks; migration003 preserves existing data.",
+      "Existing task read-history for formerly assigned workers remains intentional while membership is active (architecture doc/can_incident); inactive worker receives no newprivate notices afterpatch.",
+      "Upload/login aggregate limits, unusedphoto retention, data governance, session lifecycle/backuprestore and distributed concurrency remain concrete operational gaps; no exploit claimed."
+    ]
+  },
+  "findings": [
+    {
+      "ruleId": "authorization.null-schedule-owner",
+      "identity": {
+        "anchor": "authorization.null-schedule-owner"
+      },
+      "title": "Baseline fixed: active worker could forge an unassigned schedule run",
+      "summary": "With migrations001/002 an active regional worker could call authenticated command schedule.run on a schedule with NULL worker_id; one actual-run row was inserted. The role/owner IF evaluated NULL and failed open. Migration003 denies that request and preserves assigned-worker/coordinator operations.",
+      "severity": {
+        "level": "medium",
+        "rationale": "Unauthorized alteration of actual service records and summaries within the worker region. Exposure needs a configured Supabase backend with only the baseline migrations; final local source with003 passed independent retest.",
+        "changeConditions": "Severity describes the reproduced baseline. Migration003 and final HTTP fixes close the local reproductions; an actual Cloud backend remains unverified until owner installs/retests these controls."
+      },
+      "confidence": {
+        "level": "high",
+        "rationale": "Specific source evidence plus bounded HTTP/isolated PostgreSQL reproduction and independent final positive/negative retest; no claim of actual Supabase Cloud exploit."
+      },
+      "taxonomy": {
+        "category": "Authorization bypass through SQL NULL semantics",
+        "cwe": [
+          "CWE-863"
+        ]
+      },
+      "locations": [
+        {
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 258,
+          "endLine": 260,
+          "role": "root_control"
+        }
+      ],
+      "codeEvidence": [
+        {
+          "id": "s01-baseline",
+          "label": "Baseline broken control",
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 258,
+          "endLine": 260,
+          "code": "   if not has_role(r,'coordinator') and not (sch.worker_id=actor and has_role(r,'worker')) then raise exception using message='Pelaksanaan bukan tanggung jawab Anda.',errcode='42501'; end if;\n   if (p->>'actual_at')::timestamptz>now()+interval '5 minutes' or ((p->>'actual_at')::timestamptz at time zone 'Asia/Jakarta')::date<>(p->>'date')::date then raise exception 'Waktu aktual harus pada tanggal layanan dan sudah terjadi.'; end if;\n   insert into schedule_runs(schedule_id,region_id,date,actual_at,note,actor_id) values(target,r,(p->>'date')::date,(p->>'actual_at')::timestamptz,require_text(p,'reason',3),actor);",
+          "language": "sql",
+          "role": "root_control",
+          "explanation": "The owner comparison worker_id=actor can be NULL, and PL/pgSQL IF only rejects TRUE. An active worker converts NOT(NULL AND TRUE) to NULL, bypassing the deny branch."
+        },
+        {
+          "id": "s01-patch",
+          "label": "Applied correction on final snapshot",
+          "path": "supabase/migrations/202610100003_audit_controls.sql",
+          "startLine": 139,
+          "endLine": 141,
+          "code": "   if not has_role(r,'coordinator') and not (sch.worker_id is not distinct from actor and has_role(r,'worker')) then raise exception using message='Pelaksanaan bukan tanggung jawab Anda.',errcode='42501'; end if;\n   if (p->>'actual_at')::timestamptz>now()+interval '5 minutes' or ((p->>'actual_at')::timestamptz at time zone 'Asia/Jakarta')::date<>(p->>'date')::date then raise exception 'Waktu aktual harus pada tanggal layanan dan sudah terjadi.'; end if;\n   insert into schedule_runs(schedule_id,region_id,date,actual_at,note,actor_id) values(target,r,(p->>'date')::date,(p->>'actual_at')::timestamptz,require_text(p,'reason',3),actor);",
+          "language": "sql",
+          "role": "expected_control",
+          "explanation": "Correction independently source-reviewed and retested on 9d67c3a."
+        }
+      ],
+      "rootCause": {
+        "summary": "The owner comparison worker_id=actor can be NULL, and PL/pgSQL IF only rejects TRUE. An active worker converts NOT(NULL AND TRUE) to NULL, bypassing the deny branch.",
+        "evidenceRefs": [
+          "s01-baseline"
+        ]
+      },
+      "remediation": "Applied on app snapshot9d67c3a0da095ed93bc88aebc8e501ec16dec729:  denies that request and preserves assigned-worker/coordinator operations.. Inspect report docs/audit/SECURITY_REVIEW.md; apply migration003 only to explicitly approved test backend, then perform real-service verification.",
+      "validation": {
+        "status": "confirmed-baseline-fixed-locally",
+        "disposition": "fixed",
+        "method": "Offline source review, independent isolated PGlite auth/storage stubs and bounded production local HTTP probes",
+        "summary": "Security independently read actual 541a2ad..9d67c3a diff;41/41SQLchecks,13HTTP probes and31/31suite tests passed on finalsnapshot. Unassigned/different/inactive/cross-region worker denied. Assigned active worker and coordinator legal runs succeed.",
+        "evidenceRefs": [
+          "s01-baseline",
+          "s01-patch"
+        ],
+        "evidence": [
+          "output/audit/security/initial-sql-probes.json",
+          "output/audit/security/initial-http-probes.json",
+          "output/audit/security/final-sql-retest.json",
+          "output/audit/security/final-http-probes.json",
+          "output/audit/security/final-tests.txt"
+        ],
+        "limitations": [
+          "Supabase Auth signature/session/Storage service/Data API/real multiconnection races and restore were not exercised.",
+          "Existing Cloud tables or baseline-invalid records were not mutated."
+        ]
+      },
+      "attackPath": {
+        "summary": "Active worker in the same region, not assigned to the target schedule. Unauthorized alteration of actual service records and summaries within the worker region.",
+        "dataflow": {
+          "summary": "Authenticated direct RPC command JSON id/date/actual_at -> schedules row lock -> nullable owner guard -> insert schedule_runs + audit."
+        },
+        "reachability": {
+          "summary": "Baseline reachability established by direct source/isolated PostgreSQL or local HTTP. Current corrected localsnapshot rejects reproductions; existing Cloud migration status unknown."
+        },
+        "preconditions": [
+          "Active worker in the same region, not assigned to the target schedule.",
+          "Configured backend using baseline001/002 for SQL findings; or baseline local Next production forS05."
+        ],
+        "limitations": [
+          "No attack or active test against external Cloud or real user data."
+        ],
+        "evidenceRefs": [
+          "s01-baseline"
+        ]
+      },
+      "remediationTests": [
+        "Unassigned/different/inactive/cross-region worker denied.",
+        "Assigned active worker and coordinator legal runs succeed."
+      ],
+      "provenance": {
+        "source": "local_plugin",
+        "candidateId": "s01"
+      },
+      "extensions": {
+        "auditId": "s01",
+        "status": "fixed_local_cloud_not_tested",
+        "baselineHead": "541a2ad4b63453aaadfa9e3288c454965d0baa6f",
+        "finalAppHead": "9d67c3a0da095ed93bc88aebc8e501ec16dec729"
+      }
+    },
+    {
+      "ruleId": "workflow.missing-evidence-time",
+      "identity": {
+        "anchor": "workflow.missing-evidence-time"
+      },
+      "title": "Baseline fixed: direct RPC accepted evidence/completion without performed_at",
+      "summary": "Direct task.evidence/event.complete without performed_at succeeded in migrations001/002, placing task in submitted and event in completed with NULL time. Task review then could neither close nor request a fix because its evidence check rejected NULL time. Migration003 rejects missing/null/empty/future times before mutation.",
+      "severity": {
+        "level": "medium",
+        "rationale": "P0 handling flow can become stuck; activity completion lacks required evidence time. Exposure needs a configured Supabase backend with only the baseline migrations; final local source with003 passed independent retest.",
+        "changeConditions": "Severity describes the reproduced baseline. Migration003 and final HTTP fixes close the local reproductions; an actual Cloud backend remains unverified until owner installs/retests these controls."
+      },
+      "confidence": {
+        "level": "high",
+        "rationale": "Specific source evidence plus bounded HTTP/isolated PostgreSQL reproduction and independent final positive/negative retest; no claim of actual Supabase Cloud exploit."
+      },
+      "taxonomy": {
+        "category": "Incomplete workflow validation in direct RPC",
+        "cwe": [
+          "CWE-20"
+        ]
+      },
+      "locations": [
+        {
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 206,
+          "endLine": 209,
+          "role": "root_control"
+        },
+        {
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 300,
+          "endLine": 303,
+          "role": "affected_operation"
+        }
+      ],
+      "codeEvidence": [
+        {
+          "id": "s02-baseline",
+          "label": "Baseline broken control",
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 206,
+          "endLine": 209,
+          "code": "   if (p->>'performed_at')::timestamptz>now()+interval '5 minutes' then raise exception 'Waktu pekerjaan belum terjadi.'; end if;\n   perform attach_photos(p,'task',task.id);\n   update tasks set status='submitted',action_taken=note,performed_at=(p->>'performed_at')::timestamptz,moved=coalesce((p->>'moved')::boolean,false),destination=p->>'destination',version=version+1 where id=task.id;\n   update incidents set status='awaiting_review',version=version+1 where id=inc.id;",
+          "language": "sql",
+          "role": "root_control",
+          "explanation": "HTTP Zod requires performed_at, but the publicly executable authenticated SQL command independently checks only ordering expressions, which evaluate NULL for absent JSON values. Nullable table fields then permit the illegal state."
+        },
+        {
+          "id": "s02-affected-0",
+          "label": "Affected source path",
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 300,
+          "endLine": 303,
+          "code": "    if ev.status<>'published' or (p->>'performed_at')::timestamptz>now()+interval '5 minutes' or (p->>'performed_at')::timestamptz<ev.starts_at then raise exception 'Kegiatan belum dapat diselesaikan.'; end if;\n    note:=require_text(p,'transport_status',3); if note not in ('Sudah diangkut','Tertunda — perlu tindak lanjut') then raise exception 'Status pengangkutan tidak sah.'; end if;\n    perform attach_photos(p,'event',target);\n    update events set status='completed',completion_note=require_text(p,'completion_note',3),performed_at=(p->>'performed_at')::timestamptz,transport_status=note,version=version+1 where id=target;",
+          "language": "sql",
+          "role": "affected_operation",
+          "explanation": "Authenticated direct RPC JSON missing performed_at -> SQL nullable time comparison -> attach_photos -> submitted/awaiting_review or completed -> review guard refuses missing time."
+        },
+        {
+          "id": "s02-patch",
+          "label": "Applied correction on final snapshot",
+          "path": "supabase/migrations/202610100003_audit_controls.sql",
+          "startLine": 87,
+          "endLine": 90,
+          "code": "   if nullif(p->>'performed_at','') is null or (p->>'performed_at')::timestamptz>now()+interval '5 minutes' then raise exception 'Waktu pekerjaan belum terjadi.'; end if;\n   perform attach_photos(p,'task',task.id);\n   update tasks set status='submitted',action_taken=note,performed_at=(p->>'performed_at')::timestamptz,moved=coalesce((p->>'moved')::boolean,false),destination=p->>'destination',version=version+1 where id=task.id;\n   update incidents set status='awaiting_review',version=version+1 where id=inc.id;",
+          "language": "sql",
+          "role": "expected_control",
+          "explanation": "Correction independently source-reviewed and retested on 9d67c3a."
+        },
+        {
+          "id": "s02-patch-extra-0",
+          "label": "Sibling applied correction",
+          "path": "supabase/migrations/202610100003_audit_controls.sql",
+          "startLine": 181,
+          "endLine": 184,
+          "code": "    if ev.status<>'published' or nullif(p->>'performed_at','') is null or (p->>'performed_at')::timestamptz>now()+interval '5 minutes' or (p->>'performed_at')::timestamptz<ev.starts_at then raise exception 'Kegiatan belum dapat diselesaikan.'; end if;\n    note:=require_text(p,'transport_status',3); if note not in ('Sudah diangkut','Tertunda — perlu tindak lanjut') then raise exception 'Status pengangkutan tidak sah.'; end if;\n    perform attach_photos(p,'event',target);\n    update events set status='completed',completion_note=require_text(p,'completion_note',3),performed_at=(p->>'performed_at')::timestamptz,transport_status=note,version=version+1 where id=target;",
+          "language": "sql",
+          "role": "expected_control",
+          "explanation": "Same evidence-time invariant enforced at the other operation."
+        }
+      ],
+      "rootCause": {
+        "summary": "HTTP Zod requires performed_at, but the publicly executable authenticated SQL command independently checks only ordering expressions, which evaluate NULL for absent JSON values. Nullable table fields then permit the illegal state.",
+        "evidenceRefs": [
+          "s02-baseline"
+        ]
+      },
+      "remediation": "Applied on app snapshot9d67c3a0da095ed93bc88aebc8e501ec16dec729:  rejects missing/null/empty/future times before mutation.. Inspect report docs/audit/SECURITY_REVIEW.md; apply migration003 only to explicitly approved test backend, then perform real-service verification.",
+      "validation": {
+        "status": "confirmed-baseline-fixed-locally",
+        "disposition": "fixed",
+        "method": "Offline source review, independent isolated PGlite auth/storage stubs and bounded production local HTTP probes",
+        "summary": "Security independently read actual 541a2ad..9d67c3a diff;41/41SQLchecks,13HTTP probes and31/31suite tests passed on finalsnapshot. Missing/null/empty/future task and event times denied with unchanged rows/photos/version. Valid evidence, review return, resubmission and verified closure succeed.",
+        "evidenceRefs": [
+          "s02-baseline",
+          "s02-patch"
+        ],
+        "evidence": [
+          "output/audit/security/initial-sql-probes.json",
+          "output/audit/security/initial-http-probes.json",
+          "output/audit/security/final-sql-retest.json",
+          "output/audit/security/final-http-probes.json",
+          "output/audit/security/final-tests.txt"
+        ],
+        "limitations": [
+          "Supabase Auth signature/session/Storage service/Data API/real multiconnection races and restore were not exercised.",
+          "Existing Cloud tables or baseline-invalid records were not mutated."
+        ]
+      },
+      "attackPath": {
+        "summary": "Assigned active worker (task evidence), or regional coordinator (event completion), using their own photo IDs and current versions. P0 handling flow can become stuck; activity completion lacks required evidence time.",
+        "dataflow": {
+          "summary": "Authenticated direct RPC JSON missing performed_at -> SQL nullable time comparison -> attach_photos -> submitted/awaiting_review or completed -> review guard refuses missing time."
+        },
+        "reachability": {
+          "summary": "Baseline reachability established by direct source/isolated PostgreSQL or local HTTP. Current corrected localsnapshot rejects reproductions; existing Cloud migration status unknown."
+        },
+        "preconditions": [
+          "Assigned active worker (task evidence), or regional coordinator (event completion), using their own photo IDs and current versions.",
+          "Configured backend using baseline001/002 for SQL findings; or baseline local Next production forS05."
+        ],
+        "limitations": [
+          "No attack or active test against external Cloud or real user data."
+        ],
+        "evidenceRefs": [
+          "s02-baseline"
+        ]
+      },
+      "remediationTests": [
+        "Missing/null/empty/future task and event times denied with unchanged rows/photos/version.",
+        "Valid evidence, review return, resubmission and verified closure succeed."
+      ],
+      "provenance": {
+        "source": "local_plugin",
+        "candidateId": "s02"
+      },
+      "extensions": {
+        "auditId": "s02",
+        "status": "fixed_local_cloud_not_tested",
+        "baselineHead": "541a2ad4b63453aaadfa9e3288c454965d0baa6f",
+        "finalAppHead": "9d67c3a0da095ed93bc88aebc8e501ec16dec729"
+      }
+    },
+    {
+      "ruleId": "authorization.public-schedule-identities",
+      "identity": {
+        "anchor": "authorization.public-schedule-identities"
+      },
+      "title": "Baseline fixed: raw public schedule tables exposed worker and actor UUIDs",
+      "summary": "Anon direct SELECT of a confirmed schedule returned worker_id and schedule_runs permitted actor_id, bypassing public_region_data projection that intentionally omits these identities. Migration003 restricts raw schedules to coordinator or assigned active worker; sibling runs/exceptions policies follow the schedule.",
+      "severity": {
+        "level": "low",
+        "rationale": "Pseudonymous account UUID disclosure only was confirmed; no contacts, reporter identity or private photos demonstrated. Exposure needs a configured Supabase backend with only the baseline migrations; final local source with003 passed independent retest.",
+        "changeConditions": "Severity describes the reproduced baseline. Migration003 and final HTTP fixes close the local reproductions; an actual Cloud backend remains unverified until owner installs/retests these controls."
+      },
+      "confidence": {
+        "level": "high",
+        "rationale": "Specific source evidence plus bounded HTTP/isolated PostgreSQL reproduction and independent final positive/negative retest; no claim of actual Supabase Cloud exploit."
+      },
+      "taxonomy": {
+        "category": "Overbroad database read authorization",
+        "cwe": [
+          "CWE-863"
+        ]
+      },
+      "locations": [
+        {
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 95,
+          "endLine": 104,
+          "role": "root_control"
+        }
+      ],
+      "codeEvidence": [
+        {
+          "id": "s03-baseline",
+          "label": "Baseline broken control",
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 95,
+          "endLine": 104,
+          "code": "create policy schedules_read on schedules for select using(confirmed_at is not null or has_role(region_id,'coordinator'));\ncreate policy exceptions_read on schedule_exceptions for select using(exists(select 1 from schedules s where s.id=schedule_id));\ncreate policy runs_read on schedule_runs for select using(exists(select 1 from schedules s where s.id=schedule_id));\ncreate policy preventions_read on preventions for select using(has_role(region_id,'coordinator'));\ncreate policy events_read on events for select using(status<>'draft' or has_role(region_id,'coordinator'));\ncreate policy registrations_read on registrations for select using(user_id=auth.uid() or exists(select 1 from events where id=event_id and has_role(region_id,'coordinator')));\ncreate policy photos_read on photos for select using(can_photo(id));\ncreate policy history_read on history for select using(has_role(region_id,'coordinator') or (entity_type='incident' and can_incident(entity_id)) or (entity_type='report' and can_report(entity_id)));\ncreate policy notifications_read on notifications for select using(user_id=auth.uid());\ngrant select on all tables in schema public to anon, authenticated;",
+          "language": "sql",
+          "role": "root_control",
+          "explanation": "Blanket SELECT grants combined with schedules confirmed_at public policy admitted full operational rows rather than sanitized public projection."
+        },
+        {
+          "id": "s03-patch",
+          "label": "Applied correction on final snapshot",
+          "path": "supabase/migrations/202610100003_audit_controls.sql",
+          "startLine": 4,
+          "endLine": 7,
+          "code": "alter policy schedules_read on public.schedules using (\n public.has_role(region_id,'coordinator') or\n (worker_id=auth.uid() and public.has_role(region_id,'worker'))\n);",
+          "language": "sql",
+          "role": "expected_control",
+          "explanation": "Correction independently source-reviewed and retested on 9d67c3a."
+        }
+      ],
+      "rootCause": {
+        "summary": "Blanket SELECT grants combined with schedules confirmed_at public policy admitted full operational rows rather than sanitized public projection.",
+        "evidenceRefs": [
+          "s03-baseline"
+        ]
+      },
+      "remediation": "Applied on app snapshot9d67c3a0da095ed93bc88aebc8e501ec16dec729:  restricts raw schedules to coordinator or assigned active worker; sibling runs/exceptions policies follow the schedule.. Inspect report docs/audit/SECURITY_REVIEW.md; apply migration003 only to explicitly approved test backend, then perform real-service verification.",
+      "validation": {
+        "status": "confirmed-baseline-fixed-locally",
+        "disposition": "fixed",
+        "method": "Offline source review, independent isolated PGlite auth/storage stubs and bounded production local HTTP probes",
+        "summary": "Security independently read actual 541a2ad..9d67c3a diff;41/41SQLchecks,13HTTP probes and31/31suite tests passed on finalsnapshot. Anon/reporter/other-region coordinator raw schedule/run rows=0. Public calendar and actual remain visible without worker/actor IDs; legal assigned worker/coordinator raw reads retained.",
+        "evidenceRefs": [
+          "s03-baseline",
+          "s03-patch"
+        ],
+        "evidence": [
+          "output/audit/security/initial-sql-probes.json",
+          "output/audit/security/initial-http-probes.json",
+          "output/audit/security/final-sql-retest.json",
+          "output/audit/security/final-http-probes.json",
+          "output/audit/security/final-tests.txt"
+        ],
+        "limitations": [
+          "Supabase Auth signature/session/Storage service/Data API/real multiconnection races and restore were not exercised.",
+          "Existing Cloud tables or baseline-invalid records were not mutated."
+        ]
+      },
+      "attackPath": {
+        "summary": "Anonymous Data API caller with publishable project key, no authenticated role required. Pseudonymous account UUID disclosure only was confirmed; no contacts, reporter identity or private photos demonstrated.",
+        "dataflow": {
+          "summary": "Anonymous raw schedules SELECT -> schedules_read confirmed condition -> worker_id; raw schedule_runs SELECT -> parent schedules visibility -> actor_id."
+        },
+        "reachability": {
+          "summary": "Baseline reachability established by direct source/isolated PostgreSQL or local HTTP. Current corrected localsnapshot rejects reproductions; existing Cloud migration status unknown."
+        },
+        "preconditions": [
+          "Anonymous Data API caller with publishable project key, no authenticated role required.",
+          "Configured backend using baseline001/002 for SQL findings; or baseline local Next production forS05."
+        ],
+        "limitations": [
+          "No attack or active test against external Cloud or real user data."
+        ],
+        "evidenceRefs": [
+          "s03-baseline"
+        ]
+      },
+      "remediationTests": [
+        "Anon/reporter/other-region coordinator raw schedule/run rows=0.",
+        "Public calendar and actual remain visible without worker/actor IDs; legal assigned worker/coordinator raw reads retained."
+      ],
+      "provenance": {
+        "source": "local_plugin",
+        "candidateId": "s03"
+      },
+      "extensions": {
+        "auditId": "s03",
+        "status": "fixed_local_cloud_not_tested",
+        "baselineHead": "541a2ad4b63453aaadfa9e3288c454965d0baa6f",
+        "finalAppHead": "9d67c3a0da095ed93bc88aebc8e501ec16dec729"
+      }
+    },
+    {
+      "ruleId": "authorization.inactive-worker-notification",
+      "identity": {
+        "anchor": "authorization.inactive-worker-notification"
+      },
+      "title": "Baseline fixed: deactivated worker received new private review notes",
+      "summary": "After membership worker active=false, task RLS returned0 rows but a coordinator request-for-fix generated a new private notification visible to that worker. Migration003 requires active recipient membership for worker notifications; legitimate recipients and historical notice policy remain intact.",
+      "severity": {
+        "level": "medium",
+        "rationale": "Private review notes created after access revocation leaked to the former worker. Exposure needs a configured Supabase backend with only the baseline migrations; final local source with003 passed independent retest.",
+        "changeConditions": "Severity describes the reproduced baseline. Migration003 and final HTTP fixes close the local reproductions; an actual Cloud backend remains unverified until owner installs/retests these controls."
+      },
+      "confidence": {
+        "level": "high",
+        "rationale": "Specific source evidence plus bounded HTTP/isolated PostgreSQL reproduction and independent final positive/negative retest; no claim of actual Supabase Cloud exploit."
+      },
+      "taxonomy": {
+        "category": "Authorization revocation inconsistency",
+        "cwe": [
+          "CWE-863"
+        ]
+      },
+      "locations": [
+        {
+          "path": "supabase/migrations/202610080002_notifications.sql",
+          "startLine": 9,
+          "endLine": 12,
+          "role": "root_control"
+        }
+      ],
+      "codeEvidence": [
+        {
+          "id": "s04-baseline",
+          "label": "Baseline broken control",
+          "path": "supabase/migrations/202610080002_notifications.sql",
+          "startLine": 9,
+          "endLine": 12,
+          "code": "  select reporter_id as recipient from reports where kind='incident' and incident_id=entity\n  union select worker_id from tasks where kind='incident' and incident_id=entity and status in ('offered','accepted','submitted')\n  union select user_id from memberships where region_id=r and role='coordinator' and active\n  union select reporter_id from reports where kind='report' and id=entity",
+          "language": "sql",
+          "role": "root_control",
+          "explanation": "Notification recipient selection used task assignment/status alone; notification SELECT policy checked ownership only. New information was delivered after the membership capability was revoked."
+        },
+        {
+          "id": "s04-patch",
+          "label": "Applied correction on final snapshot",
+          "path": "supabase/migrations/202610100003_audit_controls.sql",
+          "startLine": 222,
+          "endLine": 225,
+          "code": " select recipient,r,act||': '||note,entity from (\n  select reporter_id as recipient from reports where kind='incident' and incident_id=entity\n  union select worker_id from tasks where kind='incident' and incident_id=entity and status in ('offered','accepted','submitted') and exists(select 1 from memberships m where m.user_id=tasks.worker_id and m.region_id=r and m.role='worker' and m.active)\n  union select user_id from memberships where region_id=r and role='coordinator' and active",
+          "language": "sql",
+          "role": "expected_control",
+          "explanation": "Correction independently source-reviewed and retested on 9d67c3a."
+        }
+      ],
+      "rootCause": {
+        "summary": "Notification recipient selection used task assignment/status alone; notification SELECT policy checked ownership only. New information was delivered after the membership capability was revoked.",
+        "evidenceRefs": [
+          "s04-baseline"
+        ]
+      },
+      "remediation": "Applied on app snapshot9d67c3a0da095ed93bc88aebc8e501ec16dec729:  requires active recipient membership for worker notifications; legitimate recipients and historical notice policy remain intact.. Inspect report docs/audit/SECURITY_REVIEW.md; apply migration003 only to explicitly approved test backend, then perform real-service verification.",
+      "validation": {
+        "status": "confirmed-baseline-fixed-locally",
+        "disposition": "fixed",
+        "method": "Offline source review, independent isolated PGlite auth/storage stubs and bounded production local HTTP probes",
+        "summary": "Security independently read actual 541a2ad..9d67c3a diff;41/41SQLchecks,13HTTP probes and31/31suite tests passed on finalsnapshot. Inactive worker sees0 task/incident rows and0 NEW notifications after review. Reactivated worker receives legal notices and completes normal evidence/review flow.",
+        "evidenceRefs": [
+          "s04-baseline",
+          "s04-patch"
+        ],
+        "evidence": [
+          "output/audit/security/initial-sql-probes.json",
+          "output/audit/security/initial-http-probes.json",
+          "output/audit/security/final-sql-retest.json",
+          "output/audit/security/final-http-probes.json",
+          "output/audit/security/final-tests.txt"
+        ],
+        "limitations": [
+          "Supabase Auth signature/session/Storage service/Data API/real multiconnection races and restore were not exercised.",
+          "Existing Cloud tables or baseline-invalid records were not mutated."
+        ]
+      },
+      "attackPath": {
+        "summary": "Previously assigned worker with a valid own session whose regional membership has been deactivated. Private review notes created after access revocation leaked to the former worker.",
+        "dataflow": {
+          "summary": "Coordinator incident.review private reason -> audit recipient UNION task worker without membership check -> notifications row -> owner-only RLS read by inactive worker."
+        },
+        "reachability": {
+          "summary": "Baseline reachability established by direct source/isolated PostgreSQL or local HTTP. Current corrected localsnapshot rejects reproductions; existing Cloud migration status unknown."
+        },
+        "preconditions": [
+          "Previously assigned worker with a valid own session whose regional membership has been deactivated.",
+          "Configured backend using baseline001/002 for SQL findings; or baseline local Next production forS05."
+        ],
+        "limitations": [
+          "No attack or active test against external Cloud or real user data."
+        ],
+        "evidenceRefs": [
+          "s04-baseline"
+        ]
+      },
+      "remediationTests": [
+        "Inactive worker sees0 task/incident rows and0 NEW notifications after review.",
+        "Reactivated worker receives legal notices and completes normal evidence/review flow."
+      ],
+      "provenance": {
+        "source": "local_plugin",
+        "candidateId": "s04"
+      },
+      "extensions": {
+        "auditId": "s04",
+        "status": "fixed_local_cloud_not_tested",
+        "baselineHead": "541a2ad4b63453aaadfa9e3288c454965d0baa6f",
+        "finalAppHead": "9d67c3a0da095ed93bc88aebc8e501ec16dec729"
+      }
+    },
+    {
+      "ruleId": "http.private-error-cache-directive",
+      "identity": {
+        "anchor": "http.private-error-cache-directive"
+      },
+      "title": "Baseline fixed: private API errors omitted no-store caching directive",
+      "summary": "Baseline production workspace/photo/export/command error responses lacked Cache-Control whereas private successful responses set no-store. Patched failure() sets private,no-store on Zod422, explicit HttpError and generic503. No actual private-data cache disclosure was demonstrated.",
+      "severity": {
+        "level": "low",
+        "rationale": "Potential stale or cached denial state and metadata; content disclosure remains unproven. Exposure needs a configured Supabase backend with only the baseline migrations; final local source with003 passed independent retest.",
+        "changeConditions": "Severity describes the reproduced baseline. Migration003 and final HTTP fixes close the local reproductions; an actual Cloud backend remains unverified until owner installs/retests these controls."
+      },
+      "confidence": {
+        "level": "high",
+        "rationale": "Specific source evidence plus bounded HTTP/isolated PostgreSQL reproduction and independent final positive/negative retest; no claim of actual Supabase Cloud exploit."
+      },
+      "taxonomy": {
+        "category": "Inconsistent private-response cache policy",
+        "cwe": [
+          "CWE-525"
+        ]
+      },
+      "locations": [
+        {
+          "path": "src/lib/http.ts",
+          "startLine": 17,
+          "endLine": 38,
+          "role": "root_control"
+        }
+      ],
+      "codeEvidence": [
+        {
+          "id": "s05-baseline",
+          "label": "Baseline helper at541a2ad; superseded by current final source",
+          "path": "src/lib/http.ts",
+          "startLine": 17,
+          "endLine": 38,
+          "code": "}\nexport function failure(error: unknown) {\n  if (error instanceof ZodError)\n    return NextResponse.json(\n      {\n        error: \"Periksa isian yang ditandai.\",\n        fields: Object.fromEntries(\n          error.issues.map((i) => [i.path.at(-1), i.message]),\n        ),\n      },\n      { status: 422 },\n    );\n  if (error instanceof HttpError)\n    return NextResponse.json(\n      { error: error.message },\n      { status: error.status },\n    );\n  return NextResponse.json(\n    { error: \"Layanan belum tersedia. Periksa koneksi lalu coba lagi.\" },\n    { status: 503 },\n  );\n}",
+          "language": "typescript",
+          "role": "root_control",
+          "explanation": "Centralized failure helper constructed JSON errors without privateHeaders, creating inconsistent caching behavior for permission/session-dependent failures.",
+          "revision": "541a2ad4b63453aaadfa9e3288c454965d0baa6f"
+        },
+        {
+          "id": "s05-patch",
+          "label": "Applied correction on final snapshot",
+          "path": "src/lib/http.ts",
+          "startLine": 19,
+          "endLine": 36,
+          "code": "  if (error instanceof ZodError)\n    return NextResponse.json(\n      {\n        error: \"Periksa isian yang ditandai.\",\n        fields: Object.fromEntries(\n          error.issues.map((i) => [i.path.at(-1), i.message]),\n        ),\n      },\n      { status: 422, headers: privateHeaders },\n    );\n  if (error instanceof HttpError)\n    return NextResponse.json(\n      { error: error.message },\n      { status: error.status, headers: privateHeaders },\n    );\n  return NextResponse.json(\n    { error: \"Layanan belum tersedia. Periksa koneksi lalu coba lagi.\" },\n    { status: 503, headers: privateHeaders },",
+          "language": "typescript",
+          "role": "expected_control",
+          "explanation": "Correction independently source-reviewed and retested on 9d67c3a."
+        }
+      ],
+      "rootCause": {
+        "summary": "Centralized failure helper constructed JSON errors without privateHeaders, creating inconsistent caching behavior for permission/session-dependent failures.",
+        "evidenceRefs": [
+          "s05-baseline"
+        ]
+      },
+      "remediation": "Applied on app snapshot9d67c3a0da095ed93bc88aebc8e501ec16dec729: Baseline production workspace/photo/export/command error responses lacked Cache-Control whereas private successful responses set no-store. Patched failure() sets private,no-store on Zod422, explicit HttpError and generic503. No actual private-data cache disclosure was demonstrated.. Inspect report docs/audit/SECURITY_REVIEW.md; apply migration003 only to explicitly approved test backend, then perform real-service verification.",
+      "validation": {
+        "status": "confirmed-baseline-fixed-locally",
+        "disposition": "fixed",
+        "method": "Offline source review, independent isolated PGlite auth/storage stubs and bounded production local HTTP probes",
+        "summary": "Security independently read actual 541a2ad..9d67c3a diff;41/41SQLchecks,13HTTP probes and31/31suite tests passed on finalsnapshot. 13 production HTTP probes verify private,no-store on errors and expected statuses. Suite verifies401/404/422/503 branches and generic provider-detail redaction.",
+        "evidenceRefs": [
+          "s05-baseline",
+          "s05-patch"
+        ],
+        "evidence": [
+          "output/audit/security/initial-sql-probes.json",
+          "output/audit/security/initial-http-probes.json",
+          "output/audit/security/final-sql-retest.json",
+          "output/audit/security/final-http-probes.json",
+          "output/audit/security/final-tests.txt"
+        ],
+        "limitations": [
+          "Supabase Auth signature/session/Storage service/Data API/real multiconnection races and restore were not exercised.",
+          "Existing Cloud tables or baseline-invalid records were not mutated."
+        ]
+      },
+      "attackPath": {
+        "summary": "Browser or shared intermediary caching a private API denial/error when later access state changes; remote disclosure not established. Potential stale or cached denial state and metadata; content disclosure remains unproven.",
+        "dataflow": {
+          "summary": "GET private endpoint or rejected mutation -> failure branch -> JSON response without no-store; patch covers all error branches."
+        },
+        "reachability": {
+          "summary": "Baseline reachability established by direct source/isolated PostgreSQL or local HTTP. Current corrected localsnapshot rejects reproductions; existing Cloud migration status unknown."
+        },
+        "preconditions": [
+          "Browser or shared intermediary caching a private API denial/error when later access state changes; remote disclosure not established.",
+          "Configured backend using baseline001/002 for SQL findings; or baseline local Next production forS05."
+        ],
+        "limitations": [
+          "No attack or active test against external Cloud or real user data."
+        ],
+        "evidenceRefs": [
+          "s05-baseline"
+        ]
+      },
+      "remediationTests": [
+        "13 production HTTP probes verify private,no-store on errors and expected statuses.",
+        "Suite verifies401/404/422/503 branches and generic provider-detail redaction."
+      ],
+      "provenance": {
+        "source": "local_plugin",
+        "candidateId": "s05"
+      },
+      "extensions": {
+        "auditId": "s05",
+        "status": "fixed_local_cloud_not_tested",
+        "baselineHead": "541a2ad4b63453aaadfa9e3288c454965d0baa6f",
+        "finalAppHead": "9d67c3a0da095ed93bc88aebc8e501ec16dec729"
+      }
+    },
+    {
+      "ruleId": "validation.nonfinite-postgres-time",
+      "identity": {
+        "anchor": "validation.nonfinite-postgres-time"
+      },
+      "title": "Baseline fixed: direct report RPC stored nonfinite time that broke rendering",
+      "summary": "Reporter direct command report.create observed_at=-infinity succeeded under migrations001/002. Intl formatting of the persisted value threw RangeError, affecting reporter report list and coordinator pending-list rendering. Migration003 rejects nonfinite/out-of-range dates and dateTime/dateLabel now show safe fallback for legacy invalid data.",
+      "severity": {
+        "level": "medium",
+        "rationale": "A reporter can poison the regional pending report list without flooding traffic; legacy invalid data must not crash the UI. Exposure needs a configured Supabase backend with only the baseline migrations; final local source with003 passed independent retest.",
+        "changeConditions": "Severity describes the reproduced baseline. Migration003 and final HTTP fixes close the local reproductions; an actual Cloud backend remains unverified until owner installs/retests these controls."
+      },
+      "confidence": {
+        "level": "high",
+        "rationale": "Specific source evidence plus bounded HTTP/isolated PostgreSQL reproduction and independent final positive/negative retest; no claim of actual Supabase Cloud exploit."
+      },
+      "taxonomy": {
+        "category": "Invalid persisted datetime causing application unavailability",
+        "cwe": [
+          "CWE-20"
+        ]
+      },
+      "locations": [
+        {
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 153,
+          "endLine": 155,
+          "role": "root_control"
+        },
+        {
+          "path": "src/components/operations.tsx",
+          "startLine": 99,
+          "endLine": 100,
+          "role": "affected_operation"
+        }
+      ],
+      "codeEvidence": [
+        {
+          "id": "s06-baseline",
+          "label": "Baseline broken control",
+          "path": "supabase/migrations/202610080001_core.sql",
+          "startLine": 153,
+          "endLine": 155,
+          "code": "  if not exists(select 1 from regions where id=r and active) then raise exception using message='Wilayah belum terlayani.',errcode='22023'; end if;\n  if (p->>'observed_at')::timestamptz>now()+interval '5 minutes' then raise exception using message='Waktu pengamatan tidak boleh di masa depan.',errcode='22023'; end if;\n  insert into reports(region_id,reporter_id,category,landmark,description,observed_at,lat,lng) values(r,actor,require_text(p,'category'),require_text(p,'landmark',3),require_text(p,'description',10),(p->>'observed_at')::timestamptz,(p->>'lat')::float8,(p->>'lng')::float8) returning id into target;",
+          "language": "sql",
+          "role": "root_control",
+          "explanation": "PostgreSQL accepts infinity values and dates outside JavaScript display representation. Future-only checks and nullable/application-only schemas do not enforce finite ranges for direct SQL RPC callers."
+        },
+        {
+          "id": "s06-affected-0",
+          "label": "Affected source path",
+          "path": "src/components/operations.tsx",
+          "startLine": 99,
+          "endLine": 100,
+          "code": "              #{shortId(r.id)} · Diamati {dateTime(r.observed_at)} ·{\" \"}\n              {r.category}",
+          "language": "typescript",
+          "role": "affected_operation",
+          "explanation": "Direct authenticated report JSON observed_at=-infinity -> SQL timestamptz accepted -> persisted reports -> operations dateTime -> Intl formatter throws."
+        },
+        {
+          "id": "s06-patch",
+          "label": "Applied correction on final snapshot",
+          "path": "supabase/migrations/202610100003_audit_controls.sql",
+          "startLine": 15,
+          "endLine": 28,
+          "code": " -- Direct RPC callers do not pass through Zod. Reject PostgreSQL infinity and\n -- out-of-range years before they can poison browser date formatting/workflows.\n foreach field_name in array array['observed_at','performed_at','actual_at','due_at','starts_at','pickup_at'] loop\n  if nullif(p->>field_name,'') is not null and (not isfinite((p->>field_name)::timestamptz) or\n   (p->>field_name)::timestamptz not between timestamptz '0001-01-01 00:00:00+00' and timestamptz '9999-12-31 23:59:59.999999+00') then\n   raise exception using message='Waktu harus berupa tanggal yang sah.',errcode='22023';\n  end if;\n end loop;\n foreach field_name in array array['date','valid_from','valid_until','evaluate_on'] loop\n  if nullif(p->>field_name,'') is not null and (not isfinite((p->>field_name)::date) or\n   (p->>field_name)::date not between date '0001-01-01' and date '9999-12-31') then\n   raise exception using message='Tanggal harus berupa tanggal yang sah.',errcode='22023';\n  end if;\n end loop;",
+          "language": "sql",
+          "role": "expected_control",
+          "explanation": "Correction independently source-reviewed and retested on 9d67c3a."
+        }
+      ],
+      "rootCause": {
+        "summary": "PostgreSQL accepts infinity values and dates outside JavaScript display representation. Future-only checks and nullable/application-only schemas do not enforce finite ranges for direct SQL RPC callers.",
+        "evidenceRefs": [
+          "s06-baseline"
+        ]
+      },
+      "remediation": "Applied on app snapshot9d67c3a0da095ed93bc88aebc8e501ec16dec729:  rejects nonfinite/out-of-range dates and dateTime/dateLabel now show safe fallback for legacy invalid data.. Inspect report docs/audit/SECURITY_REVIEW.md; apply migration003 only to explicitly approved test backend, then perform real-service verification.",
+      "validation": {
+        "status": "confirmed-baseline-fixed-locally",
+        "disposition": "fixed",
+        "method": "Offline source review, independent isolated PGlite auth/storage stubs and bounded production local HTTP probes",
+        "summary": "Security independently read actual 541a2ad..9d67c3a diff;41/41SQLchecks,13HTTP probes and31/31suite tests passed on finalsnapshot. Direct report nonfinite/out-of-range/BC datetime and coordinator invalid date commands denied. Valid ISO report/idempotency preserved; formatter fallback tested for invalid imported date.",
+        "evidenceRefs": [
+          "s06-baseline",
+          "s06-patch"
+        ],
+        "evidence": [
+          "output/audit/security/initial-sql-probes.json",
+          "output/audit/security/initial-http-probes.json",
+          "output/audit/security/final-sql-retest.json",
+          "output/audit/security/final-http-probes.json",
+          "output/audit/security/final-tests.txt"
+        ],
+        "limitations": [
+          "Supabase Auth signature/session/Storage service/Data API/real multiconnection races and restore were not exercised.",
+          "Existing Cloud tables or baseline-invalid records were not mutated."
+        ]
+      },
+      "attackPath": {
+        "summary": "Authenticated reporter using own valid image metadata and otherwise valid report fields. A reporter can poison the regional pending report list without flooding traffic; legacy invalid data must not crash the UI.",
+        "dataflow": {
+          "summary": "Direct authenticated report JSON observed_at=-infinity -> SQL timestamptz accepted -> persisted reports -> operations dateTime -> Intl formatter throws."
+        },
+        "reachability": {
+          "summary": "Baseline reachability established by direct source/isolated PostgreSQL or local HTTP. Current corrected localsnapshot rejects reproductions; existing Cloud migration status unknown."
+        },
+        "preconditions": [
+          "Authenticated reporter using own valid image metadata and otherwise valid report fields.",
+          "Configured backend using baseline001/002 for SQL findings; or baseline local Next production forS05."
+        ],
+        "limitations": [
+          "No attack or active test against external Cloud or real user data."
+        ],
+        "evidenceRefs": [
+          "s06-baseline"
+        ]
+      },
+      "remediationTests": [
+        "Direct report nonfinite/out-of-range/BC datetime and coordinator invalid date commands denied.",
+        "Valid ISO report/idempotency preserved; formatter fallback tested for invalid imported date."
+      ],
+      "provenance": {
+        "source": "local_plugin",
+        "candidateId": "s06"
+      },
+      "extensions": {
+        "auditId": "s06",
+        "status": "fixed_local_cloud_not_tested",
+        "baselineHead": "541a2ad4b63453aaadfa9e3288c454965d0baa6f",
+        "finalAppHead": "9d67c3a0da095ed93bc88aebc8e501ec16dec729"
+      }
+    }
+  ],
+  "coverage": {
+    "completeness": "partial",
+    "surfaces": [
+      {
+        "id": "rpc-workflow",
+        "label": "Direct RPC/transactional workflow",
+        "disposition": "reported",
+        "riskArea": "Direct RPC/transactional workflow",
+        "notes": "S01/S02/S06 confirmed on001/002, fixed003;41 independent finalchecks passed. Actor-key payload receipts, unique indices, locks/version and evidence ownership retained."
+      },
+      {
+        "id": "public-private-reads",
+        "label": "RLS public/private data read boundary",
+        "disposition": "reported",
+        "riskArea": "RLS public/private data read boundary",
+        "notes": "S03 confirmed UUID exposure baseline; final003 removes raw schedule/run visibility for anon/other accounts/regions while safeprojection stayspublic."
+      },
+      {
+        "id": "membership-revocation",
+        "label": "Membership and notifications",
+        "disposition": "reported",
+        "riskArea": "Membership and notifications",
+        "notes": "S04 newprivate notice to inactiveworker confirmed baseline; final recipient membership check closes it. Historical notice policy unchanged and disclosed."
+      },
+      {
+        "id": "http-private-caching",
+        "label": "HTTP Origin/body/private errors/fixture production",
+        "disposition": "reported",
+        "riskArea": "HTTP Origin/body/private errors/fixture production",
+        "notes": "S05 fixed failureheaders;13 controlled prodHTTPprobes show403 Origin,413 declared/chunkbody, no-storeerrors, preview200, fixture404."
+      },
+      {
+        "id": "image-storage",
+        "label": "Validated upload/Storage/private proxy",
+        "disposition": "needs_follow_up",
+        "riskArea": "Validated upload/Storage/private proxy",
+        "notes": "Image decoder/limits/MIME/reencode/randompath/policy and RLS-first download source reviewed; local imageunitpasses, actualStorage Auth/directobject/rollback/cookies notverified without authorizedCloud."
+      },
+      {
+        "id": "auth-session",
+        "label": "Auth/session and provider policies",
+        "disposition": "needs_follow_up",
+        "riskArea": "Auth/session and provider policies",
+        "notes": "getUser and HttpOnly/SameSite/Secure config source established; actual expiry/logout/refresh/SMTP/upstream ratelimits and Cloud grants/passwordpolicies notrun."
+      },
+      {
+        "id": "input-output",
+        "label": "Injection and export rendering",
+        "disposition": "no_issue_found",
+        "riskArea": "Injection and export rendering",
+        "notes": "Parameterized SQL, no input-to-eval/HTML path found;Reacttextescaped, fixed invaliddatefallback;CSVescaping and export has_role regiongate reviewed. Actual authenticated exportHTTP awaitsCloud."
+      },
+      {
+        "id": "supply-chain",
+        "label": "Dependencies and source/browser secret patterns",
+        "disposition": "no_issue_found",
+        "riskArea": "Dependencies and source/browser secret patterns",
+        "notes": "npm audit registry Oct10 metadata0vulnerabilities matched installedlockfile;82trackedtext/12browserchunks patternscan0secretlocation/hits. No .env.local/private outputs inspected and no exhaustivezero-riskclaim."
+      },
+      {
+        "id": "ops-restore",
+        "label": "Operational configuration/quota/backuprestore",
+        "disposition": "needs_follow_up",
+        "riskArea": "Operational configuration/quota/backuprestore",
+        "notes": "No deployment or db+object restore performed. Docs distinguish procedures from evidence. Aggregate ratequota/retention governance and separate testproject prerequisite remain unknown."
+      }
+    ],
+    "explicitExclusions": [
+      {
+        "pattern": ".env.local and output/private/**",
+        "reason": "User forbids credential/private data access; configurationpresence boolean only."
+      },
+      {
+        "pattern": "External Supabase Cloud active testing",
+        "reason": "No separately authorized configured synthetic project; no Cloud migration/seed/integration or third-party attacks."
+      },
+      {
+        "pattern": "Personal AI, PRD/research/logo source writes",
+        "reason": "Explicitly outside mutation scope and preserved."
+      },
+      {
+        "pattern": "Dependency vendored source and all historical artifact contents",
+        "reason": "Supplychain assessed current installed versions/advisory/patterns, not exhaustive vendor/history audit."
+      }
+    ],
+    "deferred": [],
+    "openQuestions": [
+      "Verify actual Cloud Auth/session/Storage/DataAPI RLS and private cache after applying003 on approved synthetictest backend.",
+      "Exercise multi-client races/capacity/idempotency and actual two-laptopCloud flow atD:/WebDemo.",
+      "Perform db+objectbackup restore in a separateapproved disposableproject before real-data pilot.",
+      "Decide upload/login quotas, orphanphoto retention, governance and formerlyassignedworker readhistory policy."
+    ]
+  }
+}

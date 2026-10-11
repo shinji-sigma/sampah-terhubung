@@ -1,0 +1,12 @@
+{
+  "snapshot": "9d67c3a0da095ed93bc88aebc8e501ec16dec729",
+  "data": "generated synthetic 8px/1px images only, no private photos",
+  "inputExifPresent": true,
+  "outputExifPresent": false,
+  "outputJpeg": true,
+  "oversizeHeaderPixels": 25005000,
+  "oversizeHeaderRejected": true,
+  "note": "A corrected-CRC PNG header larger than25million pixels is parsed for dimensions and rejected before decoding; this is a small bounded malformed-body probe, not a full valid25MP image performance measurement",
+  "invalidLegacyDatetimeFallback": true,
+  "validDateWib": true
+}

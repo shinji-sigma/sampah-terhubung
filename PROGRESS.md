@@ -1,5 +1,13 @@
 # Kemajuan dan handoff
 
+## Checkpoint audit dan perbaikan — 11 Oktober 2026
+
+Baseline bersih `541a2ad`; perbaikan utama `9d67c3a`, kode akhir `0f9d055` menutup heading tiga fallback terakhir. Reviewer dan Security benar-benar berjalan paralel, kemudian membaca diff dan menguji ulang snapshot yang sama. Perbaikan mencakup izin jadwal SQL NULL, waktu bukti/nonfinite, notifikasi petugas nonaktif, proyeksi jadwal privat, cache error, sesi habis, heading dan recovery API. Migrasi tambahan `202610100003_audit_controls.sql` belum diterapkan ke Cloud; 001/002 dan data lama dipertahankan.
+
+Lint/typecheck/build produksi, 31/31 tes lokal, 41/41 probe SQL independen dan 13 pemeriksaan HTTP lulus. Bukti browser dan skor/batas terbaru: `docs/audit/RINGKASAN_AUDIT.md`, `REVIEW_KODE_UI_UX.md`, `SECURITY_REVIEW.md`, `output/audit/`. Catatan lama berikut adalah riwayat, bukan hasil audit saat ini.
+
+Backend Cloud masih kosong menurut boolean. Preview produksi audit berada pada port 3004; port 3000 tidak disentuh. Penerimaan P0/P1 dengan layanan nyata, demo dua laptop, email, foto/izin Cloud dan restore belum selesai. Langkah berikut tetap konfigurasi proyek pengujian sintetis sesuai `docs/SUPABASE_CLOUD.md`, clone kedua `D:\WebDemo`, tanpa Docker. Tidak ada push/deploy, mutasi Cloud, atau perubahan PRD/riset/logo sumber/Personal AI.
+
 ## Checkpoint hero dan navbar terpilih — 9 Oktober 2026
 
 Revisi di atas baseline `268136b` memakai navbar horizontal, hero publik/pelapor, ilustrasi ImageGen mandiri, kalender lime dan palet petrol–gading–sage–lime–violet. Menu operasional dipertahankan. Detail dan batas: `docs/KEPUTUSAN_VISUAL_HERO.md`, `design-qa.md`, dan `output/hero-design`. Checkpoint visual lama di bawah merupakan riwayat; ketentuan penghapusan hero sudah digantikan oleh pilihan pengguna terbaru.

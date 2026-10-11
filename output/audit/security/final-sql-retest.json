@@ -1,0 +1,178 @@
+{
+  "snapshot": "0f9d0558756a25e1f8b3fa1a8735972517fcc87e",
+  "migrations": [
+    "202610080001_core.sql",
+    "202610080002_notifications.sql",
+    "202610100003_audit_controls.sql"
+  ],
+  "at": "2026-10-10T22:42:49.256Z",
+  "backend": "Isolated PGlite auth/storage stubs; no real Supabase; serial single-connection",
+  "checks": 41,
+  "passed": 41,
+  "results": [
+    {
+      "name": "S01 active worker unassigned run denied",
+      "result": "pass"
+    },
+    {
+      "name": "S01 another assigned worker denied",
+      "result": "pass"
+    },
+    {
+      "name": "S01 cross-region worker denied",
+      "result": "pass"
+    },
+    {
+      "name": "S01 inactive assigned worker denied",
+      "result": "pass"
+    },
+    {
+      "name": "S01 legal assigned worker run succeeds",
+      "result": "pass"
+    },
+    {
+      "name": "S01 legal coordinator unassigned run succeeds",
+      "result": "pass"
+    },
+    {
+      "name": "S03 anonymous cannot read raw schedule or actor run",
+      "result": "pass"
+    },
+    {
+      "name": "S03 reporter cannot read raw schedule or actor run",
+      "result": "pass"
+    },
+    {
+      "name": "S03 other coordinator cannot read raw schedule or actor run",
+      "result": "pass"
+    },
+    {
+      "name": "S03 assigned worker and coordinator retain raw schedule",
+      "result": "pass"
+    },
+    {
+      "name": "S03 public projection preserves calendar and actual without actor identity",
+      "result": "pass"
+    },
+    {
+      "name": "S02/S06 task evidence missing time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02/S06 task evidence null time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02/S06 task evidence empty time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02/S06 task evidence future time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02/S06 task evidence nonfinite time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02/S06 task evidence out of range time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02 invalid requests leave task/state/photo/version unchanged",
+      "result": "pass"
+    },
+    {
+      "name": "S02 legal task evidence succeeds",
+      "result": "pass"
+    },
+    {
+      "name": "S04 inactive worker no task/incident read",
+      "result": "pass"
+    },
+    {
+      "name": "S04 coordinator review works and inactive worker gets no NEW notice",
+      "result": "pass"
+    },
+    {
+      "name": "S04 inactive worker cannot resubmit after fix requested",
+      "result": "pass"
+    },
+    {
+      "name": "S04 reactivated worker gets legitimate NEW notice and normal closure works",
+      "result": "pass"
+    },
+    {
+      "name": "S02 event completion missing time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02 event completion null time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02 event completion empty time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02 event completion future time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02 event completion before event time denied",
+      "result": "pass"
+    },
+    {
+      "name": "S02 event stays published until legal completion",
+      "result": "pass"
+    },
+    {
+      "name": "S06 report observed_at -infinity denied",
+      "result": "pass"
+    },
+    {
+      "name": "S06 report observed_at infinity denied",
+      "result": "pass"
+    },
+    {
+      "name": "S06 report observed_at 12000-01-01T00:00:00Z denied",
+      "result": "pass"
+    },
+    {
+      "name": "S06 report observed_at 0001-01-01 00:00:00 BC denied",
+      "result": "pass"
+    },
+    {
+      "name": "S06 valid ISO report and same-key idempotent retry succeed",
+      "result": "pass"
+    },
+    {
+      "name": "changed payload same actor/key denied",
+      "result": "pass"
+    },
+    {
+      "name": "cross-account key not receipt replay and photo ownership rejected",
+      "result": "pass"
+    },
+    {
+      "name": "private pending reports/photos hidden from other users/regions/anon/worker",
+      "result": "pass"
+    },
+    {
+      "name": "direct writes/admin metadata/internal helper and anon RPC denied",
+      "result": "pass"
+    },
+    {
+      "name": "cross-region coordinator pending validation denied",
+      "result": "pass"
+    },
+    {
+      "name": "reassigned old worker cannot accept superseded or substituted new task IDs",
+      "result": "pass"
+    },
+    {
+      "name": "SQL datatype finite date range rejects coordinator nonfinite date input",
+      "result": "pass"
+    }
+  ]
+}

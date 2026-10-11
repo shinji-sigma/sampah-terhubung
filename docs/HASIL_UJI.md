@@ -1,5 +1,9 @@
 # Hasil pengujian — 8 Oktober 2026
 
+## Audit dan retest — 11 Oktober 2026
+
+Snapshot perbaikan utama `9d67c3a`, kode akhir `0f9d055` dengan heading fallback tambahan: lint/typecheck/build produksi dan 31/31 tes lokal lulus. Security mengulang 41/41 probe SQL terisolasi serta 13 pemeriksaan HTTP produksi. Reviewer menguji ulang actual diff dan UI dengan fixture sintetis. Laporan dan batas hasil terkini ada pada [ringkasan audit](audit/RINGKASAN_AUDIT.md), [review UI/UX](audit/REVIEW_KODE_UI_UX.md), dan [review keamanan](audit/SECURITY_REVIEW.md). Bagian bertanggal lama di bawah merupakan riwayat. Konfigurasi Cloud kosong; integrasi Supabase, foto privat nyata, demo laptop kedua dan restore belum diuji.
+
 ## Pembaruan revisi desain — 9 Oktober 2026
 
 Lint, typecheck, build produksi dan **26/26 tes lokal** lulus setelah revisi antarmuka. Dua tes baru mencakup referensi insiden yang berbeda dan format tanggal Indonesia. Screenshot sebelum/sesudah tersedia untuk beranda, jadwal, wilayah, kegiatan kosong dan tiga keadaan peran di viewport desktop 1440×1000 / ponsel 360×800; kegiatan berisi memakai fixture tambahan. Hasil dan tautan lengkap: [REVISI_DESAIN.md](REVISI_DESAIN.md).

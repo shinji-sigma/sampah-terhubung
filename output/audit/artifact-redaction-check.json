@@ -1,0 +1,5 @@
+{
+  "filesReviewed": 39,
+  "suspectedPaths": [],
+  "limits": "Pattern check of sanitized audit text only; no env/private files read. Zero matches is not exhaustive secret detection."
+}

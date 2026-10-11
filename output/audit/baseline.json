@@ -1,0 +1,49 @@
+{
+  "date": "2026-10-10T20:55:28.8021207+07:00",
+  "branch": "codex/sampah-terhubung-local",
+  "head": "541a2ad4b63453aaadfa9e3288c454965d0baa6f",
+  "initialGitStatus": "clean",
+  "env": {
+    "filePresent": true,
+    "urlPresent": false,
+    "publishablePresent": false,
+    "serverSecretPresent": false,
+    "demoPasswordPresent": false
+  },
+  "ownedServers": [
+    {
+      "session": 78208,
+      "kind": "production",
+      "port": 3004
+    },
+    {
+      "session": 38376,
+      "fixtures": true,
+      "kind": "development",
+      "port": 3005
+    }
+  ],
+  "reservedPort": 3000,
+  "protected": [
+    {
+      "Path": "D:\\Project\\Lomba_UIN\\PRD_Sampah_Terhubung.md",
+      "Hash": "9442577E565CF8AF7DBAED33861EB0549B07FB9FC80081B2FB740161DA74CDE4"
+    },
+    {
+      "Path": "D:\\Project\\Lomba_UIN\\RISET_DAN_VALIDASI.md",
+      "Hash": "41A4B360E29080A05DC730AF85F7C7E8AEDDA2001762EFBB4ADF6361CA2015D5"
+    },
+    {
+      "Path": "D:\\Project\\Lomba_UIN\\DAFTAR_PUSTAKA.md",
+      "Hash": "57ADA26B0362915F3EEEFEF35ADF9BA44CF665BE0AEAFD0E13E4E94675A52CF7"
+    },
+    {
+      "Path": "D:\\Project\\Lomba_UIN\\desain\\PALET_WARNA.md",
+      "Hash": "8BD7CF273481C77EC5A487CCCD654702A259E3DFDB82F2C07EA74A077505DB2C"
+    },
+    {
+      "Path": "D:\\Project\\Lomba_UIN\\desain\\kontras_warna.json",
+      "Hash": "3AA429EE12BEF0508F0A4E05BF0DDBB959F8D25FD36ED93046431823F21890F6"
+    }
+  ]
+}

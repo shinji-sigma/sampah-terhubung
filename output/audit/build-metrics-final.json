@@ -1,0 +1,29 @@
+{
+  "measuredAt": "2026-10-10T22:42:15.767Z",
+  "node": "v24.21.0",
+  "platform": "win32",
+  "architecture": "x64",
+  "cpu": "13th Gen Intel(R) Core(TM) i5-13450HX",
+  "logicalCpus": 16,
+  "totalMemoryGiB": 28,
+  "buildId": "zfvmZPUfSGa7gDy7IBFJ4",
+  "allChunks": {
+    "js": {
+      "files": 12,
+      "raw": 818003,
+      "gzip": 248793
+    },
+    "css": {
+      "files": 1,
+      "raw": 37521,
+      "gzip": 8138
+    }
+  },
+  "hero": {
+    "bytes": 89304,
+    "width": 1000,
+    "height": 447,
+    "format": "webp"
+  },
+  "limits": "All build chunks and independent gzip totals, not one route transfer, Cloud latency, physical phone, FPS, LCP or CLS."
+}

@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import sharp from 'sharp';
+import { writeFile } from 'node:fs/promises';
+import {validateImage} from '../../../src/lib/uploads.ts';
+import {dateTime,dateLabel} from '../../../src/lib/types.ts';
+const input=await sharp({create:{width:8,height:8,channels:3,background:'#ffffff'}}).jpeg().withExif({IFD0:{Artist:'AUDIT SYNTHETIC ONLY',Copyright:'Synthetic'}}).toBuffer();
+const before=await sharp(input).metadata(),clean=await validateImage(input,'image/jpeg'),after=await sharp(clean).metadata();
+assert.ok(before.exif);assert.equal(after.exif,undefined);assert.equal(after.format,'jpeg');
+let png=await sharp({create:{width:1,height:1,channels:3,background:'#000000'}}).png().toBuffer();png=Buffer.from(png);png.writeUInt32BE(5001,16);png.writeUInt32BE(5000,20);let crc=0xffffffff;for(const byte of png.subarray(12,29)){crc^=byte;for(let bit=0;bit<8;bit++)crc=(crc>>>1)^((crc&1)?0xedb88320:0)}png.writeUInt32BE((crc^0xffffffff)>>>0,29);const dims=await sharp(png,{limitInputPixels:false}).metadata();assert.equal(dims.width,5001);assert.equal(dims.height,5000);await assert.rejects(()=>validateImage(png,'image/png'),/Isi foto/);
+assert.equal(dateTime('-infinity'),'Waktu tidak tersedia');assert.equal(dateLabel('-infinity'),'Tanggal tidak tersedia');assert.ok(dateTime('2026-10-10T00:00:00Z').endsWith('WIB'));
+const result={snapshot:'9d67c3a0da095ed93bc88aebc8e501ec16dec729',data:'generated synthetic 8px/1px images only, no private photos',inputExifPresent:!!before.exif,outputExifPresent:!!after.exif,outputJpeg:after.format==='jpeg',oversizeHeaderPixels:dims.width*dims.height,oversizeHeaderRejected:true,note:'A corrected-CRC PNG header larger than25million pixels is parsed for dimensions and rejected before decoding; this is a small bounded malformed-body probe, not a full valid25MP image performance measurement',invalidLegacyDatetimeFallback:true,validDateWib:true};await writeFile('output/audit/security/final-upload-formatters.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));

@@ -1,0 +1,44 @@
+
+> sampah-terhubung@0.1.0 test
+> tsx --test tests/*.test.ts
+
+✔ API recovery preserves actionable errors across proxy HTML, network loss and field validation (26.876ms)
+▶ PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supabase Auth/Storage)
+  ✔ signup metadata cannot grant manager/admin; direct tables are immutable (8.2746ms)
+  ✔ server rules require photos, valid dates, coordinate ranges and active region (15.913ms)
+  ✔ report submit is idempotent and preserves ownership; reusing key with new payload fails (26.7583ms)
+  ✔ pending report and private photo are invisible to strangers, workers and other coordinators (33.2851ms)
+  ✔ coordinator merges two reports into one incident, preserving both reporters (21.5831ms)
+  ✔ offered task is not working; rejection requires reason and returns verified; reassignment preserves history (22.8021ms)
+  ✔ only assigned worker can accept; stale acceptance fails; blocker does not close incident (10.3935ms)
+  ✔ evidence needs destination for moved waste; coordinator verifies before closure (25.4366ms)
+  ✔ feedback does not change worker status; reopen uses same incident; recurrence requires new observation after closure (26.4085ms)
+  ✔ schedule exceptions append history, enforce valid date and roles; actual runs are unique (38.1611ms)
+  ✔ event draft cannot publish without confirmed transport; last seat is locked and duplicate signup is safe (33.0342ms)
+  ✔ prevention creation/evaluation enforces regional access and optimistic versions (14.5575ms)
+  ✔ event completion records photos and transport but does not close related incident (8.8212ms)
+  ✔ coordinator receives task changes and reporter receives rejection notifications (18.5692ms)
+  ✔ anonymous storage writes and unsafe internal RPC calls are denied (2.8277ms)
+  ✔ public projection hides identities and precise points; moderation keeps operational history (7.9985ms)
+  ✔ schedule runs reject unassigned, different and inactive workers; public data omits identities (32.7462ms)
+  ✔ direct RPC cannot submit task/event evidence without time; active-only worker notifications (33.0586ms)
+  ✔ direct RPC rejects nonfinite PostgreSQL dates without creating poisoned records (10.351ms)
+✔ PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supabase Auth/Storage) (2381.6039ms)
+✔ chunked requests cannot bypass maximum body size by omitting content-length (4.9013ms)
+✔ private errors and validation failures cannot be cached or leak internal details (6.018ms)
+✔ cross-origin mutation is rejected before authentication/database access (0.8118ms)
+✔ incident display references distinguish common UUID prefixes and suffixes without changing IDs (2.1011ms)
+✔ service metadata dates use Indonesian month names and empty-state text (23.45ms)
+✔ five supporting reports / reopening still count one distinct incident; new incident after closure counts twice (1.1267ms)
+✔ dated schedule change affects only one date; actual and unconfirmed states remain distinct (0.2436ms)
+✔ CSV protects formula prefixes, whitespace tricks and escapes quoted multiline text (0.2849ms)
+✔ image validation decodes real image, strips metadata, rejects wrong mime, SVG, oversized and invalid bytes (15.9905ms)
+✔ server command schema rejects absent versions, invalid coords, forged photo UUIDs and too many images (9.3522ms)
+ℹ tests 31
+ℹ suites 0
+ℹ pass 31
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2785.425

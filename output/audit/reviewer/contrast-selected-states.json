@@ -1,0 +1,83 @@
+{
+  "method": "Flat CSS pairs manually selected from actual stylesheet; excludes raster art and full screen reader compliance",
+  "pairs": [
+    {
+      "name": "text/ivory",
+      "fg": "#172c29",
+      "bg": "#f7f5ef",
+      "ratio": "13.48"
+    },
+    {
+      "name": "muted/ivory",
+      "fg": "#4e625c",
+      "bg": "#f7f5ef",
+      "ratio": "5.97"
+    },
+    {
+      "name": "primary",
+      "fg": "#ffffff",
+      "bg": "#235e52",
+      "ratio": "7.52"
+    },
+    {
+      "name": "primary hover",
+      "fg": "#ffffff",
+      "bg": "#193c38",
+      "ratio": "12.04"
+    },
+    {
+      "name": "lime",
+      "fg": "#193c38",
+      "bg": "#d5e675",
+      "ratio": "8.83"
+    },
+    {
+      "name": "lime hover",
+      "fg": "#193c38",
+      "bg": "#ddece7",
+      "ratio": "9.87"
+    },
+    {
+      "name": "disabled",
+      "fg": "#4e625c",
+      "bg": "#f1f5f9",
+      "ratio": "5.94"
+    },
+    {
+      "name": "navigation violet",
+      "fg": "#6758b5",
+      "bg": "#ffffff",
+      "ratio": "5.77"
+    },
+    {
+      "name": "good",
+      "fg": "#166534",
+      "bg": "#dcfce7",
+      "ratio": "6.49"
+    },
+    {
+      "name": "warn",
+      "fg": "#92400e",
+      "bg": "#fef3c7",
+      "ratio": "6.37"
+    },
+    {
+      "name": "bad",
+      "fg": "#b91c1c",
+      "bg": "#fee2e2",
+      "ratio": "5.30"
+    },
+    {
+      "name": "info",
+      "fg": "#1d4ed8",
+      "bg": "#dbeafe",
+      "ratio": "5.49"
+    },
+    {
+      "name": "focus ring/ivory",
+      "fg": "#1d4ed8",
+      "bg": "#f7f5ef",
+      "ratio": "6.15"
+    }
+  ]
+}

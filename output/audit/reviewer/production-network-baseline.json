@@ -1,0 +1,247 @@
+{
+  "scope": "Local preview baseline, cache disabled, 150ms latency, 200/100KiB/s, CPU4x; not Cloud or physical phone",
+  "observationWallMs": 1188,
+  "events": [
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "D55E2B87052B613A39C6F64B931B787E",
+      "url": "http://localhost:3004/preview",
+      "timestamp": 690262.048969,
+      "type": "Document"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "D55E2B87052B613A39C6F64B931B787E",
+      "url": "http://localhost:3004/preview",
+      "timestamp": 690262.235898,
+      "type": "Document",
+      "status": 200
+    },
+    {
+      "method": "Page.lifecycleEvent",
+      "timestamp": 690262.25587,
+      "eventName": "init"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.136",
+      "url": "http://localhost:3004/brand/shinframe.png",
+      "timestamp": 690262.256893,
+      "type": "Image"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.137",
+      "url": "http://localhost:3004/_next/static/chunks/21nbv5j_xi7ry.css",
+      "timestamp": 690262.257742,
+      "type": "Stylesheet"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.138",
+      "url": "http://localhost:3004/_next/static/chunks/1ckvzn7sfprko.js",
+      "timestamp": 690262.257838,
+      "type": "Script"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.139",
+      "url": "http://localhost:3004/_next/static/chunks/3cubu4qf_i7py.js",
+      "timestamp": 690262.257906,
+      "type": "Script"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.140",
+      "url": "http://localhost:3004/_next/static/chunks/0s7mvllxht1mo.js",
+      "timestamp": 690262.257962,
+      "type": "Script"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.141",
+      "url": "http://localhost:3004/_next/static/chunks/38g6xio-dyrkg.js",
+      "timestamp": 690262.258012,
+      "type": "Script"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.142",
+      "url": "http://localhost:3004/_next/static/chunks/turbopack-2c3mg3r-05n1w.js",
+      "timestamp": 690262.258056,
+      "type": "Script"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.143",
+      "url": "http://localhost:3004/_next/static/chunks/0umf92h1sb77c.js",
+      "timestamp": 690262.258103,
+      "type": "Script"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.144",
+      "url": "http://localhost:3004/_next/static/chunks/2d_78qlu_qnod.js",
+      "timestamp": 690262.258154,
+      "type": "Script"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.145",
+      "url": "http://localhost:3004/_next/static/chunks/44yg_3hwe6y0w.js",
+      "timestamp": 690262.258197,
+      "type": "Script"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.146",
+      "url": "http://localhost:3004/_next/static/chunks/28ydw2-siq_9s.js",
+      "timestamp": 690262.258241,
+      "type": "Script"
+    },
+    {
+      "method": "Network.requestWillBeSent",
+      "requestId": "60748.148",
+      "url": "http://localhost:3004/_next/image?url=%2Fillustrations%2Fcoordination.webp&w=640&q=75",
+      "timestamp": 690262.258307,
+      "type": "Image"
+    },
+    {
+      "method": "Network.loadingFinished",
+      "requestId": "D55E2B87052B613A39C6F64B931B787E",
+      "timestamp": 690262.254908,
+      "encodedDataLength": 6740
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "60748.136",
+      "url": "http://localhost:3004/brand/shinframe.png",
+      "timestamp": 690262.445093,
+      "type": "Image",
+      "status": 200
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "60748.148",
+      "url": "http://localhost:3004/_next/image?url=%2Fillustrations%2Fcoordination.webp&w=640&q=75",
+      "timestamp": 690262.448695,
+      "type": "Image",
+      "status": 200
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "60748.137",
+      "url": "http://localhost:3004/_next/static/chunks/21nbv5j_xi7ry.css",
+      "timestamp": 690262.46809,
+      "type": "Stylesheet",
+      "status": 200
+    },
+    {
+      "method": "Network.loadingFinished",
+      "requestId": "60748.137",
+      "timestamp": 690262.57801,
+      "encodedDataLength": 8612
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "60748.138",
+      "url": "http://localhost:3004/_next/static/chunks/1ckvzn7sfprko.js",
+      "timestamp": 690262.643186,
+      "type": "Script",
+      "status": 200
+    },
+    {
+      "method": "Network.loadingFinished",
+      "requestId": "60748.138",
+      "timestamp": 690262.633882,
+      "encodedDataLength": 2537
+    },
+    {
+      "method": "Page.lifecycleEvent",
+      "timestamp": 690262.674722,
+      "eventName": "DOMContentLoaded"
+    },
+    {
+      "method": "Page.lifecycleEvent",
+      "timestamp": 690262.661608,
+      "eventName": "firstMeaningfulPaintCandidate"
+    },
+    {
+      "method": "Page.lifecycleEvent",
+      "timestamp": 690262.661608,
+      "eventName": "firstContentfulPaint"
+    },
+    {
+      "method": "Page.lifecycleEvent",
+      "timestamp": 690262.661608,
+      "eventName": "firstPaint"
+    },
+    {
+      "method": "Page.lifecycleEvent",
+      "timestamp": 690262.661608,
+      "eventName": "firstImagePaint"
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "60748.139",
+      "url": "http://localhost:3004/_next/static/chunks/3cubu4qf_i7py.js",
+      "timestamp": 690262.771198,
+      "type": "Script",
+      "status": 200
+    },
+    {
+      "method": "Network.loadingFinished",
+      "requestId": "60748.139",
+      "timestamp": 690262.769365,
+      "encodedDataLength": 8023
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "60748.142",
+      "url": "http://localhost:3004/_next/static/chunks/turbopack-2c3mg3r-05n1w.js",
+      "timestamp": 690262.93275,
+      "type": "Script",
+      "status": 200
+    },
+    {
+      "method": "Network.loadingFinished",
+      "requestId": "60748.142",
+      "timestamp": 690262.930035,
+      "encodedDataLength": 4893
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "60748.143",
+      "url": "http://localhost:3004/_next/static/chunks/0umf92h1sb77c.js",
+      "timestamp": 690263.073527,
+      "type": "Script",
+      "status": 200
+    },
+    {
+      "method": "Network.loadingFinished",
+      "requestId": "60748.143",
+      "timestamp": 690263.072187,
+      "encodedDataLength": 4016
+    },
+    {
+      "method": "Network.loadingFinished",
+      "requestId": "60748.148",
+      "timestamp": 690263.083831,
+      "encodedDataLength": 32092
+    },
+    {
+      "method": "Network.responseReceived",
+      "requestId": "60748.144",
+      "url": "http://localhost:3004/_next/static/chunks/2d_78qlu_qnod.js",
+      "timestamp": 690263.139718,
+      "type": "Script",
+      "status": 200
+    },
+    {
+      "method": "Network.loadingFinished",
+      "requestId": "60748.144",
+      "timestamp": 690263.13853,
+      "encodedDataLength": 948
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "target": "http://127.0.0.1:3004",
+  "snapshot": "9d67c3a0da095ed93bc88aebc8e501ec16dec729",
+  "limits": "13 requests sequential, 5 sec timeout, maximum actual body 30001 bytes; no credentials",
+  "results": [
+    {
+      "name": "preview",
+      "status": 200,
+      "cacheControl": "private, no-cache, no-store, max-age=0, must-revalidate",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": null
+    },
+    {
+      "name": "fixture-production",
+      "status": 404,
+      "cacheControl": "s-maxage=31536000",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": null
+    },
+    {
+      "name": "public-unconfigured",
+      "status": 503,
+      "cacheControl": "private, no-store",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": "Backend belum dikonfigurasi."
+    },
+    {
+      "name": "workspace-unconfigured",
+      "status": 503,
+      "cacheControl": "private, no-store",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": "Layanan belum tersedia. Periksa koneksi lalu coba lagi."
+    },
+    {
+      "name": "photo-invalid-id",
+      "status": 422,
+      "cacheControl": "private, no-store",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": "Periksa isian yang ditandai."
+    },
+    {
+      "name": "photo-unconfigured",
+      "status": 503,
+      "cacheControl": "private, no-store",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": "Layanan belum tersedia. Periksa koneksi lalu coba lagi."
+    },
+    {
+      "name": "export-invalid-region",
+      "status": 422,
+      "cacheControl": "private, no-store",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": "Periksa isian yang ditandai."
+    },
+    {
+      "name": "commands-foreign-origin",
+      "status": 403,
+      "cacheControl": "private, no-store",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": "Asal permintaan tidak diizinkan."
+    },
+    {
+      "name": "commands-no-origin",
+      "status": 403,
+      "cacheControl": "private, no-store",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": "Asal permintaan tidak diizinkan."
+    },
+    {
+      "name": "commands-bounded-large-body",
+      "status": 413,
+      "cacheControl": "private, no-store",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": "Permintaan terlalu besar."
+    },
+    {
+      "name": "auth-bounded-large-body",
+      "status": 413,
+      "cacheControl": "private, no-store",
+      "nosniff": "nosniff",
+      "frame": "DENY",
+      "referrer": "strict-origin-when-cross-origin",
+      "cors": null,
+      "message": "Permintaan terlalu besar."
+    },
+    {
+      "name": "upload-declared-limit-one-actual-byte",
+      "status": 413,
+      "cacheControl": "private, no-store"
+    },
+    {
+      "name": "chunked-no-content-length-limit",
+      "status": 413,
+      "cacheControl": "private, no-store"
+    }
+  ]
+}
