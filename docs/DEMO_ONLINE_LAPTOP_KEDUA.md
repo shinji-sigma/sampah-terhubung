@@ -58,7 +58,7 @@ Untuk clone baru di `D:\WebDemo`, clone repository privat menggunakan akses GitH
 | APP_ORIGIN | http://localhost:3001 untuk lokal; origin HTTPS stabil untuk hosting |
 | DEMO_PASSWORD | Password akun seed/integration, minimal 12 karakter, hanya lokal |
 
-Konfigurasi laptop kedua dan hosting sudah tersedia. Auth Site URL sudah diarahkan ke demo HTTPS. Redirect konfirmasi email yang perlu terdaftar adalah `http://localhost:3001/auth/confirm` dan `https://sampah-terhubung-langgamramadhan9-3266.vercel.app/auth/confirm`; penyimpanan allowlist ini belum terverifikasi karena koneksi kontrol Chrome terputus. Login akun demo yang sudah dikonfirmasi tidak bergantung pada pengiriman email baru.
+Konfigurasi laptop kedua dan hosting sudah tersedia. Auth Site URL sudah diarahkan ke demo HTTPS. Redirect konfirmasi email yang telah tersimpan dan terverifikasi pada dashboard adalah `http://localhost:3001/auth/confirm` dan `https://sampah-terhubung-langgamramadhan9-3266.vercel.app/auth/confirm`. Kedua URL didaftarkan persis tanpa wildcard. Login akun demo yang sudah dikonfirmasi tidak bergantung pada pengiriman email baru.
 
 Untuk backend baru kosong, jalankan keempat SQL di `supabase/migrations` menurut nama, isi env, lalu `npm run demo:seed` sekali. Seed memakai Auth/Storage sungguhan dan `defaultToNull:false` agar insert bulk mempertahankan default database.
 
@@ -114,5 +114,7 @@ Belum terverifikasi: kedua laptop dan HP fisik secara bersamaan; kamera/GPS/jari
 - Alur browser produksi juga selesai dengan akun pelapor, koordinator dan petugas: laporan `62CEC511`, insiden `BDFC-FEC2D036`, validasi, penugasan, penerimaan, bukti lalu penutupan. Sesi pelapor yang dibuka kembali melihat Selesai terverifikasi dan riwayat yang sama. Artefak UI ini dipertahankan sebagai contoh simulasi; artefak integration script dibersihkan.
 - Input PNG sintetis 3.770.477 byte dikirim melalui form browser, diubah menjadi JPEG dan tersimpan 843.055 byte di bucket privat. Foto bukti petugas juga berhasil dikirim melalui UI. Ini membuktikan satu kasus foto besar di browser desktop, bukan seluruh tipe foto/kamera HP.
 - Thumbnail laporan termuat (naturalWidth 1120). Console browser tidak mencatat warning/error. Viewport 390x844 memiliki content width 375 tanpa overflow horizontal; ini emulasi.
-- Koneksi Chrome beberapa kali terputus; pengujian aplikasi diselesaikan menggunakan browser aplikasi Codex. Allowlist redirect konfirmasi email belum dinyatakan selesai. Site URL dan login akun demo sudah terverifikasi; signup tetap batas pengujian.
+- Koneksi Chrome beberapa kali terputus; pengujian aplikasi diselesaikan menggunakan browser aplikasi Codex. Allowlist redirect konfirmasi email kemudian selesai: dashboard menampilkan Total URLs: 2 dan Successfully added 2 URLs. Site URL dan login akun demo sudah terverifikasi; signup tetap batas pengujian.
 - Bukti sanitasi: `output/deployment/cloud-local-results.json`, `cloud-production-results.json`, `http-results.json`, `browser-photo-results.json`, `browser-workflow-results.json`, serta `online-report-closed-mobile.png`. File privat tetap berada di output/private dan diabaikan Git.
+
+Callback produksi tanpa token menghasilkan HTTP 307 ke confirmation_failed=1 dan tidak membuat cookie sesi. Ini menguji penolakan callback kosong, bukan pengiriman/penerimaan atau keberhasilan konfirmasi email. Bukti konfigurasi: output/deployment/auth-configuration-results.json dan auth-redirects-configured.png.

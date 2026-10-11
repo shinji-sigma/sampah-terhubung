@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-11T23:28:40.519Z",
+  "origin": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app",
+  "siteUrlVerified": true,
+  "redirectUrls": [
+    "http://localhost:3001/auth/confirm",
+    "https://sampah-terhubung-langgamramadhan9-3266.vercel.app/auth/confirm"
+  ],
+  "callbackWithoutToken": {
+    "status": 307,
+    "failedConfirmation": true,
+    "sessionCreated": false
+  },
+  "emailDeliveryTested": false
+}
