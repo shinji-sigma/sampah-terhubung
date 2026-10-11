@@ -74,7 +74,7 @@ npm run test:integration
 
 32 tes lokal, lint, typecheck dan build lulus. Tes PostgreSQL lokal memakai PGlite dengan Auth/Storage tiruan; hasil itu terpisah dari verifikasi Cloud.
 
-14 pemeriksaan integrasi nyata dengan Cloud dan server lokal lulus, mencakup Auth/sesi HTTP, upload JPEG dan penolakan SVG, bucket privat, idempotensi laporan, RLS/izin foto antarwilayah, dua laporan untuk satu insiden, penolakan/penugasan ulang, konkurensi penerimaan, bukti/penutupan, kejadian baru, jadwal aktual, P1 pencegahan/kegiatan, kapasitas pendaftaran, CSV, serta satu alur lengkap melalui HTTP dengan tiga sesi. Pemeriksaan konflik HTTP mengharuskan 409 dan pesan yang dapat ditindaklanjuti; setelah logout workspace harus 401. Cleanup hanya ID uji yang dibuat dan tidak melaporkan kegagalan.
+14 pemeriksaan integrasi nyata lulus pada Cloud dengan server lokal, lalu lulus kembali pada URL produksi HTTPS (commit kode 28daddd; deployment dpl_ATqNF5bbjh14TNQsiWcmZFvcvgbD, Ready). Pemeriksaan ini mencakup Auth/sesi HTTP, upload JPEG dan penolakan SVG, bucket privat, idempotensi laporan, RLS/izin foto antarwilayah, dua laporan untuk satu insiden, penolakan/penugasan ulang, konkurensi penerimaan, bukti/penutupan, kejadian baru, jadwal aktual, P1 pencegahan/kegiatan, kapasitas pendaftaran, CSV, serta satu alur lengkap melalui HTTP dengan tiga sesi. Pemeriksaan konflik HTTP mengharuskan 409 dan pesan yang dapat ditindaklanjuti; setelah logout workspace harus 401. Cleanup hanya ID uji yang dibuat dan tidak melaporkan kegagalan.
 
 Hasil privat tersedia di `output/private/cloud-integration.json`. Jangan commit artefak privat. Hasil sanitasi dapat disimpan di `output/deployment`; tidak memuat token, password atau data pribadi.
 
@@ -106,4 +106,13 @@ Waktu database sekitar 0,8 detik lebih maju dari laptop saat diuji. Fixture keja
 
 Foto dikirim satu per satu; foto di atas 3,5 MiB diperkecil browser menjadi JPEG maksimal 1920px untuk body Functions Vercel maksimal 4,5 MB. Berkas asli maksimal 5 MiB, tiga foto. Server tetap decode ulang, menghapus EXIF, dan menyimpan di bucket privat. [Batas Functions](https://vercel.com/docs/functions/limitations).
 
-Belum terverifikasi: kedua laptop dan HP fisik secara bersamaan; kamera/GPS/jaringan seluler; kompresi foto besar asli di browser; signup/konfirmasi email; expiry sesi; backup dan restore. Pengujian beberapa sesi HTTP dan viewport 390px bukan bukti pengujian perangkat fisik. Foto yang terunggah namun belum tertaut akibat pembatalan masih memerlukan kebijakan retensi; pembersihan orphan otomatis belum tersedia. Demo memakai muat ulang, bukan sinkronisasi realtime.
+Belum terverifikasi: kedua laptop dan HP fisik secara bersamaan; kamera/GPS/jaringan seluler; signup/konfirmasi email; expiry sesi; backup dan restore. Pengujian beberapa sesi HTTP dan viewport 390px bukan bukti pengujian perangkat fisik. Foto yang terunggah namun belum tertaut akibat pembatalan masih memerlukan kebijakan retensi; pembersihan orphan otomatis belum tersedia. Demo memakai muat ulang, bukan sinkronisasi realtime.
+
+## Bukti akhir deployment 12 Oktober 2026
+
+- URL produksi tanpa sesi Vercel dapat dibuka. Delapan pemeriksaan HTTP lulus: beranda/preview 200, fixture ui-test 404, public API 200, workspace tanpa login 401, ketiga API mutasi dengan Origin asing 403; API memakai no-store.
+- Alur browser produksi juga selesai dengan akun pelapor, koordinator dan petugas: laporan `62CEC511`, insiden `BDFC-FEC2D036`, validasi, penugasan, penerimaan, bukti lalu penutupan. Sesi pelapor yang dibuka kembali melihat Selesai terverifikasi dan riwayat yang sama. Artefak UI ini dipertahankan sebagai contoh simulasi; artefak integration script dibersihkan.
+- Input PNG sintetis 3.770.477 byte dikirim melalui form browser, diubah menjadi JPEG dan tersimpan 843.055 byte di bucket privat. Foto bukti petugas juga berhasil dikirim melalui UI. Ini membuktikan satu kasus foto besar di browser desktop, bukan seluruh tipe foto/kamera HP.
+- Thumbnail laporan termuat (naturalWidth 1120). Console browser tidak mencatat warning/error. Viewport 390x844 memiliki content width 375 tanpa overflow horizontal; ini emulasi.
+- Koneksi Chrome beberapa kali terputus; pengujian aplikasi diselesaikan menggunakan browser aplikasi Codex. Allowlist redirect konfirmasi email belum dinyatakan selesai. Site URL dan login akun demo sudah terverifikasi; signup tetap batas pengujian.
+- Bukti sanitasi: `output/deployment/cloud-local-results.json`, `cloud-production-results.json`, `http-results.json`, `browser-photo-results.json`, `browser-workflow-results.json`, serta `online-report-closed-mobile.png`. File privat tetap berada di output/private dan diabaikan Git.
