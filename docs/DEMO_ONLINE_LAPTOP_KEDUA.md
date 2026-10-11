@@ -4,12 +4,21 @@ Semua perintah dijalankan dari `D:\WebDemo`. Checkout dibuat dari salinan lokal 
 
 ## Status persiapan
 
+URL produksi: https://sampah-terhubung-langgamramadhan9-3266.vercel.app. Pratinjau statis: https://sampah-terhubung-langgamramadhan9-3266.vercel.app/preview. Deployment pertama memuat commit `dacd026`; kode audit `0f9d055` dan laporan `7461875` termasuk dalam histori. Backend Cloud telah dikonfigurasi dan data simulasi di-seed; deployment berikutnya memakai konfigurasi tersebut. URL `/preview` tetap statis.
+
 - Node 24.21.0, npm 11.19.0; `npm ci` berhasil dan registry audit melaporkan 0 vulnerability saat instalasi.
 - Baseline 31 tes/lint/build lulus; penyesuaian foto menambah tes retry parsial, total 32 tes lokal.
 - Preview lokal memakai `http://localhost:3001/preview`; port 3000 milik aplikasi lain dipertahankan.
 - GitHub melalui Git Credential Manager dapat melakukan push. Repository privat dibuat dan histori audit dipush ke `main`.
 - CLI Vercel berhasil login; scope `langgamramadhan9-3266` terverifikasi sebagai OWNER pada paket Hobby aktif. Deployment dilakukan langsung dari checkout laptop kedua. Integrasi GitHub Vercel belum dipasang; push GitHub berikutnya perlu diikuti deployment CLI.
-- `.env.local` dibuat dari template tanpa menyalin secret laptop utama. URL/key/password masih kosong menurut pemeriksaan boolean. Cloud/migrasi/seed/integrasi nyata belum dijalankan.
+- `.env.local` dibuat tanpa menyalin secret laptop utama. URL, publishable key, tepat satu `SUPABASE_SERVICE_ROLE_KEY`, dan password akun simulasi tersedia secara privat. Pemeriksaan boolean seluruhnya true. Password demo acak disimpan hanya dalam file lokal, tidak di chat/Git/hosting.
+- Build lokal dan Vercel lulus (Next.js 16.4.0, Node 24.x); deployment `dpl_4Q3Efr9h48umXjFeXppEnALuTNmg` READY. Settings project memakai framework Next.js. Vercel Authentication memakai Standard Protection: URL produksi stabil publik, URL deployment/preview tetap dilindungi.
+- HTTP tanpa sesi Vercel: `/` dan `/preview` 200; `/ui-test` 404; `/api/public` dan `/api/workspace` 503 karena backend kosong. Browser desktop tanpa error/warning console; viewport 390px tanpa overflow horizontal. Ini emulasi ukuran HP, bukan pengujian perangkat fisik.
+- Manifest CLI dry-run membuktikan `.env.local`, `.env.example`, `.git`, seluruh output pengujian dan dependencies dikecualikan dari upload kode. `npm run test:integration` berhenti pada pemeriksaan konfigurasi; belum ada hasil integrasi Cloud.
+- Organisasi Supabase **Sampah Terhubung Demo** terverifikasi **Free Plan**. Pengguna telah membuat proyek kosong `sampah-terhubung-demo` (`jrozalhfgmzpxvpvzgcf`), Healthy, Nano, South Asia (Mumbai). Password database dibuat/disimpan sendiri oleh pengguna.
+- Migrasi 001, 002, 003 diterapkan melalui SQL Editor dan masing-masing menghasilkan Success. Riwayat migration CLI tidak diisi otomatis oleh SQL Editor; jangan mengulang 001 pada database ini. Delapan akun dan dataset simulasi berhasil di-seed. Skrip seed diperbaiki dengan `defaultToNull:false` agar baris bulk yang tidak mengisi kolom tertentu memakai default database.
+- Integrasi nyata awal: Auth/sesi HTTP, unggahan foto JPEG, penolakan SVG, bucket privat, laporan/idempotensi, RLS/foto lintas akun, validasi dan penugasan ulang lulus. Pemeriksaan konkurensi penerimaan tugas masih gagal dan sedang ditelusuri; pemeriksaan berikutnya belum dinyatakan lulus. Cleanup percobaan yang telah selesai tidak melaporkan kegagalan.
+- Lima environment variables produksi terpasang melalui API Vercel secara privat menggunakan `npm run deploy:env`. Nilai dilewatkan melalui stdin; output kunci/response tidak ditampilkan. Hanya konfigurasi runtime yang diunggah; `DEMO_PASSWORD` tidak disertakan.
 
 ## Konfigurasi privat yang diperlukan
 
@@ -40,6 +49,8 @@ Isi Environment Variables di dashboard Vercel secara privat untuk environment de
 | `APP_ORIGIN` | Origin HTTPS stabil **persis**, tanpa path atau slash akhir |
 
 `DEMO_PASSWORD` hanya diperlukan untuk seed/integration lokal; jangan menaruhnya di environment runtime hosting. `ALLOW_UI_FIXTURES` tidak diisi pada hosting. URL/publishable menjadi konfigurasi browser; perubahan variabel `NEXT_PUBLIC_*` memerlukan redeploy/build baru.
+
+Untuk proyek demo ini, `npm run deploy:env` memasang lima variabel tersebut dari `.env.local` melalui CLI resmi. Skrip dikunci pada ID proyek/team Vercel dan URL Supabase simulasi di atas, serta memaksa `APP_ORIGIN` menjadi URL produksi stabil. `.env.local` tetap memakai origin lokal 3001. Skrip menolak konfigurasi kosong atau dua kunci server; jangan menggunakannya pada proyek lain tanpa meninjau target terlebih dahulu.
 
 Jika URL awal berubah, jangan menghapus validasi Origin. Perbarui `APP_ORIGIN` dan redirect Auth untuk domain stabil, kemudian redeploy. API mutasi dari deployment preview lain memang ditolak jika Origin-nya tidak sesuai.
 

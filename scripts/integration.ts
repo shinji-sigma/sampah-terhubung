@@ -319,6 +319,15 @@ try {
           });
         }),
       );
+      console.log(
+        "Hasil konkurensi (kode saja): " +
+          JSON.stringify(attempts.map((attempt) => ({
+            error: !!attempt.error,
+            code: attempt.error?.code || null,
+            status: attempt.status,
+            dataPresent: !!attempt.data,
+          }))),
+      );
       assert.equal(attempts.filter((a) => !a.error).length, 1);
       assert.equal(attempts.filter((a) => a.error?.code === "40001").length, 1);
       await command(worker.db, {

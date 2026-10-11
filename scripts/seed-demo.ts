@@ -46,7 +46,7 @@ async function insert(
 ) {
   const { error } = await admin
     .from(table)
-    .upsert(rows, { onConflict: conflict });
+    .upsert(rows, { onConflict: conflict, defaultToNull: false });
   if (error)
     throw new Error(
       "Seed tabel " +
