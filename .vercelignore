@@ -1,0 +1,10 @@
+.env*
+.git/
+.next/
+node_modules/
+output/
+.playwright-cli/
+.codex/
+*.tsbuildinfo
+supabase/.temp/
+supabase/.branches/
