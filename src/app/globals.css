@@ -1982,3 +1982,52 @@ h3 {
     margin-bottom: 4px;
   }
 }
+/* Report evidence controls also remain usable on narrow phone screens. */
+.auth-panel {
+  max-width: 620px;
+}
+.camera-panel video,
+.capture-preview {
+  width: 100%;
+  max-width: 560px;
+  height: auto;
+  border-radius: 12px;
+  background: #10251b;
+}
+.evidence-photo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.evidence-photo img {
+  width: 110px;
+  height: 85px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+.photo-strip a {
+  display: flex;
+  flex-direction: column;
+  max-width: 180px;
+}
+.photo-strip small {
+  overflow-wrap: anywhere;
+}
+.report-grid fieldset {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.evidence-details {
+  margin-block: 12px;
+}
+.report-grid .text-button {
+  min-height: 44px;
+}
+[hidden] {
+  display: none !important;
+}

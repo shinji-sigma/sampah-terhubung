@@ -34,7 +34,9 @@ export async function GET(req: Request) {
         let query = db
           .from(table)
           .select(
-            table === "photos" ? "id,owner_id,report_id,task_id,event_id" : "*",
+            table === "photos"
+              ? "id,owner_id,report_id,task_id,event_id,source,captured_at,created_at"
+              : "*",
             { count: "exact" },
           );
         if (

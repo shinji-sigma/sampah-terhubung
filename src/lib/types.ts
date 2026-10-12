@@ -45,6 +45,13 @@ export interface Incident {
   created_at: string;
 }
 export interface Report {
+  evidence_mode: "direct" | "supporting" | null;
+  supporting_reason: string | null;
+  location_confirmed: boolean | null;
+  device_lat: number | null;
+  device_lng: number | null;
+  device_accuracy_m: number | null;
+  device_measured_at: string | null;
   id: string;
   region_id: string;
   reporter_id: string;
@@ -150,6 +157,9 @@ export interface Registration {
   duty: string;
 }
 export interface Photo {
+  source: "camera_web" | "upload" | null;
+  captured_at: string | null;
+  created_at: string;
   id: string;
   report_id: string | null;
   task_id: string | null;

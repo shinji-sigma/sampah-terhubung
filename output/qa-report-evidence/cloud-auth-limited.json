@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-12T11:00:11.977Z",
+  "scope": "Existing simulated account; no signup email, photos, reports, seed or migrations",
+  "results": [
+    {
+      "name": "HTTP login using existing simulated account and real Supabase Auth",
+      "status": "passed"
+    },
+    {
+      "name": "New workspace schema",
+      "status": "blocked: migration 005 unavailable",
+      "http_status": 503
+    },
+    {
+      "name": "HTTP logout using real Supabase Auth",
+      "status": "passed"
+    },
+    {
+      "name": "Workspace rejects logged-out session",
+      "status": "passed"
+    },
+    {
+      "name": "Cross-origin mutation rejected",
+      "status": "passed"
+    }
+  ]
+}

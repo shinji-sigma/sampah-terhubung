@@ -5,7 +5,14 @@ const text = z
   .trim()
   .min(3, "Isi sedikitnya 3 karakter.")
   .max(2000, "Maksimal 2000 karakter.");
-const time = z.iso.datetime({ offset: true });
+export const evidenceTime = z.iso
+  .datetime({ offset: true })
+  .refine(
+    (value) =>
+      Number.isFinite(Date.parse(value)) && Number(value.slice(0, 4)) >= 1,
+    "Gunakan waktu yang sah.",
+  );
+const time = evidenceTime;
 const date = z.iso.date();
 const hhmm = z
   .string()
@@ -22,19 +29,63 @@ const photos = z
 const keyed = { id, version };
 const reason = { reason: text };
 const commandSchemas = {
-  "report.create": z.object({
-    region_id: id,
-    category: z.enum([
-      "Penumpukan",
-      "Tempat sampah penuh",
-      "Sampah berserakan",
-    ]),
-    landmark: text,
-    description: text.min(10, "Jelaskan sedikitnya 10 karakter."),
-    observed_at: time,
-    photos,
-    ...coords,
-  }),
+  "report.create": z
+    .object({
+      region_id: id,
+      category: z.enum([
+        "Penumpukan",
+        "Tempat sampah penuh",
+        "Sampah berserakan",
+      ]),
+      landmark: text,
+      description: text.min(10, "Jelaskan sedikitnya 10 karakter."),
+      observed_at: time,
+      photos,
+      evidence_mode: z.enum(["direct", "supporting"]),
+      supporting_reason: text.optional(),
+      location_confirmed: z.literal(true, {
+        error: "Konfirmasikan lokasi kejadian.",
+      }),
+      device_lat: z.number().min(-90).max(90).nullable().optional(),
+      device_lng: z.number().min(-180).max(180).nullable().optional(),
+      device_accuracy_m: z
+        .number()
+        .nonnegative()
+        .finite()
+        .nullable()
+        .optional(),
+      device_measured_at: time.nullable().optional(),
+      ...coords,
+    })
+    .superRefine((p, ctx) => {
+      if ((p.lat == null) !== (p.lng == null))
+        ctx.addIssue({
+          code: "custom",
+          path: ["lat"],
+          message: "Isi kedua koordinat kejadian atau gunakan patokan manual.",
+        });
+      const snapshot = [
+        p.device_lat,
+        p.device_lng,
+        p.device_accuracy_m,
+        p.device_measured_at,
+      ];
+      if (
+        (snapshot.some((v) => v != null) && snapshot.some((v) => v == null)) ||
+        (p.evidence_mode === "direct" && snapshot.some((v) => v == null))
+      )
+        ctx.addIssue({
+          code: "custom",
+          path: ["device_lat"],
+          message: "Ambil lokasi perangkat atau gunakan bukti pendukung.",
+        });
+      if (p.evidence_mode === "supporting" && !p.supporting_reason)
+        ctx.addIssue({
+          code: "custom",
+          path: ["supporting_reason"],
+          message: "Isi alasan penggunaan bukti pendukung.",
+        });
+    }),
   "report.validate": z
     .object({
       ...keyed,

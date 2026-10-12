@@ -1,0 +1,39 @@
+{
+  "date": "2026-10-12",
+  "branch": "codex/report-evidence-auth",
+  "development_host": "LAPTOP-6OQ8DJT5",
+  "development_checkout": "D:\\WebDemo",
+  "base_commit": "3beaba8341f3c6103880ded2f08c674e3ee71fe5",
+  "local": {
+    "tests_passed": 40,
+    "lint": "passed without warnings",
+    "typecheck": "passed",
+    "production_build": "passed"
+  },
+  "browser": {
+    "Chrome": "MOCK backend, camera and GPS; lifecycle/auth/retry passed",
+    "Edge": "MOCK backend, camera and GPS; core report flow passed",
+    "phone": "viewport only, not physical Android/iOS"
+  },
+  "cloud": {
+    "auth": "existing simulated account login/logout passed",
+    "integration": "blocked at preflight: missing migration 005, code 42703",
+    "new_reports_photos": "not tested",
+    "signup_email": "not sent"
+  },
+  "deployment": {
+    "host": "Shinji_server",
+    "target": "D:\\WebDemo\\project\\lombauin",
+    "status": "target created; write/network verified; private GitHub/Vercel login and Supabase configuration pending",
+    "new_deployment": null,
+    "stable_url": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app/",
+    "current_app_commit": "28dadddaaa8245466fab78aedca56ca99b3d844c",
+    "current_deployment": "dpl_ATqNF5bbjh14TNQsiWcmZFvcvgbD"
+  },
+  "boundaries": [
+    "no seed or Cloud migrations",
+    "no paid services",
+    "no Personal AI/PRD/research/source logo edits",
+    "no env/auth state in evidence"
+  ]
+}

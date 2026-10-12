@@ -36,10 +36,64 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
       "-- gen_random_uuid built in; pgcrypto extension omitted only in PGlite harness",
     ),
   );
+  const legacy = {
+    region: randomUUID(),
+    actor: randomUUID(),
+    report: randomUUID(),
+    photo: randomUUID(),
+  };
   for (const name of (await readdir("supabase/migrations")).sort()) {
+    if (name === "202610120005_report_evidence.sql") {
+      await db.query("insert into auth.users(id) values($1)", [legacy.actor]);
+      await db.query(
+        "insert into regions(id,name,coverage,active,lat,lng) values($1,'Legacy','Synthetic legacy coverage',true,-7.3,112.7)",
+        [legacy.region],
+      );
+      await db.query(
+        "insert into reports(id,region_id,reporter_id,category,landmark,description,observed_at) values($1,$2,$3,'Penumpukan','Legacy fixture','Sampah sintetis sebelum migrasi 005',now())",
+        [legacy.report, legacy.region, legacy.actor],
+      );
+      await db.query(
+        "insert into photos(id,owner_id,path,size,mime,report_id) values($1,$2,$3,100,'image/jpeg',$4)",
+        [
+          legacy.photo,
+          legacy.actor,
+          legacy.actor + "/" + legacy.photo + ".jpg",
+          legacy.report,
+        ],
+      );
+    }
     if (name.endsWith(".sql") && name !== "202610080001_core.sql")
       await db.exec(await readFile("supabase/migrations/" + name, "utf8"));
   }
+  await t.test(
+    "upgrade leaves legacy source and device metadata unknown without inventing live evidence",
+    async () => {
+      const report = await db.query<{
+        evidence_mode: null;
+        device_lat: null;
+        location_confirmed: null;
+      }>(
+        "select evidence_mode,device_lat,location_confirmed from reports where id=$1",
+        [legacy.report],
+      );
+      const photo = await db.query<{ source: null; captured_at: null }>(
+        "select source,captured_at from photos where id=$1",
+        [legacy.photo],
+      );
+      assert.deepEqual(report.rows[0], {
+        evidence_mode: null,
+        device_lat: null,
+        location_confirmed: null,
+      });
+      assert.deepEqual(photo.rows[0], { source: null, captured_at: null });
+    },
+  );
+  await db.query("delete from photos where id=$1", [legacy.photo]);
+  await db.query("delete from reports where id=$1", [legacy.report]);
+  await db.query("delete from profiles where id=$1", [legacy.actor]);
+  await db.query("delete from auth.users where id=$1", [legacy.actor]);
+  await db.query("delete from regions where id=$1", [legacy.region]);
   await db.query(
     "insert into regions(id,name,coverage,active,lat,lng) values($1,'Simulasi A','Zona A',true,-7.3,112.7),($2,'Simulasi B','Zona B',true,-7.31,112.71)",
     [ids.a, ids.b],
@@ -97,6 +151,10 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
   ) {
     return command(actor, {
       op: "report.create",
+      evidence_mode: "supporting",
+      supporting_reason:
+        "Foto sintetis untuk uji integrasi, bukan foto lapangan",
+      location_confirmed: true,
       region_id: region,
       category: "Penumpukan",
       landmark: "Belakang pagar simulasi",
@@ -106,6 +164,89 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
     });
   }
   let reportId: string, incidentId: string, taskId: string, pointId: string;
+  await t.test(
+    "direct evidence gateway rejects missing, partial, forged and nonfinite metadata; retry and RLS remain intact",
+    async () => {
+      const camera = await photo();
+      const now = new Date().toISOString();
+      await db.query(
+        "update photos set source='camera_web',captured_at=$2 where id=$1",
+        [camera, now],
+      );
+      const p: Record<string, unknown> = {
+        op: "report.create",
+        region_id: ids.a,
+        category: "Penumpukan",
+        landmark: "GPS sintetis",
+        description: "Foto dan lokasi sintetis, bukan uji lapangan",
+        observed_at: now,
+        photos: [camera],
+        evidence_mode: "direct",
+        location_confirmed: true,
+        device_lat: -7.3,
+        device_lng: 112.7,
+        device_accuracy_m: 2500,
+        device_measured_at: now,
+        lat: -7.31,
+        lng: 112.71,
+      };
+      for (const patch of [
+        { evidence_mode: null },
+        { device_lat: null },
+        { location_confirmed: false },
+        { device_accuracy_m: "NaN" },
+        { device_accuracy_m: "Infinity" },
+        { device_measured_at: "infinity" },
+        { device_lat: 91 },
+        { photos: [await photo(ids.other)] },
+        { photos: [await photo()] },
+      ])
+        await assert.rejects(() => command(ids.reporter, { ...p, ...patch }));
+      const key = randomUUID();
+      const created = await command(ids.reporter, p, key);
+      assert.equal((await command(ids.reporter, p, key)).id, created.id);
+      const row = await db.query<{
+        device_lat: number;
+        lat: number;
+        evidence_mode: string;
+      }>("select device_lat,lat,evidence_mode from reports where id=$1", [
+        created.id,
+      ]);
+      assert.equal(row.rows[0].device_lat, -7.3);
+      assert.equal(row.rows[0].lat, -7.31);
+      assert.equal(row.rows[0].evidence_mode, "direct");
+      const stranger = (await as(ids.coordB, () =>
+        db.query("select device_lat from reports where id=$1", [created.id]),
+      )) as { rows: unknown[] };
+      assert.equal(stranger.rows.length, 0);
+      await assert.rejects(
+        () =>
+          as(ids.reporter, () =>
+            db.query("select public.command_legacy_004($1::jsonb,$2::uuid)", [
+              JSON.stringify(p),
+              randomUUID(),
+            ]),
+          ),
+        /permission denied/,
+      );
+      const projection = (await as(null, () =>
+        db.query<{ data: unknown }>("select public_region_data($1) data", [
+          ids.a,
+        ]),
+      )) as { rows: { data: unknown }[] };
+      assert.ok(!JSON.stringify(projection.rows).includes("device_lat"));
+      assert.ok(!JSON.stringify(projection.rows).includes("captured_at"));
+      await assert.rejects(
+        async () =>
+          command(ids.reporter, {
+            ...p,
+            evidence_mode: "supporting",
+            photos: [await photo()],
+          }),
+        /supporting_reason/,
+      );
+    },
+  );
   await t.test(
     "signup metadata cannot grant manager/admin; direct tables are immutable",
     async () => {
@@ -128,10 +269,20 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
   await t.test(
     "server rules require photos, valid dates, coordinate ranges and active region",
     async () => {
+      await db.query("update regions set active=false where id=$1", [ids.b]);
+      await assert.rejects(
+        () => report(ids.reporter, ids.b),
+        /Wilayah belum terlayani/,
+      );
+      await db.query("update regions set active=true where id=$1", [ids.b]);
       await assert.rejects(
         () =>
           command(ids.reporter, {
             op: "report.create",
+            evidence_mode: "supporting",
+            supporting_reason:
+              "Foto sintetis untuk uji integrasi, bukan foto lapangan",
+            location_confirmed: true,
             region_id: ids.a,
             category: "Penumpukan",
             landmark: "Patokan",
@@ -145,6 +296,10 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
         () =>
           command(ids.reporter, {
             op: "report.create",
+            evidence_mode: "supporting",
+            supporting_reason:
+              "Foto sintetis untuk uji integrasi, bukan foto lapangan",
+            location_confirmed: true,
             region_id: ids.a,
             category: "Penumpukan",
             landmark: "Patokan",
@@ -158,12 +313,17 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
         () =>
           command(ids.reporter, {
             op: "report.create",
+            evidence_mode: "supporting",
+            supporting_reason:
+              "Foto sintetis untuk uji integrasi, bukan foto lapangan",
+            location_confirmed: true,
             region_id: ids.a,
             category: "Penumpukan",
             landmark: "Patokan",
             description: "Sampah simulasi",
             observed_at: new Date().toISOString(),
             lat: 91,
+            lng: 0,
             photos: [randomUUID()],
           }),
         /check constraint/,
@@ -176,6 +336,10 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
       const key = randomUUID(),
         p = {
           op: "report.create",
+          evidence_mode: "supporting",
+          supporting_reason:
+            "Foto sintetis untuk uji integrasi, bukan foto lapangan",
+          location_confirmed: true,
           region_id: ids.a,
           category: "Penumpukan",
           landmark: "Pagar simulasi",
@@ -963,6 +1127,10 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
     async () => {
       const p = {
         op: "report.create",
+        evidence_mode: "supporting",
+        supporting_reason:
+          "Foto sintetis untuk uji integrasi, bukan foto lapangan",
+        location_confirmed: true,
         region_id: ids.a,
         category: "Penumpukan",
         landmark: "Audit patokan",
@@ -987,6 +1155,41 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
         "select count(*)::int count from reports where not isfinite(observed_at)",
       );
       assert.equal(poisoned.rows[0].count, 0);
+    },
+  );
+  await t.test(
+    "emergency gateway rollback preserves data and restores the audited legacy flow",
+    async () => {
+      const before = await db.query<{ count: number }>(
+        "select count(*)::int count from reports",
+      );
+      await db.exec(
+        await readFile("supabase/rollback/005_restore_gateway.sql", "utf8"),
+      );
+      const after = await db.query<{ count: number }>(
+        "select count(*)::int count from reports",
+      );
+      assert.equal(after.rows[0].count, before.rows[0].count);
+      const p = {
+        op: "report.create",
+        region_id: ids.a,
+        category: "Penumpukan",
+        landmark: "Rollback test",
+        description: "Legacy report during controlled rollback",
+        observed_at: new Date().toISOString(),
+        photos: [await photo()],
+      };
+      assert.ok((await command(ids.reporter, p)).id);
+      await assert.rejects(
+        () =>
+          as(ids.reporter, () =>
+            db.query("select public.command_evidence_005($1::jsonb,$2::uuid)", [
+              JSON.stringify(p),
+              randomUUID(),
+            ]),
+          ),
+        /permission denied/,
+      );
     },
   );
   await db.close();

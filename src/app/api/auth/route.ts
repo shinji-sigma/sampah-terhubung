@@ -1,25 +1,14 @@
 import { NextResponse } from "next/server";
-import { z } from "zod";
+import { authInput } from "@/lib/auth-input";
 import { userClient } from "@/lib/supabase";
 import { checkOrigin, failure, HttpError, privateHeaders } from "@/lib/http";
 import { readLimited } from "@/lib/body";
 export async function POST(req: Request) {
   try {
     checkOrigin(req);
-    const p = z
-      .object({
-        action: z.enum(["login", "signup", "logout"]),
-        email: z.email().optional(),
-        password: z
-          .string()
-          .min(12, "Password minimal 12 karakter.")
-          .max(128)
-          .optional(),
-        display_name: z.string().trim().min(3).max(80).optional(),
-      })
-      .parse(
-        JSON.parse(new TextDecoder().decode(await readLimited(req, 5000))),
-      );
+    const p = authInput.parse(
+      JSON.parse(new TextDecoder().decode(await readLimited(req, 5000))),
+    );
     const db = await userClient();
     if (p.action === "logout") {
       const { error } = await db.auth.signOut({ scope: "local" });
@@ -36,11 +25,11 @@ export async function POST(req: Request) {
     if (!p.email || !p.password)
       throw new HttpError("Email dan password wajib diisi.", 422);
     if (p.action === "signup") {
-      const { error } = await db.auth.signUp({
+      const { data, error } = await db.auth.signUp({
         email: p.email,
         password: p.password,
         options: {
-          data: { display_name: p.display_name || "Pelapor" },
+          data: { display_name: p.display_name },
           emailRedirectTo:
             (process.env.APP_ORIGIN || "http://localhost:3000") +
             "/auth/confirm",
@@ -53,8 +42,10 @@ export async function POST(req: Request) {
         );
       return NextResponse.json(
         {
-          message:
-            "Periksa email untuk konfirmasi akun, lalu masuk. Peran awal adalah pelapor.",
+          signed_in: !!data.session,
+          message: data.session
+            ? "Akun pelapor dibuat dan sesi aktif."
+            : "Periksa email untuk konfirmasi akun, lalu masuk. Jika email belum tiba, periksa folder spam atau hubungi pengelola demo.",
         },
         { headers: privateHeaders },
       );

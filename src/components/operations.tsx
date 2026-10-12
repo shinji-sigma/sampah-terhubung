@@ -15,6 +15,7 @@ import {
   type Region,
 } from "@/lib/types";
 import { recurrence, jakartaDate } from "@/lib/rules";
+import { EvidenceDetails } from "./evidence-details";
 const required = (
   name: string,
   label: string,
@@ -99,6 +100,7 @@ export function Coordinator({
               #{shortId(r.id)} · Diamati {dateTime(r.observed_at)} ·{" "}
               {r.category}
             </small>
+            <EvidenceDetails report={r} />
             <PhotoStrip photos={w.photos.filter((p) => p.report_id === r.id)} />
             {r.hidden && (
               <p className="notice warn">
@@ -467,6 +469,7 @@ export function MyReports({
                 <Status value={i?.status || r.status} />
               </div>
               <p>{r.description}</p>
+              <EvidenceDetails report={r} />
               <small>
                 #{shortId(r.id)} · Dikirim {dateTime(r.created_at)} · Diamati{" "}
                 {dateTime(r.observed_at)}
