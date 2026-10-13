@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-13T11:44:11.182Z",
+  "host": "LAPTOP-6OQ8DJT5",
+  "browser": "Actual Chrome desktop, logged-in Langgam · Pelapor",
+  "origin": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app/",
+  "code": "ef3be058ccca66b55bba406ea0c1c85f3ddf48cf",
+  "schema": "005 active",
+  "scope": "Real browser UI and Cloud thumbnails after refresh; synthetic photos and manual pin, no physical sensors",
+  "passed": true,
+  "observed": {
+    "headingCount": 1,
+    "photos": [
+      {
+        "height": 480,
+        "href": "/api/photos/51b29a2e-6229-4339-b7e9-3cb04a0528ab",
+        "loaded": true,
+        "width": 640
+      },
+      {
+        "height": 480,
+        "href": "/api/photos/0c7571fe-ad18-4dac-9a11-703087df4d67",
+        "loaded": true,
+        "width": 640
+      }
+    ],
+    "text": "Uji Langgam 005 13 Okt 2026 · SIMULASI QA\nSelesai terverifikasi\n\nLaporan sintetis untuk uji rilis 005. Foto bukan kondisi sampah lapangan; lokasi hanya pin ilustrasi.\n\nBukti pendukung\n#0B2C2CCA · Dikirim 13 Okt 2026, 18.40 WIB · Diamati 13 Okt 2026, 18.39 WIB\nFoto unggahan\nDiunggah server: 13 Okt 2026, 18.40 WIB\nFoto unggahan\nDiunggah server: 13 Okt 2026, 18.41 WIB\nSelesai terverifikasi\n13 Okt 2026, 18.41 WIB\n\nFoto sintetis QA dan tujuan simulasi diperiksa\n\nMenunggu verifikasi\n13 Okt 2026, 18.41 WIB\n\nPenanganan sintetis QA, bukan pekerjaan lapangan\n\nDikerjakan\n13 Okt 2026, 18.41 WIB\n\nPetugas menerima dan mulai mengerjakan.\n\nDitugaskan\n13 Okt 2026, 18.41 WIB\n\nPenugasan QA sintetis Langgam\n\nTerverifikasi\n13 Okt 2026, 18.41 WIB\n\nLaporan 0b2c2cca ditautkan setelah pemeriksaan.\n\nMenunggu validasi\n13 Okt 2026, 18.40 WIB\n\nLaporan baru diterima secara privat.\n\nBeri tanggapan penanganan"
+  }
+}

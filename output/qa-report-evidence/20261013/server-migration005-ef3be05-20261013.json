@@ -1,0 +1,149 @@
+{
+  "host": "Shinji_server",
+  "projectName": "sampah-terhubung-demo",
+  "projectRef": "jrozalhfgmzpxvpvzgcf",
+  "sha": "ef3be058ccca66b55bba406ea0c1c85f3ddf48cf",
+  "sqlPath": "D:\\WebDemo\\project\\lombauin\\supabase\\migrations\\202610120005_report_evidence.sql",
+  "sqlSha256": "7e88fba2a81a8480382c6d5b7ecd0e4bf39111d2f86611c976fa7a7f88d6bd81",
+  "backupPath": "D:\\WebDemo\\project\\lombauin\\output\\private\\pre005-ef3be05-20261013\\database-snapshot.private.json",
+  "backupSha256": "0f4457da3a7e799add539dbf373648d4a682e635f22a2a5953011287d6aeb5be",
+  "startedAt": "2026-10-13T03:00:32.812Z",
+  "completedAt": "2026-10-13T03:00:36.603Z",
+  "verifiedAt": "2026-10-13T03:00:38.485147+00:00",
+  "applied": true,
+  "atomic": "Original approved SQL contains BEGIN/COMMIT; command completed successfully",
+  "checks": {
+    "nineNullableColumns": true,
+    "nineNewValidatedConstraints": true,
+    "existingConstraintsPreserved": true,
+    "gatewayMatchesSql": true,
+    "gatewaySecurityDefiner": true,
+    "gatewaySearchPathPublic": true,
+    "gatewayPrivateFromPublicAnon": true,
+    "gatewayAuthenticatedAllowed": true,
+    "legacyMatches004": true,
+    "legacyNoPublicAnonAuthenticatedService": true,
+    "onlyExpectedGateways": true,
+    "allRowCountsUnchanged": true,
+    "allOriginalColumnDataUnchanged": true,
+    "oldNewMetadataNull": true,
+    "storageMetadataUnchanged": true
+  },
+  "rowCounts": {
+    "command_receipts": 14,
+    "events": 2,
+    "feedback": 0,
+    "history": 20,
+    "incidents": 4,
+    "memberships": 4,
+    "notifications": 35,
+    "photos": 13,
+    "points": 3,
+    "preventions": 1,
+    "profiles": 9,
+    "regions": 3,
+    "registrations": 0,
+    "reports": 8,
+    "schedule_exceptions": 1,
+    "schedule_runs": 1,
+    "schedules": 2,
+    "tasks": 5
+  },
+  "columnNames": [
+    "photos.source",
+    "photos.captured_at",
+    "reports.evidence_mode",
+    "reports.supporting_reason",
+    "reports.location_confirmed",
+    "reports.device_lat",
+    "reports.device_lng",
+    "reports.device_accuracy_m",
+    "reports.device_measured_at"
+  ],
+  "newConstraints": [
+    {
+      "table": "reports",
+      "name": "complete_device_snapshot",
+      "definition": "CHECK (num_nonnulls(device_lat, device_lng, device_accuracy_m, device_measured_at) = ANY (ARRAY[0, 4]))",
+      "validated": true
+    },
+    {
+      "table": "reports",
+      "name": "reports_device_accuracy_m_check",
+      "definition": "CHECK (device_accuracy_m >= 0::double precision AND device_accuracy_m < 'Infinity'::double precision)",
+      "validated": true
+    },
+    {
+      "table": "reports",
+      "name": "reports_device_lat_check",
+      "definition": "CHECK (device_lat >= '-90'::integer::double precision AND device_lat <= 90::double precision)",
+      "validated": true
+    },
+    {
+      "table": "reports",
+      "name": "reports_device_lng_check",
+      "definition": "CHECK (device_lng >= '-180'::integer::double precision AND device_lng <= 180::double precision)",
+      "validated": true
+    },
+    {
+      "table": "reports",
+      "name": "reports_device_measured_at_check",
+      "definition": "CHECK (device_measured_at IS NULL OR isfinite(device_measured_at) AND device_measured_at >= '0001-01-01 00:00:00+00'::timestamp with time zone AND device_measured_at <= '9999-12-31 23:59:59+00'::timestamp with time zone)",
+      "validated": true
+    },
+    {
+      "table": "reports",
+      "name": "reports_evidence_mode_check",
+      "definition": "CHECK (evidence_mode = ANY (ARRAY['direct'::text, 'supporting'::text]))",
+      "validated": true
+    },
+    {
+      "table": "photos",
+      "name": "camera_capture_time",
+      "definition": "CHECK (source IS DISTINCT FROM 'camera_web'::text OR captured_at IS NOT NULL)",
+      "validated": true
+    },
+    {
+      "table": "photos",
+      "name": "photos_captured_at_check",
+      "definition": "CHECK (captured_at IS NULL OR isfinite(captured_at) AND captured_at >= '0001-01-01 00:00:00+00'::timestamp with time zone AND captured_at <= '9999-12-31 23:59:59+00'::timestamp with time zone)",
+      "validated": true
+    },
+    {
+      "table": "photos",
+      "name": "photos_source_check",
+      "definition": "CHECK (source = ANY (ARRAY['camera_web'::text, 'upload'::text]))",
+      "validated": true
+    }
+  ],
+  "functions": [
+    {
+      "name": "command",
+      "body_md5": "30492a742dd5cd23d8b5018239c47b37",
+      "security_definer": true,
+      "config": [
+        "search_path=public"
+      ],
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": true,
+      "service_role_execute": true
+    },
+    {
+      "name": "command_legacy_004",
+      "body_md5": "6c87f43f6630eacf0402361bc67e6577",
+      "security_definer": true,
+      "config": [
+        "search_path=public"
+      ],
+      "public_execute": false,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "service_role_execute": false
+    }
+  ],
+  "privateEvidenceRoot": "D:\\WebDemo\\project\\lombauin\\output\\private\\pre005-ef3be05-20261013",
+  "integrationsRun": false,
+  "promoted": false,
+  "allChecksPassed": true
+}
