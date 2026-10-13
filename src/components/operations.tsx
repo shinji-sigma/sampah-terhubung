@@ -482,9 +482,10 @@ export function MyReports({
                   (p) =>
                     p.report_id === r.id ||
                     (!!i &&
-                      w.tasks.some(
-                        (t) => t.id === p.task_id && t.incident_id === i.id,
-                      )),
+                      (p.incident_id === i.id ||
+                        w.tasks.some(
+                          (t) => t.id === p.task_id && t.incident_id === i.id,
+                        ))),
                 )}
               />
               <Timeline

@@ -1,0 +1,54 @@
+{
+  "at": "2026-10-13T02:17:21.420Z",
+  "host": "LAPTOP-6OQ8DJT5",
+  "mode": "read-only with server role; not Auth/RLS verification",
+  "mutations": 0,
+  "checks": [
+    {
+      "table": "reports",
+      "columns": "id",
+      "status": 206,
+      "errorCode": null,
+      "count": 6
+    },
+    {
+      "table": "photos",
+      "columns": "id",
+      "status": 206,
+      "errorCode": null,
+      "count": 10
+    },
+    {
+      "table": "reports",
+      "columns": "evidence_mode",
+      "status": 400,
+      "errorCode": "42703",
+      "count": null
+    },
+    {
+      "table": "photos",
+      "columns": "source",
+      "status": 400,
+      "errorCode": "42703",
+      "count": null
+    },
+    {
+      "publicProjectionStatus": 200,
+      "errorCode": null,
+      "regions": [
+        {
+          "name": "Kawasan Hijau A · Simulasi",
+          "active": true
+        },
+        {
+          "name": "Kawasan Teduh B · Simulasi",
+          "active": true
+        },
+        {
+          "name": "Kawasan C · Belum terlayani",
+          "active": false
+        }
+      ]
+    }
+  ]
+}

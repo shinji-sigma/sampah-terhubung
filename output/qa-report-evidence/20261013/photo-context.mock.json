@@ -1,0 +1,9 @@
+{
+  "scope": "Local browser MOCK backend; no physical sensor/Cloud writes",
+  "passed": [
+    "Reporter sees before/after photos without task records",
+    "Foreign incident photo omitted",
+    "390px emulation without horizontal overflow",
+    "Home incident detail displays permitted completion photo"
+  ]
+}

@@ -157,6 +157,7 @@ export interface Registration {
   duty: string;
 }
 export interface Photo {
+  incident_id?: string | null;
   source: "camera_web" | "upload" | null;
   captured_at: string | null;
   created_at: string;

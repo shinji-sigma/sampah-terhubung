@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-13T02:39:55.7895381Z",
+  "host": "LAPTOP-6OQ8DJT5",
+  "tests": 42,
+  "failures": 0,
+  "lint": "passed",
+  "typecheck": "passed",
+  "productionBuild": "passed",
+  "cloudWorkflow": "12 groups passed on online code 28daddd / schema 004",
+  "cloudPhotoContext": "2 read-only checks passed",
+  "mockRecovery": "11 groups passed",
+  "mockPhotoContext": "4 groups passed",
+  "migration005": "not applied",
+  "newFullCloudIntegration": "blocked by preflight 42703",
+  "deployment": "not performed"
+}

@@ -125,8 +125,10 @@ export function HomeView({
                     ),
                   ) || [];
                 const after =
-                  w?.photos.filter((p) =>
-                    tasks.some((t) => t.id === p.task_id),
+                  w?.photos.filter(
+                    (p) =>
+                      p.incident_id === i.id ||
+                      tasks.some((t) => t.id === p.task_id),
                   ) || [];
                 return (
                   <details className="incident-detail" key={i.id}>
