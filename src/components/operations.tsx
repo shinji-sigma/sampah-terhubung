@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { ActionForm, reasonField, localDateTime, type Field } from "./forms";
 import {
   Empty,
@@ -829,137 +830,350 @@ export function ScheduleManager({
   );
 }
 export function Admin({ w, refresh }: { w: Workspace; refresh: () => void }) {
+  const [editingRegion, setEditingRegion] = useState<string | null>(null);
+
+  const moderationItems = [
+    ...w.reports.map((r) => ({
+      id: r.id,
+      label: r.landmark,
+      hidden: r.hidden,
+      type: "report" as const,
+    })),
+    ...w.incidents.map((i) => ({
+      id: i.id,
+      label: i.public_label,
+      hidden: i.hidden,
+      type: "incident" as const,
+    })),
+  ];
+
   return (
     <>
       <SectionTitle
         level={1}
-        title="Administrasi wilayah"
-        description="Penunjukan peran memerlukan pemeriksaan manusia. Semua perubahan menyimpan alasan."
+        title="Administrasi Wilayah & Pengguna"
+        description="Pengelolaan master wilayah layanan, penunjukan hak akses koordinator & petugas, serta moderasi data publik dalam format tabel terstruktur."
       />
-      <details>
-        <summary>Tambah wilayah</summary>
-        <ActionForm
-          op="admin.region"
-          fields={[
-            required("name", "Nama wilayah"),
-            required("coverage", "Cakupan layanan"),
-            required("owner_label", "Pemilik operasional"),
-            required("lat", "Lintang pusat", "number"),
-            required("lng", "Bujur pusat", "number"),
-            { name: "active", label: "Aktifkan layanan", type: "checkbox" },
-            reasonField,
-          ]}
-          label="Simpan wilayah"
-          onDone={refresh}
-        />
-      </details>
-      {w.regions.map((r) => (
-        <details key={r.id}>
-          <summary>
-            {r.name} · {r.active ? "Aktif" : "Belum terlayani"}
-          </summary>
-          <ActionForm
-            op="admin.region"
-            fixed={{ id: r.id, version: r.version }}
-            fields={[
-              {
-                name: "active",
-                label: "Layanan aktif",
-                type: "checkbox",
-                initial: String(r.active),
-              },
-              {
-                ...required(
-                  "recurrence_count",
-                  "Ambang jumlah kejadian",
-                  "number",
-                ),
-                initial: String(r.recurrence_count),
-                min: 2,
-                max: 20,
-              },
-              {
-                ...required("recurrence_days", "Periode hari", "number"),
-                initial: String(r.recurrence_days),
-                min: 1,
-                max: 365,
-              },
-              reasonField,
-            ]}
-            label="Perbarui wilayah"
-            onDone={refresh}
-          />
-        </details>
-      ))}
-      <details>
-        <summary>Tetapkan / cabut akses pengelola</summary>
-        <ActionForm
-          op="admin.membership"
-          fields={[
-            {
-              ...required("region_id", "Wilayah", "select"),
-              options: w.regions.map((r) => ({ value: r.id, label: r.name })),
-            },
-            {
-              ...required("user_id", "Akun yang sudah terdaftar", "select"),
-              options: w.profiles.map((p) => ({
-                value: p.id,
-                label: p.display_name + " · " + shortId(p.id),
-              })),
-            },
-            {
-              ...required("role", "Peran", "select"),
-              options: [
-                { value: "coordinator", label: "Koordinator" },
-                { value: "worker", label: "Petugas" },
-              ],
-            },
-            {
-              name: "active",
-              label: "Akses aktif",
-              type: "checkbox",
-              initial: "true",
-            },
-            reasonField,
-          ]}
-          label="Simpan penunjukan"
-          onDone={refresh}
-        />
-      </details>
-      <h3>Moderasi konten wilayah terpilih</h3>
-      {[
-        ...w.reports.map((r) => ({
-          id: r.id,
-          label: r.landmark,
-          hidden: r.hidden,
-          type: "report",
-        })),
-        ...w.incidents.map((i) => ({
-          id: i.id,
-          label: i.public_label,
-          hidden: i.hidden,
-          type: "incident",
-        })),
-      ].map((item) => (
-        <details key={item.id}>
-          <summary>
-            {item.label} · {item.hidden ? "Disembunyikan" : "Terlihat"}
-          </summary>
-          <ActionForm
-            op="admin.moderate"
-            fixed={{
-              id: item.id,
-              entity_type: item.type,
-              hidden: !item.hidden,
-            }}
-            fields={[reasonField]}
-            label={item.hidden ? "Pulihkan konten" : "Sembunyikan konten"}
-            onDone={refresh}
-          />
-        </details>
-      ))}
-      <h3>Riwayat administratif</h3>
-      <Timeline history={w.history.filter((h) => h.entity_type === "admin")} />
+
+      {/* 1. MASTER WILAYAH LAYANAN */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h3 className="text-base font-bold text-slate-800">Daftar Wilayah Layanan</h3>
+          <details className="text-sm">
+            <summary className="button secondary text-xs py-1.5 px-3">
+              + Tambah Wilayah Baru
+            </summary>
+            <div className="card p-4 mt-2">
+              <ActionForm
+                op="admin.region"
+                fields={[
+                  required("name", "Nama wilayah"),
+                  required("coverage", "Cakupan layanan"),
+                  required("owner_label", "Pemilik operasional"),
+                  required("lat", "Lintang pusat", "number"),
+                  required("lng", "Bujur pusat", "number"),
+                  { name: "active", label: "Aktifkan layanan", type: "checkbox" },
+                  reasonField,
+                ]}
+                label="Simpan wilayah baru"
+                onDone={refresh}
+              />
+            </div>
+          </details>
+        </div>
+
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Nama Wilayah</th>
+                <th>Cakupan Wilayah</th>
+                <th>Pemilik / PIC</th>
+                <th>Koordinat (Lat, Lng)</th>
+                <th>Ambang Kejadian</th>
+                <th>Status Layanan</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {w.regions.map((r) => (
+                <tr key={r.id}>
+                  <td className="font-semibold text-slate-900">{r.name}</td>
+                  <td className="text-slate-600 text-xs">{r.coverage}</td>
+                  <td className="text-slate-700 text-xs">{r.owner_label}</td>
+                  <td className="font-mono text-xs text-slate-500">
+                    {r.lat.toFixed(4)}, {r.lng.toFixed(4)}
+                  </td>
+                  <td className="text-xs text-slate-600">
+                    {r.recurrence_count}x / {r.recurrence_days} hari
+                  </td>
+                  <td>
+                    <span
+                      className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                        r.active
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-slate-100 text-slate-600"
+                      }`}
+                    >
+                      {r.active ? "Aktif" : "Non-Aktif"}
+                    </span>
+                  </td>
+                  <td>
+                    <button
+                      className="button secondary text-xs py-1 px-2.5"
+                      onClick={() =>
+                        setEditingRegion(editingRegion === r.id ? null : r.id)
+                      }
+                    >
+                      {editingRegion === r.id ? "Tutup" : "Kelola"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Modal/Drawer Edit Wilayah Terpilih */}
+        {editingRegion && (
+          <div className="card p-4 mt-3 border-teal-500/50 bg-teal-50/20">
+            {(() => {
+              const r = w.regions.find((x) => x.id === editingRegion);
+              if (!r) return null;
+              return (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-bold text-sm text-slate-800">
+                      Ubah Konfigurasi: {r.name}
+                    </h4>
+                    <button
+                      className="text-xs text-slate-500 hover:text-slate-800"
+                      onClick={() => setEditingRegion(null)}
+                    >
+                      ✕ Tutup
+                    </button>
+                  </div>
+                  <ActionForm
+                    op="admin.region"
+                    fixed={{ id: r.id, version: r.version }}
+                    fields={[
+                      {
+                        name: "active",
+                        label: "Layanan aktif",
+                        type: "checkbox",
+                        initial: String(r.active),
+                      },
+                      {
+                        ...required(
+                          "recurrence_count",
+                          "Ambang jumlah kejadian",
+                          "number",
+                        ),
+                        initial: String(r.recurrence_count),
+                        min: 2,
+                        max: 20,
+                      },
+                      {
+                        ...required("recurrence_days", "Periode hari", "number"),
+                        initial: String(r.recurrence_days),
+                        min: 1,
+                        max: 365,
+                      },
+                      reasonField,
+                    ]}
+                    label="Perbarui wilayah"
+                    onDone={() => {
+                      setEditingRegion(null);
+                      refresh();
+                    }}
+                  />
+                </div>
+              );
+            })()}
+          </div>
+        )}
+      </section>
+
+      {/* 2. TABEL HAK AKSES DAN PENUGASAN (MEMBERSHIP) */}
+      <section className="space-y-3 mt-6">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <h3 className="text-base font-bold text-slate-800">Penunjukan Hak Akses Pengelola</h3>
+          <details className="text-sm">
+            <summary className="button secondary text-xs py-1.5 px-3">
+              + Tetapkan Akses Akun
+            </summary>
+            <div className="card p-4 mt-2">
+              <ActionForm
+                op="admin.membership"
+                fields={[
+                  {
+                    ...required("region_id", "Wilayah", "select"),
+                    options: w.regions.map((r) => ({ value: r.id, label: r.name })),
+                  },
+                  {
+                    ...required("user_id", "Akun pengguna", "select"),
+                    options: w.profiles.map((p) => ({
+                      value: p.id,
+                      label: p.display_name + " · " + shortId(p.id),
+                    })),
+                  },
+                  {
+                    ...required("role", "Peran", "select"),
+                    options: [
+                      { value: "coordinator", label: "Koordinator Wilayah" },
+                      { value: "worker", label: "Petugas Lapangan" },
+                    ],
+                  },
+                  {
+                    name: "active",
+                    label: "Akses aktif",
+                    type: "checkbox",
+                    initial: "true",
+                  },
+                  reasonField,
+                ]}
+                label="Simpan penunjukan peran"
+                onDone={refresh}
+              />
+            </div>
+          </details>
+        </div>
+
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Nama Pengguna</th>
+                <th>Wilayah Penugasan</th>
+                <th>Peran</th>
+                <th>Status Akses</th>
+              </tr>
+            </thead>
+            <tbody>
+              {w.memberships.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-4 text-slate-400 text-xs">
+                    Belum ada penugasan anggota.
+                  </td>
+                </tr>
+              ) : (
+                w.memberships.map((m) => {
+                  const prof = w.profiles.find((p) => p.id === m.user_id);
+                  const reg = w.regions.find((r) => r.id === m.region_id);
+                  return (
+                    <tr key={`${m.user_id}-${m.region_id}`}>
+                      <td className="font-medium text-slate-900">
+                        {prof?.display_name || "Akun (" + shortId(m.user_id) + ")"}
+                      </td>
+                      <td className="text-slate-600 text-xs">{reg?.name || m.region_id}</td>
+                      <td>
+                        <span
+                          className={`px-2 py-0.5 rounded text-[11px] font-bold ${
+                            m.role === "coordinator"
+                              ? "bg-purple-100 text-purple-800"
+                              : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {m.role === "coordinator" ? "Koordinator" : "Petugas"}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                            m.active
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-rose-100 text-rose-800"
+                          }`}
+                        >
+                          {m.active ? "Aktif" : "Dicabut"}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 3. TABEL MODERASI KONTEN */}
+      <section className="space-y-3 mt-6">
+        <h3 className="text-base font-bold text-slate-800">Tabel Moderasi Konten Wilayah</h3>
+        <p className="text-xs text-slate-500">
+          Admin dapat menyembunyikan aduan fiktif atau foto tak pantas dari pandangan publik.
+        </p>
+
+        <div className="admin-table-container">
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>Tipe Entitas</th>
+                <th>Label / Lokasi</th>
+                <th>Status Moderasi</th>
+                <th>Tindakan</th>
+              </tr>
+            </thead>
+            <tbody>
+              {moderationItems.length === 0 ? (
+                <tr>
+                  <td colSpan={4} className="text-center py-4 text-slate-400 text-xs">
+                    Tidak ada konten untuk dimoderasi.
+                  </td>
+                </tr>
+              ) : (
+                moderationItems.map((item) => (
+                  <tr key={item.id}>
+                    <td>
+                      <span className="text-xs font-mono uppercase font-semibold text-slate-500">
+                        {item.type === "report" ? "Laporan Warga" : "Insiden Publik"}
+                      </span>
+                    </td>
+                    <td className="font-medium text-slate-800 text-xs">{item.label}</td>
+                    <td>
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                          item.hidden
+                            ? "bg-rose-100 text-rose-800"
+                            : "bg-emerald-100 text-emerald-800"
+                        }`}
+                      >
+                        {item.hidden ? "Disembunyikan" : "Terlihat Publik"}
+                      </span>
+                    </td>
+                    <td>
+                      <details className="inline-block">
+                        <summary className="button secondary text-xs py-0.5 px-2">
+                          {item.hidden ? "Pulihkan" : "Sembunyikan"}
+                        </summary>
+                        <div className="card p-3 mt-1 absolute z-10 bg-white shadow-lg max-w-sm">
+                          <ActionForm
+                            op="admin.moderate"
+                            fixed={{
+                              id: item.id,
+                              entity_type: item.type,
+                              hidden: !item.hidden,
+                            }}
+                            fields={[reasonField]}
+                            label={item.hidden ? "Konfirmasi Pulihkan" : "Konfirmasi Sembunyikan"}
+                            onDone={refresh}
+                          />
+                        </div>
+                      </details>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* 4. RIWAYAT AUDIT ADMINISTRATIF */}
+      <section className="space-y-3 mt-6">
+        <h3 className="text-base font-bold text-slate-800">Riwayat Audit Administratif</h3>
+        <Timeline history={w.history.filter((h) => h.entity_type === "admin")} />
+      </section>
     </>
   );
 }

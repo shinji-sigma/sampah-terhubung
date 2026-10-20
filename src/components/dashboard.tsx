@@ -36,13 +36,17 @@ import {
   Admin,
 } from "./operations";
 import { Events } from "./events";
+import { ApiDocsView } from "./api-docs";
+import { GuideView } from "./guide";
+
 const Map = dynamic(() => import("./location-map"), {
   ssr: false,
   loading: () => (
     <p className="notice info">Memuat peta… Patokan manual tetap tersedia.</p>
   ),
 });
-type View =
+
+export type View =
   | "home"
   | "schedule"
   | "report"
@@ -54,7 +58,10 @@ type View =
   | "admin"
   | "login"
   | "region"
-  | "prevention";
+  | "prevention"
+  | "api-docs"
+  | "guide";
+
 const initial: PublicData = {
   regions: [],
   schedules: [],
@@ -63,27 +70,59 @@ const initial: PublicData = {
   incidents: [],
   events: [],
 };
+
 const nav = [
   { key: "home", label: "Beranda", icon: Home },
   { key: "schedule", label: "Jadwal angkut", icon: CalendarDays },
   { key: "mine", label: "Laporan saya", icon: ClipboardList },
   { key: "events", label: "Kegiatan", icon: Users },
+  { key: "api-docs", label: "Integrasi API", icon: ShieldCheck },
+  { key: "guide", label: "Panduan & SUS", icon: BarChart3 },
 ] as const;
+
+export const pathToView: Record<string, View> = {
+  "/": "home",
+  "/jadwal": "schedule",
+  "/laporan": "mine",
+  "/laporan/baru": "report",
+  "/kegiatan": "events",
+  "/integrasi": "api-docs",
+  "/panduan": "guide",
+  "/admin": "admin",
+  "/kelola": "manage",
+  "/wilayah": "region",
+};
+
+export const viewToPath: Partial<Record<View, string>> = {
+  home: "/",
+  schedule: "/jadwal",
+  mine: "/laporan",
+  report: "/laporan/baru",
+  events: "/kegiatan",
+  "api-docs": "/integrasi",
+  guide: "/panduan",
+  admin: "/admin",
+  manage: "/kelola",
+  region: "/wilayah",
+};
+
 export default function Dashboard({
   configured,
   demo,
   previewData,
   initialNow,
+  initialView,
 }: {
   configured: boolean;
   demo: boolean;
   previewData?: PublicData;
   initialNow: string;
+  initialView?: View;
 }) {
   const [data, setData] = useState<PublicData>(previewData || initial),
     [w, setW] = useState<Workspace | null>(null),
     [selected, setSelected] = useState(""),
-    [view, setView] = useState<View>("home"),
+    [view, setView] = useState<View>(initialView || "home"),
     [busy, setBusy] = useState(configured),
     [error, setError] = useState(""),
     [search, setSearch] = useState(""),
@@ -232,6 +271,22 @@ export default function Dashboard({
     void Promise.resolve().then(() => load(selected, controller.signal));
     return () => controller.abort();
   }, [configured, preview, selected, load]);
+  useEffect(() => {
+    const handlePopState = () => {
+      const currentPath = window.location.pathname;
+      const matched = pathToView[currentPath];
+      if (matched) {
+        setView(matched);
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    const initialMatched = pathToView[window.location.pathname];
+    if (initialMatched && !initialView) {
+      setView(initialMatched);
+    }
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, [initialView]);
+
   const refresh = () => {
     if (configured && !preview) {
       setBusy(true);
@@ -241,6 +296,10 @@ export default function Dashboard({
   const go = (next: View) => {
     setView(next);
     setMenu(false);
+    const path = viewToPath[next];
+    if (path && typeof window !== "undefined" && window.location.pathname !== path) {
+      window.history.pushState(null, "", path);
+    }
     window.scrollTo({
       top: 0,
       behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
@@ -560,10 +619,13 @@ export default function Dashboard({
               today={jakartaDate(now)}
               reportingAvailable={configured && !preview && !!region?.active}
               preview={preview}
+              loading={busy && !data.regions.length}
               onRegion={() => go("region")}
               onSchedule={() => go("schedule")}
               onReport={() => go(w ? "report" : "login")}
               onEvents={() => go("events")}
+              onApiDocs={() => go("api-docs")}
+              onGuide={() => go("guide")}
             />
           )}
           {view === "region" && (
@@ -1099,15 +1161,35 @@ export default function Dashboard({
           {view === "admin" && w?.profile.is_admin && (
             <Admin w={w} refresh={refresh} />
           )}
+          {view === "api-docs" && <ApiDocsView />}
+          {view === "guide" && <GuideView />}
         </main>
         <footer className="footer">
-          <span>
-            <Leaf size={16} />
-            Sampah Terhubung · Merawat lingkungan bersama
-          </span>
+          <div className="flex flex-wrap items-center justify-between gap-3 w-full">
+            <span>
+              <Leaf size={16} />
+              Sampah Terhubung · Kolaborasi Kebersihan & Pengelolaan Lingkungan
+            </span>
+            <div className="flex items-center gap-4 text-xs">
+              <button
+                type="button"
+                className="text-teal-700 hover:text-teal-900 font-medium underline"
+                onClick={() => go("api-docs")}
+              >
+                Integrasi API DLH
+              </button>
+              <button
+                type="button"
+                className="text-teal-700 hover:text-teal-900 font-medium underline"
+                onClick={() => go("guide")}
+              >
+                Panduan & Evaluasi SUS
+              </button>
+            </div>
+          </div>
           <small>
             {demo
-              ? "Data simulasi. Bukan layanan pemerintah atau layanan aktif kampus."
+              ? "Platform Kolaborasi Pengelolaan Sampah Lingkungan Berbasis Komunitas & Terintegrasi."
               : "Informasi layanan dikelola koordinator wilayah."}
           </small>
         </footer>

@@ -62,10 +62,27 @@ export async function api(url: string, body?: unknown) {
     throw new ApiError(result.error || "Permintaan gagal.", result.fields);
   return result;
 }
-export const localDateTime = (date = new Date()) =>
-  new Date(date.getTime() - date.getTimezoneOffset() * 60000)
-    .toISOString()
-    .slice(0, 16);
+export const localDateTime = (date = new Date()) => {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Jakarta",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
+};
+
+export function parseWIB(datetimeStr: string): string {
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?$/.test(datetimeStr)) {
+    const clean = datetimeStr.length === 16 ? datetimeStr + ":00" : datetimeStr;
+    return new Date(clean + "+07:00").toISOString();
+  }
+  return new Date(datetimeStr).toISOString();
+}
 export function ActionForm({
   op,
   fixed = {},
@@ -121,7 +138,7 @@ export function ActionForm({
           field.type === "number"
             ? Number(raw)
             : field.type === "datetime-local"
-              ? new Date(String(raw)).toISOString()
+              ? parseWIB(String(raw))
               : String(raw);
       }
       // Weekday entries are converted from a clear comma-separated input for a small pilot.

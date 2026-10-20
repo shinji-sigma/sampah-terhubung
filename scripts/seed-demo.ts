@@ -73,20 +73,20 @@ for (const [role, email] of Object.entries(accounts)) {
       user_metadata: {
         display_name:
           role === "admin"
-            ? "Admin simulasi"
+            ? "Admin Pengelola Lingkungan"
             : role === "coordinator"
-              ? "Koordinator A"
+              ? "Budi Santoso (Koordinator Sukabirus)"
               : role === "worker"
-                ? "Petugas A"
+                ? "Agus Prasetyo (Petugas Sukabirus)"
                 : role === "coordinatorB"
-                  ? "Koordinator B"
+                  ? "Dewi Lestari (Koordinator Dayeuhkolot)"
                   : role === "workerB"
-                    ? "Petugas B"
+                    ? "Joko Susilo (Petugas Dayeuhkolot)"
                     : role === "reporterB"
-                      ? "Pelapor B"
+                      ? "Ahmad Fauzi (Warga Dayeuhkolot)"
                       : role === "reporter2"
-                        ? "Pelapor kedua"
-                        : "Pelapor A",
+                        ? "Rian Hidayat (Warga Sukabirus)"
+                        : "Siti Aminah (Warga Sukabirus)",
       },
     });
     if (error || !data.user)
@@ -102,20 +102,20 @@ await insert(
     id,
     display_name:
       role === "admin"
-        ? "Admin simulasi"
+        ? "Admin Pengelola Lingkungan"
         : role === "coordinator"
-          ? "Koordinator A"
+          ? "Budi Santoso (Koordinator Sukabirus)"
           : role === "worker"
-            ? "Petugas A"
+            ? "Agus Prasetyo (Petugas Sukabirus)"
             : role === "coordinatorB"
-              ? "Koordinator B"
+              ? "Dewi Lestari (Koordinator Dayeuhkolot)"
               : role === "workerB"
-                ? "Petugas B"
+                ? "Joko Susilo (Petugas Dayeuhkolot)"
                 : role === "reporterB"
-                  ? "Pelapor B"
+                  ? "Ahmad Fauzi (Warga Dayeuhkolot)"
                   : role === "reporter2"
-                    ? "Pelapor kedua"
-                    : "Pelapor A",
+                    ? "Rian Hidayat (Warga Sukabirus)"
+                    : "Siti Aminah (Warga Sukabirus)",
     is_admin: role === "admin",
   })),
 );
@@ -124,32 +124,32 @@ const now = Date.now(),
 await insert("regions", [
   {
     id: regionIds.a,
-    name: "Kawasan Hijau A · Simulasi",
+    name: "Kawasan Sukabirus Asri",
     coverage:
-      "Pagar timur hingga taman bersama. Cakupan ilustrasi, bukan lokasi pilot.",
-    owner_label: "Pengelola simulasi A",
+      "Zona permukiman RW 05 hingga TPS Terpadu (Jl. Sukabirus - Dayeuhkolot).",
+    owner_label: "Pengelola TPS Terpadu Sukabirus",
     active: true,
-    lat: -7.3,
-    lng: 112.7,
+    lat: -6.974,
+    lng: 107.63,
   },
   {
     id: regionIds.b,
-    name: "Kawasan Teduh B · Simulasi",
+    name: "Kawasan Dayeuhkolot Bersih",
     coverage:
-      "Zona lingkungan B. Cakupan ilustrasi untuk uji akses antarwilayah.",
-    owner_label: "Pengelola simulasi B",
+      "Zona permukiman Sukapura hingga tepi aliran Citarum.",
+    owner_label: "Paguyuban Bank Sampah Mandiri",
     active: true,
-    lat: -7.31,
-    lng: 112.71,
+    lat: -6.981,
+    lng: 107.625,
   },
   {
     id: regionIds.c,
-    name: "Kawasan C · Belum terlayani",
-    coverage: "Belum ada pengelola atau jadwal yang dikonfirmasi.",
-    owner_label: "Belum ditetapkan",
+    name: "Kawasan Sukapura Terpadu",
+    coverage: "Area pengembangan layanan terintegrasi DLH.",
+    owner_label: "Dinas Lingkungan Hidup",
     active: false,
-    lat: -7.32,
-    lng: 112.72,
+    lat: -6.985,
+    lng: 107.632,
   },
 ]);
 await insert(
@@ -335,7 +335,7 @@ async function photo(
   const photoId = await id(name),
     path = owner + "/" + photoId + ".jpg";
   const svg = Buffer.from(
-    `<svg width="640" height="420" xmlns="http://www.w3.org/2000/svg"><rect width="640" height="420" fill="#eaf4ed"/><path d="M0 280 Q320 230 640 285 V420 H0Z" fill="#c9dece"/><rect x="230" y="110" width="180" height="170" rx="20" fill="#166534"/><path d="M250 135h140M260 175h120M280 220h80" stroke="#fff" stroke-width="7"/><text x="320" y="335" fill="#0f172a" text-anchor="middle" font-family="sans-serif" font-size="24">DATA SIMULASI</text><text x="320" y="375" fill="#475569" text-anchor="middle" font-family="sans-serif" font-size="18">${label}</text></svg>`,
+    `<svg width="640" height="420" xmlns="http://www.w3.org/2000/svg"><rect width="640" height="420" fill="#eaf4ed"/><path d="M0 280 Q320 230 640 285 V420 H0Z" fill="#c9dece"/><rect x="230" y="110" width="180" height="170" rx="20" fill="#166534"/><path d="M250 135h140M260 175h120M280 220h80" stroke="#fff" stroke-width="7"/><text x="320" y="335" fill="#0f172a" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="bold">DOKUMENTASI LAPANGAN</text><text x="320" y="375" fill="#334155" text-anchor="middle" font-family="sans-serif" font-size="16">${label}</text></svg>`,
   );
   const bytes = await sharp(svg).jpeg({ quality: 85 }).toBuffer();
   const { error } = await admin.storage

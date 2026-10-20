@@ -57,8 +57,13 @@ export default function LocationMap({
       <div
         ref={root}
         className="map"
-        aria-label={"Peta pusat " + region.name}
+        role="region"
+        tabIndex={0}
+        aria-label={"Peta interaktif pusat " + region.name + " (" + region.coverage + ")"}
       />
+      <div className="visually-hidden" aria-live="polite">
+        Peta wilayah {region.name}. Koordinat pusat: lintang {region.lat}, bujur {region.lng}. {region.coverage}.
+      </div>
       {failed && (
         <p className="notice warn" role="status">
           Peta tidak tersedia. Gunakan daftar wilayah dan patokan manual.

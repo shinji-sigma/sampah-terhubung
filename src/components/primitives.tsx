@@ -1,6 +1,16 @@
 import { CheckCircle2, Clock3, AlertCircle } from "lucide-react";
 import Image from "next/image";
 import { labels, dateTime, type Photo, type History } from "@/lib/types";
+export function Card({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <div className={`card ${className}`}>{children}</div>;
+}
+
 export function Status({ value }: { value: string }) {
   const good = ["closed", "completed", "validated"].includes(value);
   const bad = ["rejected", "superseded"].includes(value);
