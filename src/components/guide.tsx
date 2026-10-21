@@ -1,69 +1,59 @@
 "use client";
 
 import { useState } from "react";
-import { BookOpen, Award, CheckCircle2, Users, FileText, ArrowRight, ShieldCheck } from "lucide-react";
-import { SectionTitle, Card } from "./primitives";
+import { BookOpen, Award, Users, FileText, ShieldCheck } from "lucide-react";
+import { Card } from "./primitives";
 
 const SUS_QUESTIONS = [
   {
     no: 1,
-    q: "Saya rasa saya akan sering menggunakan aplikasi Sampah Terhubung ini.",
+    q: "Saya rasa saya ingin sering menggunakan aplikasi Sampah Terhubung ini.",
     type: "positive",
-    avg: 4.4,
   },
   {
     no: 2,
-    q: "Saya mendapati aplikasi ini rumit untuk digunakan.",
+    q: "Saya mendapati aplikasi ini rumit secara tidak perlu.",
     type: "negative",
-    avg: 1.6,
   },
   {
     no: 3,
-    q: "Saya rasa aplikasi ini sangat mudah untuk digunakan.",
+    q: "Saya rasa aplikasi ini mudah untuk digunakan.",
     type: "positive",
-    avg: 4.5,
   },
   {
     no: 4,
     q: "Saya rasa saya membutuhkan bantuan orang teknis untuk menggunakan sistem ini.",
     type: "negative",
-    avg: 1.4,
   },
   {
     no: 5,
-    q: "Saya melihat fungsi-fungsi dalam sistem ini terintegrasi dengan sangat baik.",
+    q: "Saya melihat fungsi-fungsi dalam sistem ini terintegrasi dengan baik.",
     type: "positive",
-    avg: 4.3,
   },
   {
     no: 6,
     q: "Saya merasa ada terlalu banyak ketidakkonsistenan pada sistem ini.",
     type: "negative",
-    avg: 1.5,
   },
   {
     no: 7,
-    q: "Saya memperkirakan sebagian besar orang akan cepat memahami sistem ini.",
+    q: "Saya memperkirakan sebagian besar orang akan belajar menggunakan sistem ini dengan sangat cepat.",
     type: "positive",
-    avg: 4.6,
   },
   {
     no: 8,
-    q: "Saya mendapati sistem ini sangat membingungkan saat pertama kali dicoba.",
+    q: "Saya mendapati sistem ini sangat merepotkan untuk digunakan.",
     type: "negative",
-    avg: 1.7,
   },
   {
     no: 9,
-    q: "Saya merasa percaya diri saat menggunakan aplikasi ini.",
+    q: "Saya merasa sangat percaya diri saat menggunakan aplikasi ini.",
     type: "positive",
-    avg: 4.5,
   },
   {
     no: 10,
-    q: "Saya harus mempelajari banyak hal baru sebelum saya dapat menggunakan sistem ini.",
+    q: "Saya harus mempelajari banyak hal sebelum dapat mulai menggunakan sistem ini.",
     type: "negative",
-    avg: 1.5,
   },
 ];
 
@@ -72,11 +62,10 @@ export function GuideView() {
 
   return (
     <div className="space-y-6">
-      <SectionTitle
-        eyebrow="Dokumentasi & Validasi Riset"
-        title="Panduan Sistem & Hasil Pengujian Kegunaan"
-        description="Dokumentasi komprehensif alur kerja, standar interoperabilitas, serta pengujian kegunaan empiris menggunakan metode System Usability Scale (SUS) terstandarisasi."
-      />
+      <header className="space-y-2">
+        <h1 className="text-2xl font-bold text-slate-900">Panduan Sistem & Rencana Evaluasi Kegunaan</h1>
+        <p className="text-sm text-slate-600">Dokumentasi prototipe dan persiapan SUS, bukan laporan hasil riset. Data demo bukan bukti layanan pemerintah aktif atau integrasi DLH. Jangan masukkan data pribadi sungguhan dalam simulasi.</p>
+      </header>
 
       {/* Tab Navigation */}
       <div className="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
@@ -89,7 +78,7 @@ export function GuideView() {
           }`}
         >
           <Award size={16} />
-          Hasil Uji Usability (SUS)
+          Instrumen & Rencana SUS
         </button>
         <button
           onClick={() => setActiveTab("roles")}
@@ -111,7 +100,7 @@ export function GuideView() {
           }`}
         >
           <FileText size={16} />
-          Alur Audit & Validasi 2 Tahap
+          Rencana Alur Validasi
         </button>
         <button
           onClick={() => setActiveTab("repo")}
@@ -136,11 +125,11 @@ export function GuideView() {
                   Skor Akhir SUS
                 </span>
                 <div className="text-4xl font-extrabold text-teal-900 mt-1">
-                  81.5 <span className="text-lg font-normal text-teal-700">/ 100</span>
+                  Belum diukur
                 </div>
               </div>
               <p className="text-xs text-teal-800 mt-2 font-medium">
-                Grade A · Kategori <strong>&quot;Excellent / Sangat Layak&quot;</strong> (Standar Sauro & Lewis &gt; 80.3).
+                Belum ada hasil pengujian yang dapat dilaporkan.
               </p>
             </Card>
 
@@ -150,11 +139,11 @@ export function GuideView() {
                   Sampel Responden
                 </span>
                 <div className="text-3xl font-extrabold text-slate-800 mt-1">
-                  20 <span className="text-base font-normal text-slate-500">Orang</span>
+                  Belum ada data responden
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-2">
-                15 Warga masyarakat lintas usia + 5 Petugas & Koordinator Wilayah.
+                Jumlah dan profil responden akan dicatat saat pengumpulan data.
               </p>
             </Card>
 
@@ -164,11 +153,11 @@ export function GuideView() {
                   Tingkat Keberhasilan Tugas
                 </span>
                 <div className="text-3xl font-extrabold text-emerald-700 mt-1">
-                  95%
+                  Belum diukur
                 </div>
               </div>
               <p className="text-xs text-slate-500 mt-2">
-                Pelaporan dan pengecekan jadwal selesai rata-rata dalam <strong>48 detik</strong>.
+                Keberhasilan tugas dan durasi belum diukur; keduanya bukan skor SUS.
               </p>
             </Card>
           </div>
@@ -176,11 +165,12 @@ export function GuideView() {
           <Card className="p-4 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-slate-800 text-sm">
-                Rincian Evaluasi 10 Pernyataan Standar SUS (Skala Likert 1–5)
+                Instrumen SUS: 10 Pernyataan — Adaptasi Bahasa Indonesia
               </h3>
               <span className="text-xs text-slate-500">Metode John Brooke (1996)</span>
             </div>
 
+            <p className="text-sm text-slate-600">Adaptasi SUS dari Brooke (1996); tim belum memvalidasi terjemahan ini. Tinjau kesetaraan makna dan keterpahaman sebelum studi. Pilih satu jawaban per butir: 1 = Sangat tidak setuju; 2 = Tidak setuju; 3 = Netral; 4 = Setuju; 5 = Sangat setuju. Ini instrumen persiapan, bukan formulir penyimpanan jawaban.</p>
             <div className="overflow-x-auto">
               <table className="w-full text-xs text-left border-collapse">
                 <thead>
@@ -188,7 +178,7 @@ export function GuideView() {
                     <th className="py-2 px-3 font-semibold w-10">No</th>
                     <th className="py-2 px-3 font-semibold">Pernyataan Evaluasi</th>
                     <th className="py-2 px-3 font-semibold w-24">Orientasi</th>
-                    <th className="py-2 px-3 font-semibold w-24 text-right">Rerata Skor</th>
+                    <th className="py-2 px-3 font-semibold w-24 text-right">Status data</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -208,7 +198,7 @@ export function GuideView() {
                         </span>
                       </td>
                       <td className="py-2 px-3 font-mono font-semibold text-right text-slate-900">
-                        {item.avg.toFixed(1)} / 5.0
+                        Belum diukur
                       </td>
                     </tr>
                   ))}
@@ -225,9 +215,21 @@ export function GuideView() {
                 • Pertanyaan genap (negatif): Skor Kontribusi = 5 - Nilai Skala
               </p>
               <p>
-                • Total Skor SUS = Jumlah Skor Kontribusi × 2.5 = <strong>81.5</strong>.
+                • Skor SUS per responden = Jumlah Skor Kontribusi × 2.5 (rentang 0–100).
               </p>
+              <p>Skor SUS bukan persentase keberhasilan. Hitung skor tiap responden lengkap, kemudian rerata dan sebarannya; laporkan jumlah respons dan keterbatasan sampel.</p>
             </div>
+          </Card>
+          <Card className="p-4 space-y-3 text-sm text-slate-600">
+            <h2 className="font-semibold">Rencana pengumpulan data — belum dilaksanakan</h2>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>Tetapkan kriteria rekrutmen warga, koordinator, petugas dan target sampel sebelum sesi; catat metode rekrutmen dan keterbatasan keterwakilan.</li>
+              <li>Minta persetujuan sukarela dan gunakan ID anonim. Catat tanggal, perangkat, versi aplikasi dan mode demo/backend.</li>
+              <li>Siapkan tugas seragam untuk peran sejenis, misalnya mencari jadwal dan mencoba laporan contoh. Setelah penggunaan, peserta mengisi 10 butir secara mandiri tanpa diarahkan.</li>
+              <li>Validasi jawaban 1–5. Tandai respons tidak lengkap, keluarkan dari agregat SUS dan laporkan jumlah serta alasan pengecualian. Jangan mengisi jawaban kosong dengan angka rekaan. Simpan data anonim dan catatan perhitungan.</li>
+              <li>Ukur keberhasilan dan durasi tugas secara terpisah dengan definisi sukses, awal/akhir waktu, dan aturan bantuan yang ditetapkan sebelum sesi. Laporkan jumlah percobaan, kegagalan dan durasi sesuai data.</li>
+            </ol>
+            <p>Rujukan: Brooke, J. (1996), “SUS: A quick and dirty usability scale”, dalam Usability Evaluation in Industry.</p>
           </Card>
         </div>
       )}
@@ -235,6 +237,7 @@ export function GuideView() {
       {/* Tab Content: Roles */}
       {activeTab === "roles" && (
         <div className="grid md:grid-cols-3 gap-4">
+          <p className="md:col-span-3 text-sm text-slate-600">Peran berikut adalah skenario prototipe, bukan penugasan nyata. Fitur tulis memerlukan akun, izin dan backend. Mode demo tidak membuktikan penyimpanan server; kemampuan pengelolaan berikut perlu diverifikasi pada lingkungan yang digunakan.</p>
           <Card className="p-4 space-y-3 border-t-4 border-t-teal-600">
             <div className="flex items-center gap-2">
               <span className="w-8 h-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-sm">
@@ -246,10 +249,10 @@ export function GuideView() {
               </div>
             </div>
             <ul className="text-xs text-slate-600 space-y-2 list-disc list-inside leading-relaxed">
-              <li>Melihat jadwal ritasi truk kebersihan secara langsung tanpa registrasi berbelit.</li>
-              <li>Mengirim laporan tumpukan sampah liar disertai koordinat GPS akurat & foto bukti.</li>
-              <li>Melacak jejak status penanganan (Audit Trail) dari verifikasi hingga armada selesai.</li>
-              <li>Mendaftar sebagai relawan aksi bersih lingkungan komunitas secara langsung.</li>
+              <li>Menjelajah jadwal yang tersedia; data demo bukan jadwal armada aktif.</li>
+              <li>Mencoba laporan contoh; periksa lokasi pada peta karena ketelitian GPS tidak dijamin.</li>
+              <li>Melihat status yang ditampilkan; status demo bukan bukti pekerjaan lapangan.</li>
+              <li>Pendaftaran mengikuti status layanan pada halaman kegiatan, bukan janji kontak koordinator.</li>
             </ul>
           </Card>
 
@@ -295,10 +298,10 @@ export function GuideView() {
         <Card className="p-5 space-y-4">
           <h3 className="font-semibold text-slate-800 text-sm flex items-center gap-2">
             <ShieldCheck className="text-teal-600" size={18} />
-            Alur Penanganan Laporan Terverifikasi (2-Stage Verification Pipeline)
+            Rencana alur, bukan bukti audit
           </h3>
           <p className="text-xs text-slate-600 leading-relaxed">
-            Tidak seperti grup WhatsApp atau platform aduan umum yang langsung membebani petugas dengan laporan mentah, Sampah Terhubung menerapkan gerbang validasi koordinator lokal untuk menjamin akurasi sebelum armada diberangkatkan:
+            Rancangan berikut bukan hasil audit independen atau bukti pengiriman armada. Implementasi dan izin tiap langkah perlu diuji pada lingkungan yang digunakan.
           </p>
 
           <div className="grid md:grid-cols-4 gap-3 pt-2">
@@ -306,12 +309,12 @@ export function GuideView() {
               <div className="text-[10px] uppercase font-bold text-teal-700">Tahap 1</div>
               <div className="font-bold text-slate-800 text-xs">Warga Melapor</div>
               <p className="text-[11px] text-slate-500">
-                Warga mengambil foto di tempat dan GPS perangkat mengunci titik koordinat secara otomatis.
+                Warga menyiapkan bukti dan memeriksa lokasi; izin serta ketelitian perangkat dapat berbeda.
               </p>
             </div>
 
             <div className="p-3 bg-teal-50/70 rounded-lg border border-teal-200 space-y-1">
-              <div className="text-[10px] uppercase font-bold text-teal-800">Tahap 2 (Kunci Pembeda)</div>
+              <div className="text-[10px] uppercase font-bold text-teal-800">Tahap 2</div>
               <div className="font-bold text-teal-900 text-xs">Validasi Koordinator</div>
               <p className="text-[11px] text-slate-600">
                 Koordinator lokal meninjau keabsahan lokasi & mengidentifikasi duplikasi sebelum armada ditugaskan.
@@ -330,7 +333,7 @@ export function GuideView() {
               <div className="text-[10px] uppercase font-bold text-emerald-700">Tahap 4</div>
               <div className="font-bold text-slate-800 text-xs">Bukti After & Selesai</div>
               <p className="text-[11px] text-slate-500">
-                Foto lokasi bersih diunggah. Laporan ditutup dan warga menerima notifikasi otomatis.
+                Penyelesaian memerlukan bukti dan pemeriksaan; perubahan status tidak membuktikan pembersihan atau pemberitahuan kepada warga.
               </p>
             </div>
           </div>
@@ -346,23 +349,22 @@ export function GuideView() {
           <div className="grid md:grid-cols-2 gap-4 text-xs text-slate-600">
             <div className="p-3 bg-slate-50 rounded-lg space-y-2 border border-slate-200">
               <div className="font-bold text-slate-800">Stack Teknologi:</div>
-              <p>• Framework: Next.js 15 (App Router) + TypeScript Strict</p>
+              <p>• Framework: Next.js (App Router) + TypeScript; versi tercatat di package.json.</p>
               <p>• Styling: Tailwind CSS Modern + CSS Modular Tokens</p>
               <p>• Geospatial & Maps: Leaflet Engine + OpenStreetMap Tiles</p>
-              <p>• Database: Supabase PostgreSQL dengan Row-Level Security (RLS)</p>
-              <p>• Standar Waktu: Strict Asia/Jakarta (WIB, UTC+7)</p>
+              <p>• Klien Supabase tersedia; konfigurasi backend dan izin diperlukan. Ini bukan bukti audit keamanan RLS.</p>
+              <p>• Periksa konfigurasi waktu pada lingkungan yang digunakan.</p>
             </div>
 
             <div className="p-3 bg-slate-50 rounded-lg space-y-2 border border-slate-200">
               <div className="font-bold text-slate-800">Panduan Menjalankan Lokal:</div>
               <p className="font-mono bg-white p-2 rounded border border-slate-200">
-                git clone https://github.com/shinji/sampah-terhubung.git<br />
-                cd sampah-terhubung/web<br />
+                Dari direktori web pada salinan lokal:<br />
                 npm install<br />
                 npm run dev
               </p>
               <p className="text-[11px] text-slate-500">
-                Aplikasi langsung berjalan pada mode offline-first / mock data bila variabel lingkungan Supabase belum dikonfigurasi.
+                URL repositori publik belum diverifikasi. Gunakan salinan proyek dari pengelola. Mode demo memakai data contoh, bukan jaminan operasi luring atau persistensi server. Jangan bagikan kunci rahasia.
               </p>
             </div>
           </div>

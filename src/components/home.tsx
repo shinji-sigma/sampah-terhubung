@@ -23,8 +23,6 @@ export function HomeView({
   onSchedule,
   onReport,
   onEvents,
-  onApiDocs,
-  onGuide,
   showIntro,
   animateIntro,
   onIntroSeen,
@@ -51,38 +49,23 @@ export function HomeView({
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-pulse" aria-busy="true" aria-label="Memuat data wilayah">
-        <div className="page-heading">
-          <div className="space-y-2">
-            <div className="h-4 w-28 bg-slate-200 rounded"></div>
-            <div className="h-8 w-64 bg-slate-300 rounded"></div>
+      <div className="home-loading" aria-busy="true">
+        <p role="status" className="small-muted">Memuat data wilayah…</p>
+        <div className="page-heading" aria-hidden="true">
+          <div className="loading-heading">
+            <div className="loading-placeholder loading-short" />
+            <div className="loading-placeholder loading-title" />
           </div>
-          <div className="h-10 w-36 bg-slate-200 rounded-lg"></div>
+          <div className="loading-placeholder loading-button" />
         </div>
-        <div className="service-grid">
-          <div className="p-6 bg-slate-100 rounded-xl space-y-4">
-            <div className="h-5 w-40 bg-slate-200 rounded"></div>
-            <div className="space-y-2">
-              <div className="h-12 bg-slate-200 rounded"></div>
-              <div className="h-12 bg-slate-200 rounded"></div>
+        <div className="service-grid" aria-hidden="true">
+          {[0, 1, 2, 3].map((item) => (
+            <div className="loading-panel" key={item}>
+              <div className="loading-placeholder loading-title" />
+              <div className="loading-placeholder loading-row" />
+              <div className="loading-placeholder loading-row" />
             </div>
-          </div>
-          <div className="p-6 bg-slate-100 rounded-xl space-y-4">
-            <div className="h-5 w-48 bg-slate-200 rounded"></div>
-            <div className="h-16 bg-slate-200 rounded"></div>
-            <div className="h-10 w-32 bg-slate-300 rounded"></div>
-          </div>
-          <div className="p-6 bg-slate-100 rounded-xl space-y-4">
-            <div className="h-5 w-32 bg-slate-200 rounded"></div>
-            <div className="h-10 bg-slate-200 rounded"></div>
-          </div>
-          <div className="p-6 bg-slate-100 rounded-xl space-y-4 col-span-full">
-            <div className="h-6 w-52 bg-slate-200 rounded"></div>
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="h-24 bg-slate-200 rounded"></div>
-              <div className="h-24 bg-slate-200 rounded"></div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     );
@@ -343,7 +326,7 @@ export function HomeView({
             </div>
             <h3 className="font-bold text-white text-sm">Jejak Status Transparan (Audit Trail)</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Setiap progres penanganan tercatat dengan foto bukti <em>before-after</em> dan stempel waktu WIB yang dapat diaudit publik.
+              Riwayat penanganan menggunakan stempel waktu WIB. Foto bukti hanya tersedia bagi pengguna berwenang; publik melihat ringkasan yang telah disetujui.
             </p>
           </div>
 
@@ -353,54 +336,15 @@ export function HomeView({
             </div>
             <h3 className="font-bold text-white text-sm">Interoperabilitas & Open Data</h3>
             <p className="text-xs text-slate-400 leading-relaxed">
-              Dilengkapi RESTful API terbuka untuk integrasi jadwal dan data kebersihan dengan Smart City maupun DLH daerah.
+              REST API baca-saja tersedia untuk data publik. Sistem belum terhubung ke DLH atau Smart City; integrasi mitra membutuhkan kesepakatan dan pengujian terpisah.
             </p>
           </div>
         </div>
 
-        {/* Tabel Komparasi */}
-        <div className="space-y-3 pt-2">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
-            Tabel Perbandingan dengan Solusi Eksisting
-          </h3>
-          <div className="overflow-x-auto rounded-xl border border-slate-700 bg-slate-950/40">
-            <table className="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-700 text-slate-300 bg-slate-800/50">
-                  <th className="py-2.5 px-3 font-semibold">Fitur / Parameter</th>
-                  <th className="py-2.5 px-3 font-semibold text-teal-400">Sampah Terhubung</th>
-                  <th className="py-2.5 px-3 font-semibold text-slate-400">Aplikasi Aduan Umum (SP4N LAPOR)</th>
-                  <th className="py-2.5 px-3 font-semibold text-slate-400">Grup WhatsApp Warga</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800 text-slate-300">
-                <tr>
-                  <td className="py-2.5 px-3 font-medium">Validasi Koordinator Wilayah</td>
-                  <td className="py-2.5 px-3 font-semibold text-teal-400">✓ Ya (Lokal & Cepat)</td>
-                  <td className="py-2.5 px-3 text-slate-400">✗ Birokrasi berjenjang</td>
-                  <td className="py-2.5 px-3 text-slate-400">✗ Tidak terstruktur</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 px-3 font-medium">Bukti Riwayat Penanganan (Before-After)</td>
-                  <td className="py-2.5 px-3 font-semibold text-teal-400">✓ Terverifikasi Digital</td>
-                  <td className="py-2.5 px-3 text-slate-400">Sebagian</td>
-                  <td className="py-2.5 px-3 text-slate-400">✗ Tenggelam dalam chat</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 px-3 font-medium">Jadwal Ritasi Terbuka</td>
-                  <td className="py-2.5 px-3 font-semibold text-teal-400">✓ Terjadwal & Real-Time</td>
-                  <td className="py-2.5 px-3 text-slate-400">✗ Tidak tersedia</td>
-                  <td className="py-2.5 px-3 text-slate-400">✗ Mengandalkan pamflet</td>
-                </tr>
-                <tr>
-                  <td className="py-2.5 px-3 font-medium">Dukungan REST API Terbuka</td>
-                  <td className="py-2.5 px-3 font-semibold text-teal-400">✓ Terbuka (OpenGov Ready)</td>
-                  <td className="py-2.5 px-3 text-slate-400">✗ API Tertutup</td>
-                  <td className="py-2.5 px-3 text-slate-400">✗ Tidak ada</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+        <div className="notice info">
+          <h3>Fokus prototipe</h3>
+          <p>Koordinasi tingkat lingkungan: jadwal, pemeriksaan laporan, penugasan, dan kegiatan. Kecepatan layanan dan keunggulan dibanding platform lain belum diukur.</p>
+          <p>Data, nama pengelola, dan gambar pada pratinjau adalah ilustrasi skenario, bukan bukti pilot atau dokumentasi lapangan.</p>
         </div>
       </section>
     </>

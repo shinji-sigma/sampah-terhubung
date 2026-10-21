@@ -1,3 +1,14 @@
+/* Loading uses native CSS, not an unavailable utility framework. */
+.home-loading { display: grid; gap: 1rem; min-width: 0; }
+.loading-heading { display: grid; gap: .65rem; min-width: 0; flex: 1; }
+.loading-panel { display: grid; gap: 1rem; padding: 1.5rem; background: var(--surface); border: 1px solid var(--line); border-radius: 16px; min-width: 0; }
+.loading-placeholder { width: 100%; height: 1rem; border-radius: 8px; background: var(--sage); animation: home-loading-pulse 1.5s ease-in-out infinite; }
+.loading-short { max-width: 7rem; }
+.loading-title { max-width: 16rem; height: 1.75rem; }
+.loading-button { width: 9rem; max-width: 100%; height: 44px; }
+.loading-row { height: 3rem; }
+@keyframes home-loading-pulse { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) { .loading-placeholder { animation: none; } }
 :root {
   --petrol: #193c38;
   --jade: #235e52;
@@ -2055,4 +2066,35 @@ h3 {
 .admin-table tr:hover td {
   background-color: #f8fafc;
 }
+
+/* Documentation must not depend on an uninstalled utility CSS framework. */
+.api-documentation {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.api-documentation > * { min-width: 0; max-width: 100%; }
+.api-documentation pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  max-width: 100%;
+  overflow-x: auto;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #f1f5f9;
+  color: #143e3a;
+  font-size: 12px;
+}
+.api-documentation table { width: 100%; table-layout: fixed; }
+.api-documentation th, .api-documentation td {
+  padding: 10px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.api-documentation button { max-width: 100%; white-space: normal; }
+.api-documentation h1 { font-size: clamp(24px, 4vw, 36px); }
+.api-documentation .card { margin-bottom: 16px; }
+
 

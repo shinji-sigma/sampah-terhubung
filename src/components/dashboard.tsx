@@ -280,10 +280,6 @@ export default function Dashboard({
       }
     };
     window.addEventListener("popstate", handlePopState);
-    const initialMatched = pathToView[window.location.pathname];
-    if (initialMatched && !initialView) {
-      setView(initialMatched);
-    }
     return () => window.removeEventListener("popstate", handlePopState);
   }, [initialView]);
 

@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import type { CleanupEvent, Region, Workspace } from "@/lib/types";
 import { dateTime, incidentReference, shortId } from "@/lib/types";
 import { ActionForm, localDateTime, type Field } from "./forms";
@@ -30,12 +29,6 @@ export function Events({
   preview?: boolean;
   onSchedule: () => void;
 }) {
-  const [guestReg, setGuestReg] = useState<{ [eventId: string]: { name: string; phone: string } }>({});
-  const [activeModalEvent, setActiveModalEvent] = useState<CleanupEvent | null>(null);
-  const [guestName, setGuestName] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
-  const [guestError, setGuestError] = useState("");
-
   const visible = coordinator && w ? w.events : events;
   return (
     <>
@@ -131,8 +124,7 @@ export function Events({
             w?.registrations.filter((r) => r.event_id === e.id) || [];
           const count = coordinator ? members.length : e.participants;
           const isPast = new Date(e.starts_at) <= now;
-          const isGuestRegistered = !!guestReg[e.id];
-          const displayCount = (count || 0) + (isGuestRegistered ? 1 : 0);
+          const displayCount = count || 0;
           const isFull = displayCount >= e.capacity;
 
           return (
@@ -140,7 +132,9 @@ export function Events({
               <div className="card-heading">
                 <h3>{e.title}</h3>
                 {isPast ? (
-                  <span className="badge muted">Pendaftaran Ditutup (Selesai)</span>
+                  <span className="badge muted">
+                    Pendaftaran Ditutup (Selesai)
+                  </span>
                 ) : isFull ? (
                   <span className="badge warn">Kuota Penuh</span>
                 ) : (
@@ -193,14 +187,8 @@ export function Events({
               {/* Status Pendaftaran & Tombol Aksi */}
               {isPast ? (
                 <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
-                  Jadwal kegiatan telah berlalu. Pendaftaran relawan ditutup otomatis.
-                </div>
-              ) : isGuestRegistered ? (
-                <div className="p-3 bg-teal-50 border border-teal-200 rounded-lg text-xs text-teal-800 space-y-1">
-                  <strong>✓ Pendaftaran Relawan Berhasil!</strong>
-                  <p>
-                    Terima kasih, <strong>{guestReg[e.id].name}</strong> ({guestReg[e.id].phone}). Koordinator ({e.pic}) akan menghubungi Anda via WhatsApp menjelang kegiatan.
-                  </p>
+                  Jadwal kegiatan telah berlalu. Pendaftaran relawan ditutup
+                  otomatis.
                 </div>
               ) : e.status === "published" ? (
                 w ? (
@@ -217,22 +205,18 @@ export function Events({
                     {joined && (
                       <p className="notice good">
                         Anda terdaftar. Tugas:{" "}
-                        {members.find((r) => r.user_id === w.profile.id)?.duty || "Relawan Pelaksana"}
+                        {members.find((r) => r.user_id === w.profile.id)
+                          ?.duty || "Relawan Pelaksana"}
                       </p>
                     )}
                   </>
                 ) : (
                   <div className="flex flex-wrap gap-2 pt-2">
-                    <button
-                      className="button teal"
-                      onClick={() => {
-                        setActiveModalEvent(e);
-                        setGuestError("");
-                      }}
-                      disabled={isFull}
-                    >
-                      {isFull ? "Kuota Penuh" : "Daftar Relawan Sekarang"}
-                    </button>
+                    <p className="notice info">
+                      Pendaftaran tamu belum tersedia. Data tamu tidak
+                      dikumpulkan atau disimpan. Masuk dengan akun untuk
+                      mengakses pendaftaran kegiatan.
+                    </p>
                     <button
                       className="button secondary"
                       onClick={login}
@@ -393,118 +377,6 @@ export function Events({
             </article>
           );
         })
-      )}
-
-      {/* Modal Pendaftaran Relawan Tamu / Non-Login */}
-      {activeModalEvent && (
-        <div
-          className="modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="guest-modal-title"
-        >
-          <div className="card modal-dialog max-w-md w-full p-6 space-y-4 shadow-2xl">
-            <div className="flex items-start justify-between border-b pb-3">
-              <div>
-                <h3 id="guest-modal-title" className="text-base font-bold text-slate-800">
-                  Daftar Relawan Kegiatan
-                </h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  {activeModalEvent.title}
-                </p>
-              </div>
-              <button
-                className="text-slate-400 hover:text-slate-700 text-lg font-bold p-1"
-                onClick={() => setActiveModalEvent(null)}
-                aria-label="Tutup form"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="text-xs text-slate-600 bg-slate-50 p-3 rounded-lg space-y-1">
-              <div><strong>Waktu:</strong> {dateTime(activeModalEvent.starts_at)}</div>
-              <div><strong>Lokasi:</strong> {activeModalEvent.location}</div>
-              <div><strong>Alat & Tugas:</strong> {activeModalEvent.duties}</div>
-            </div>
-
-            <form
-              onSubmit={(ev) => {
-                ev.preventDefault();
-                if (!guestName.trim()) {
-                  setGuestError("Mohon masukkan nama lengkap Anda.");
-                  return;
-                }
-                if (!guestPhone.trim() || guestPhone.length < 8) {
-                  setGuestError("Mohon masukkan nomor WhatsApp yang valid.");
-                  return;
-                }
-                setGuestReg((prev) => ({
-                  ...prev,
-                  [activeModalEvent.id]: {
-                    name: guestName.trim(),
-                    phone: guestPhone.trim(),
-                  },
-                }));
-                setActiveModalEvent(null);
-                setGuestName("");
-                setGuestPhone("");
-                setGuestError("");
-              }}
-              className="space-y-3"
-            >
-              {guestError && (
-                <div className="p-2.5 rounded bg-rose-50 text-rose-700 text-xs font-medium">
-                  {guestError}
-                </div>
-              )}
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Nama Lengkap <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  className="input w-full"
-                  placeholder="Contoh: Budi Prasetyo"
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Nomor WhatsApp / HP Aktif <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  className="input w-full"
-                  placeholder="Contoh: 081234567890"
-                  value={guestPhone}
-                  onChange={(e) => setGuestPhone(e.target.value)}
-                  required
-                />
-                <span className="text-[11px] text-slate-400 mt-1 block">
-                  Koordinator akan membagikan titik kumpul via WA.
-                </span>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-3 border-t">
-                <button
-                  type="button"
-                  className="button secondary"
-                  onClick={() => setActiveModalEvent(null)}
-                >
-                  Batal
-                </button>
-                <button type="submit" className="button teal">
-                  Konfirmasi Keikutsertaan
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
       )}
     </>
   );

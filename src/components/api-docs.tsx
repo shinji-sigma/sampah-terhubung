@@ -3,179 +3,48 @@
 import { useState } from "react";
 import { Terminal, Copy, Check, Play, Globe, Shield, RefreshCw } from "lucide-react";
 import { SectionTitle, Card } from "./primitives";
+import { MOCK_DATA, envelope } from "../app/api/v1/contracts";
 
 interface ApiEndpoint {
   id: string;
   name: string;
-  method: "GET" | "POST";
+  method: "GET";
   path: string;
   description: string;
   auth: "Bebas (Public)" | "API Key / Token";
   params?: { name: string; type: string; required: boolean; desc: string }[];
-  bodyExample?: object;
   responseExample: object;
 }
 
-const ENDPOINTS: ApiEndpoint[] = [
-  {
-    id: "schedules",
-    name: "Jadwal Angkut Terbuka",
-    method: "GET",
-    path: "/api/v1/schedules",
-    description:
-      "Mengambil jadwal operasional pengangkutan sampah terkonfirmasi per wilayah. Digunakan untuk integrasi smart city, portal RT/RW, atau papan pengumuman digital.",
-    auth: "Bebas (Public)",
-    params: [
-      {
-        name: "region",
-        type: "UUID",
-        required: false,
-        desc: "ID unik wilayah (opsional, kosongkan untuk semua wilayah terdaftar)",
-      },
-    ],
-    responseExample: {
-      status: "success",
-      total: 2,
-      region: "all",
-      data: [
-        {
-          id: "sch-pilot-01",
-          service: "Pengangkutan Organik & Daur Ulang",
-          zone: "Kawasan Permukiman RW 04",
-          weekdays: [1, 3, 5],
-          weekdays_label: ["Senin", "Rabu", "Jumat"],
-          start_time: "07:00",
-          end_time: "09:30",
-          status: "confirmed",
-          source: "Dinas Lingkungan Hidup / SIMPAN Daerah",
-        },
-      ],
-      timestamp: "2026-10-20T08:00:00.000Z",
-    },
-  },
-  {
-    id: "incidents",
-    name: "Feed Insiden & Aduan Publik",
-    method: "GET",
-    path: "/api/v1/incidents",
-    description:
-      "Feed publik status laporan warga yang telah divalidasi oleh Koordinator Wilayah. Menampilkan persentase penanganan dan stempel waktu WIB.",
-    auth: "Bebas (Public)",
-    params: [
-      {
-        name: "region",
-        type: "UUID",
-        required: false,
-        desc: "Filter berdasarkan ID wilayah tertentu",
-      },
-    ],
-    responseExample: {
-      status: "success",
-      total: 3,
-      data: [
-        {
-          id: "inc-demo-02",
-          public_label: "Pembersihan saluran drainase tersumbat kantong plastik",
-          status: "working",
-          status_label: "Sedang ditangani petugas",
-          verified_at: "2026-10-18T04:15:00.000Z",
-          verified_at_wib: "18 Okt 2026, 11.15 WIB",
-          progress: 65,
-        },
-      ],
-    },
-  },
-  {
-    id: "events",
-    name: "Agenda Aksi Bersih Lingkungan",
-    method: "GET",
-    path: "/api/v1/events",
-    description:
-      "Daftar kegiatan gotong royong, edukasi pemilahan sampah, dan kuota relawan yang masih dibuka.",
-    auth: "Bebas (Public)",
-    params: [],
-    responseExample: {
-      status: "success",
-      total: 2,
-      data: [
-        {
-          id: "ev-demo-01",
-          title: "Aksi Bersih Sungai & Pemilahan Plastik Bersama",
-          location: "Bantaran Sungai RW 03",
-          starts_at_wib: "25 Okt 2026, 07.30 WIB",
-          capacity: 20,
-          participants: 14,
-          is_open: true,
-          transport_confirmed: true,
-        },
-      ],
-    },
-  },
-  {
-    id: "sync",
-    name: "Sinkronisasi DLH / Mitra Pengangkut",
-    method: "POST",
-    path: "/api/v1/sync/schedules",
-    description:
-      "Webhook / Ingestion API untuk sistem kebersihan daerah (DLH / vendor armada) guna memperbarui jadwal ritasi secara otomatis tanpa entri manual.",
-    auth: "API Key / Token",
-    bodyExample: {
-      source_agency: "Dinas Lingkungan Hidup Kota",
-      region_id: "wilayah-pusat-01",
-      schedules: [
-        {
-          service_type: "Truk Kompaksi Organik",
-          target_zone: "Zona Utama Pasar & Perumahan",
-          weekdays: [1, 3, 5],
-          start_time: "06:30",
-          end_time: "09:00",
-          effective_until: "2026-12-31",
-        },
-      ],
-    },
-    responseExample: {
-      status: "success",
-      code: 200,
-      message: "Berhasil melakukan sinkronisasi 1 aturan jadwal dari Dinas Lingkungan Hidup Kota.",
-      details: {
-        synced_records: 1,
-        batch_id: "SYNC-1729418291000",
-        interoperability_standard: "OpenGov-WasteData-v1.0",
-      },
-    },
-  },
-];
+export const ENDPOINTS: ApiEndpoint[] = (["schedules", "incidents", "events"] as const).map(id => ({
+  id,
+  name: { schedules: "Jadwal Angkut Terbuka", incidents: "Feed Insiden Publik", events: "Agenda Lingkungan" }[id],
+  method: "GET",
+  path: `/api/v1/${id}`,
+  description: {
+    schedules: "Jadwal dengan status confirmed atau tentative. Bukan bukti integrasi instansi.",
+    incidents: "Proyeksi publik: id, public_label, status, verified_at (ISO 8601 atau null). Tidak ada persentase progres.",
+    events: "Agenda publik beserta kuota agregat. is_open memperhitungkan waktu, status published dan kapasitas; bukan konfirmasi pendaftaran.",
+  }[id],
+  auth: "Bebas (Public)",
+  params: [{ name: "region", type: "UUID", required: false, desc: "Hilangkan untuk semua wilayah; UUID valid untuk filter. Nilai kosong/tidak valid: 400. Mode mock dengan filter wilayah menghasilkan data kosong." }],
+  responseExample: envelope(id, MOCK_DATA[id], null, "mock_interop", "2026-10-20T08:00:00.000Z"),
+}));
 
 export function ApiDocsView() {
   const [selectedId, setSelectedId] = useState("schedules");
   const [tab, setTab] = useState<"curl" | "js" | "python">("curl");
   const [copied, setCopied] = useState(false);
+  const [liveStatus, setLiveStatus] = useState<string | null>(null);
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveResult, setLiveResult] = useState<string | null>(null);
 
   const endpoint = ENDPOINTS.find((e) => e.id === selectedId) || ENDPOINTS[0];
   const host = typeof window !== "undefined" ? window.location.origin : "https://sampah-terhubung.id";
 
-  const getCurlCode = () => {
-    if (endpoint.method === "GET") {
-      return `curl -X GET "${host}${endpoint.path}" \\\n  -H "Accept: application/json"`;
-    }
-    return `curl -X POST "${host}${endpoint.path}" \\\n  -H "Content-Type: application/json" \\\n  -H "Authorization: Bearer YOUR_API_KEY" \\\n  -d '${JSON.stringify(endpoint.bodyExample, null, 2)}'`;
-  };
-
-  const getJsCode = () => {
-    if (endpoint.method === "GET") {
-      return `const response = await fetch("${host}${endpoint.path}");\nconst data = await response.json();\nconsole.log(data);`;
-    }
-    return `const response = await fetch("${host}${endpoint.path}", {\n  method: "POST",\n  headers: {\n    "Content-Type": "application/json",\n    "Authorization": "Bearer YOUR_API_KEY"\n  },\n  body: JSON.stringify(${JSON.stringify(endpoint.bodyExample, null, 4)})\n});\nconst result = await response.json();\nconsole.log(result);`;
-  };
-
-  const getPythonCode = () => {
-    if (endpoint.method === "GET") {
-      return `import requests\n\nres = requests.get("${host}${endpoint.path}")\nprint(res.json())`;
-    }
-    return `import requests\n\npayload = ${JSON.stringify(endpoint.bodyExample, null, 4)}\nheaders = {"Authorization": "Bearer YOUR_API_KEY"}\n\nres = requests.post("${host}${endpoint.path}", json=payload, headers=headers)\nprint(res.json())`;
-  };
+  const getCurlCode = () => `curl -X GET "${host}${endpoint.path}" -H "Accept: application/json"`;
+  const getJsCode = () => `const response = await fetch("${host}${endpoint.path}", { credentials: "omit" });\nconsole.log(response.status, await response.json());`;
+  const getPythonCode = () => `import requests\nres = requests.get("${host}${endpoint.path}")\nprint(res.status_code, res.json())`;
 
   const getActiveCode = () => {
     if (tab === "curl") return getCurlCode();
@@ -192,20 +61,13 @@ export function ApiDocsView() {
   const handleRunLive = async () => {
     setLiveLoading(true);
     setLiveResult(null);
+    setLiveStatus(null);
     try {
-      if (endpoint.method === "GET") {
-        const res = await fetch(endpoint.path);
-        const data = await res.json();
-        setLiveResult(JSON.stringify(data, null, 2));
-      } else {
-        const res = await fetch(endpoint.path, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(endpoint.bodyExample),
-        });
-        const data = await res.json();
-        setLiveResult(JSON.stringify(data, null, 2));
-      }
+      const res = await fetch(endpoint.path, { credentials: "omit" });
+      setLiveStatus(`${res.status} ${res.statusText}`.trim());
+      const text = await res.text();
+      try { setLiveResult(JSON.stringify(JSON.parse(text), null, 2)); }
+      catch { setLiveResult(text || "Respons tanpa body"); }
     } catch (err) {
       setLiveResult(
         JSON.stringify(
@@ -220,11 +82,12 @@ export function ApiDocsView() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="api-documentation space-y-6">
       <SectionTitle
-        eyebrow="Standar Terbuka & Interoperabilitas"
+        level={1}
+        eyebrow="API Publik Baca-Saja"
         title="Dokumentasi REST API Sampah Terhubung"
-        description="Akses terstandar data jadwal ritasi, feed pelaporan warga, dan webhook sinkronisasi armada untuk dinas daerah atau sistem smart city (Kompatibel OpenGov standard)."
+        description="Tiga endpoint GET JSON dan OPTIONS. Belum ada sinkronisasi tulis, webhook, atau integrasi pemerintah terverifikasi."
       />
 
       {/* Highlights Bar */}
@@ -233,21 +96,21 @@ export function ApiDocsView() {
           <Globe className="text-teal-600 shrink-0" size={20} />
           <div>
             <div className="font-semibold text-slate-800">CORS Diaktifkan</div>
-            <div className="text-xs text-slate-500">Dapat diakses dari browser mana pun</div>
+            <div className="text-xs text-slate-500">GET / OPTIONS tanpa kredensial lintas origin</div>
           </div>
         </Card>
         <Card className="flex items-center gap-3 p-3 text-sm">
           <Shield className="text-teal-600 shrink-0" size={20} />
           <div>
-            <div className="font-semibold text-slate-800">Zona Waktu WIB (+07:00)</div>
-            <div className="text-xs text-slate-500">Serialisasi ISO 8601 terstandar</div>
+            <div className="font-semibold text-slate-800">Waktu ISO 8601</div>
+            <div className="text-xs text-slate-500">Timestamp UTC (Z); jam jadwal lokal WIB</div>
           </div>
         </Card>
         <Card className="flex items-center gap-3 p-3 text-sm">
           <Terminal className="text-teal-600 shrink-0" size={20} />
           <div>
-            <div className="font-semibold text-slate-800">Open Data Ready</div>
-            <div className="text-xs text-slate-500">Mendukung integrasi SIMPAN / DLH</div>
+            <div className="font-semibold text-slate-800">Sumber Data Transparan</div>
+            <div className="text-xs text-slate-500">mock_interop = simulasi; database = backend</div>
           </div>
         </Card>
       </div>
@@ -339,20 +202,10 @@ export function ApiDocsView() {
               </div>
             )}
 
-            {endpoint.bodyExample && (
-              <div>
-                <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Format Body (JSON)
-                </h4>
-                <pre className="p-3 bg-slate-900 text-emerald-400 rounded-lg text-xs font-mono overflow-x-auto max-h-56">
-                  {JSON.stringify(endpoint.bodyExample, null, 2)}
-                </pre>
-              </div>
-            )}
 
             <div>
               <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                Contoh Respon Berhasil (200 OK)
+                Contoh Respons Mock (200; timestamp ilustratif)
               </h4>
               <pre className="p-3 bg-slate-50 border border-slate-200 text-slate-800 rounded-lg text-xs font-mono overflow-x-auto max-h-56">
                 {JSON.stringify(endpoint.responseExample, null, 2)}
@@ -431,7 +284,7 @@ export function ApiDocsView() {
               <div className="mt-4 space-y-1.5">
                 <div className="text-[11px] font-mono text-slate-400 flex items-center justify-between">
                   <span>Hasil Respon Server:</span>
-                  <span className="text-emerald-400 font-bold">200 OK</span>
+                  <span className="text-emerald-400 font-bold">{liveStatus ?? "Tidak ada respons HTTP"}</span>
                 </div>
                 <pre className="p-3 bg-slate-950 text-cyan-300 rounded text-xs font-mono overflow-x-auto max-h-64 border border-slate-800">
                   {liveResult}
@@ -446,8 +299,11 @@ export function ApiDocsView() {
               <Globe size={14} /> Standar Interoperabilitas Terbuka (Open Data)
             </p>
             <p>
-              Format data mematuhi standar JSON RESTful dengan stempel waktu ISO 8601 Asia/Jakarta (WIB).
-              Sistem luar (Dinas Lingkungan Hidup, armada swasta, maupun RT/RW) dapat melakukan sinkronisasi data jadwal dua arah tanpa kendala format (*plug and play*).
+              Contoh di atas memakai source: mock_interop saat backend belum dikonfigurasi; bukan data operasional atau data DLH.
+              Backend aktif memakai source: database, dengan envelope dan field yang sama. Timestamp ISO 8601 dapat memakai UTC (Z); jam jadwal adalah WIB.
+              Respons error berbentuk status: error dan message: 400 untuk region tidak valid, 503 untuk kegagalan backend (tanpa fallback sukses palsu).
+              API hanya baca, tanpa integrasi instansi terverifikasi. CORS * tanpa credentials; respons tidak disimpan cache publik.
+
             </p>
           </div>
         </div>
