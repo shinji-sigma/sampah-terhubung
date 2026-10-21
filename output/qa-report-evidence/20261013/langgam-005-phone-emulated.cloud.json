@@ -1,0 +1,14 @@
+{
+  "at": "2026-10-13T11:45:16.073Z",
+  "origin": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app/",
+  "browser": "Chrome desktop viewport emulation 390x844",
+  "backend": "Real Supabase Cloud 005",
+  "physicalPhone": false,
+  "layout": {
+    "content": 375,
+    "height": 844,
+    "viewport": 390
+  },
+  "noHorizontalOverflow": true,
+  "scope": "Reporter completed card and real Cloud photos, emulated viewport only"
+}

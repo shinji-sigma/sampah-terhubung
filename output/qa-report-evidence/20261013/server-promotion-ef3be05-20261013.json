@@ -1,0 +1,89 @@
+{
+  "host": "SHINJI_SERVER",
+  "cwd": "D:\\WebDemo\\project\\lombauin",
+  "repository": "shinji-sigma/sampah-terhubung",
+  "branch": "codex/report-evidence-auth",
+  "sha": "ef3be058ccca66b55bba406ea0c1c85f3ddf48cf",
+  "projectId": "prj_wvSxAQAkl0gh6prrhg7R8Uk9xg5L",
+  "scope": "langgamramadhan9-3266",
+  "cliVersion": "63.1.2",
+  "nodeVersion": "24.19.0",
+  "action": "promote existing production candidate",
+  "command": "vercel promote dpl_Gbom1rYbbRn6ggyKUvLvSbD6H23o --scope langgamramadhan9-3266 --yes",
+  "startedAt": "2026-10-13T11:35:43.3917613Z",
+  "completedAt": "2026-10-13T11:35:47.7420206Z",
+  "verifiedAt": "2026-10-13T11:36:32.717Z",
+  "timezone": "Asia/Bangkok",
+  "cliExitCode": 0,
+  "cliResult": "Success: existing candidate promoted",
+  "before": {
+    "stableDeploymentId": "dpl_ATqNF5bbjh14TNQsiWcmZFvcvgbD",
+    "stableSha": "28dadddaaa8245466fab78aedca56ca99b3d844c",
+    "candidateReady": true,
+    "candidateShaVerified": true
+  },
+  "after": {
+    "canonicalUrl": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app",
+    "resolutionMethod": "GET /v13/deployments/<canonical-domain>?teamId=<existing-team>",
+    "deploymentId": "dpl_Gbom1rYbbRn6ggyKUvLvSbD6H23o",
+    "deploymentUrl": "https://sampah-terhubung-hmopuhfzb-langgamramadhan9-3266.vercel.app",
+    "readyState": "READY",
+    "projectId": "prj_wvSxAQAkl0gh6prrhg7R8Uk9xg5L",
+    "target": "production",
+    "githubCommitSha": "ef3be058ccca66b55bba406ea0c1c85f3ddf48cf",
+    "releaseSha": "ef3be058ccca66b55bba406ea0c1c85f3ddf48cf",
+    "projectProductionTarget": "dpl_Gbom1rYbbRn6ggyKUvLvSbD6H23o",
+    "sameBuild": true
+  },
+  "httpChecks": [
+    {
+      "endpoint": "/api/public",
+      "expectedStatus": 200,
+      "status": 200,
+      "contentType": "application/json",
+      "validJson": true,
+      "passed": true
+    },
+    {
+      "endpoint": "/api/workspace",
+      "expectedStatus": 401,
+      "status": 401,
+      "contentType": "application/json",
+      "validJson": true,
+      "passed": true
+    },
+    {
+      "endpoint": "/ui-test",
+      "expectedStatus": 404,
+      "status": 404,
+      "contentType": "text/html; charset=utf-8",
+      "validJson": false,
+      "passed": true
+    }
+  ],
+  "changes": {
+    "promoted": true,
+    "rebuild": false,
+    "migrationRepeated": false,
+    "seedOrReset": false,
+    "environmentChanged": false,
+    "protectionChanged": false,
+    "purchase": false,
+    "rollback": false
+  },
+  "integrationEvidenceFromPrimaryLaptop": {
+    "local": {
+      "groupsPassed": 14,
+      "cleanupFailures": 0,
+      "smokeGroupsPassed": 4
+    },
+    "candidate": {
+      "groupsPassed": 14,
+      "cleanupFailures": 0,
+      "smokeGroupsPassed": 4
+    },
+    "independentlyRerunOnServer": false
+  },
+  "next": "Primary laptop verifies full integration at canonical URL and Langgam browser.",
+  "allChecksPassed": true
+}

@@ -47,6 +47,17 @@ export function PhotoStrip({ photos }: { photos: Photo[] }) {
             height={95}
             unoptimized
           />
+          <small>
+            {p.source === "camera_web"
+              ? "Foto melalui kamera web"
+              : p.source === "upload"
+                ? "Foto unggahan"
+                : "Sumber bukti tidak dicatat"}
+          </small>
+          {p.captured_at && (
+            <small>Diambil perangkat: {dateTime(p.captured_at)}</small>
+          )}
+          <small>Diunggah server: {dateTime(p.created_at)}</small>
         </a>
       ))}
     </div>
@@ -83,7 +94,7 @@ export function SectionTitle({
     <div className="section-title">
       <div>
         {eyebrow && <p className="eyebrow">{eyebrow}</p>}
-        <Heading>{title}</Heading>
+        <Heading tabIndex={level === 1 ? -1 : undefined}>{title}</Heading>
         {description && <p className="muted">{description}</p>}
       </div>
       {action}

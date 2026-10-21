@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-13T11:37:10.530Z",
+  "host": "LAPTOP-6OQ8DJT5",
+  "origin": "http://localhost:3001",
+  "project": "jrozalhfgmzpxvpvzgcf",
+  "schema": "005 active",
+  "scope": "Real Cloud API and authenticated RPC negative requests; synthetic payloads, no sensors, no accepted application writes",
+  "results": [
+    {
+      "name": "missing evidence mode",
+      "http": 422,
+      "rpc": "22023",
+      "passed": true
+    },
+    {
+      "name": "unconfirmed location",
+      "http": 422,
+      "rpc": "22023",
+      "passed": true
+    },
+    {
+      "name": "supporting without reason",
+      "http": 422,
+      "rpc": "22023",
+      "passed": true
+    },
+    {
+      "name": "direct without GPS",
+      "http": 422,
+      "rpc": "22023",
+      "passed": true
+    },
+    {
+      "name": "incomplete device snapshot",
+      "http": 422,
+      "rpc": "22023",
+      "passed": true
+    },
+    {
+      "name": "direct without owned camera photo",
+      "http": 422,
+      "rpc": "22023",
+      "passed": true
+    },
+    {
+      "name": "private legacy gateway",
+      "rpc": "42501",
+      "passed": true
+    },
+    {
+      "name": "no report created",
+      "passed": true
+    }
+  ],
+  "failed": null
+}

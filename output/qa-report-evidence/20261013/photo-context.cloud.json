@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-13T02:34:59.282Z",
+  "host": "LAPTOP-6OQ8DJT5",
+  "project": "jrozalhfgmzpxvpvzgcf",
+  "mutations": 0,
+  "scope": "Real read-only Supabase queries and new helper; not full new workspace HTTP route (005 absent)",
+  "checks": [
+    "Real reporter RLS grants worker photos while withholding private task rows",
+    "New association maps only RLS-visible photos to current-region visible incidents; no private task fields"
+  ]
+}

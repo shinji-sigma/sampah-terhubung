@@ -1,0 +1,73 @@
+{
+  "at": "2026-10-13T11:41:44.485Z",
+  "host": "LAPTOP-6OQ8DJT5",
+  "origin": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app",
+  "project": "jrozalhfgmzpxvpvzgcf",
+  "schema": "005 active",
+  "scope": "Real Supabase/Auth/Storage/API, synthetic photos and manual pin; not physical sensors",
+  "artifacts": {
+    "report_id": "0b2c2cca-0f22-40f0-b347-c5b7b8f4eeb4",
+    "report_photo_id": "51b29a2e-6229-4339-b7e9-3cb04a0528ab",
+    "pin": {
+      "lat": -7.30192323810557,
+      "lng": 112.698473687603,
+      "kind": "manual illustrative pin, not physical GPS"
+    },
+    "incident_id": "dc84624f-d07e-4f96-98e8-48aa0353953b",
+    "task_id": "57cae8c8-7fb5-451e-883b-7e75e5a192ca",
+    "worker_photo_id": "0c7571fe-ad18-4dac-9a11-703087df4d67",
+    "retry_photo_id": "0720ec0f-39d8-4101-b7d8-d6a25b2cf28f",
+    "retry_report_id": "36975c28-18ce-49b3-9bc0-701e9dab0d23",
+    "workflow": "closed; refresh Langgam browser to verify reporter result"
+  },
+  "results": [
+    {
+      "name": "Real Cloud Auth and independent HTTPS API sessions",
+      "passed": true
+    },
+    {
+      "name": "Expired/logged-out test session is 401; foreign Origin is 403",
+      "passed": true
+    },
+    {
+      "name": "Langgam browser report, photo ownership and illustrative pin persisted",
+      "passed": true
+    },
+    {
+      "name": "Pending report RLS and photo API deny other reporter/region/unassigned workers",
+      "passed": true
+    },
+    {
+      "name": "Reporter, worker and other-region coordinator cannot validate through API",
+      "passed": true
+    },
+    {
+      "name": "Coordinator verifies the Langgam report",
+      "passed": true
+    },
+    {
+      "name": "Wrong-region assignment is denied; correct assignment is replay-safe",
+      "passed": true
+    },
+    {
+      "name": "Only assigned worker accepts; concurrent stale acceptance is 409",
+      "passed": true
+    },
+    {
+      "name": "Real worker photo evidence requires destination and remains awaiting review",
+      "passed": true
+    },
+    {
+      "name": "Closure denied to reporter/worker/other region; coordinator closes after review",
+      "passed": true
+    },
+    {
+      "name": "Report create concurrent retry after simulated lost acknowledgement creates one row",
+      "passed": true
+    },
+    {
+      "name": "Inactive region and forged photo ownership rejected through API and direct RPC",
+      "passed": true
+    }
+  ]
+}

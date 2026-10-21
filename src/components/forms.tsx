@@ -3,6 +3,7 @@ import { useId, useRef, useState } from "react";
 import type { Operation } from "@/lib/validation";
 import { uploadPhotoFiles } from "@/lib/photo-client";
 export interface Field {
+  autoComplete?: string;
   name: string;
   label: string;
   type?:
@@ -28,6 +29,7 @@ export class ApiError extends Error {
   constructor(
     message: string,
     public fields: Record<string, string> = {},
+    public status = 0,
   ) {
     super(message);
   }
@@ -60,7 +62,11 @@ export async function api(url: string, body?: unknown) {
     );
   }
   if (!response.ok)
-    throw new ApiError(result.error || "Permintaan gagal.", result.fields);
+    throw new ApiError(
+      result.error || "Permintaan gagal.",
+      result.fields,
+      response.status,
+    );
   return result;
 }
 export const localDateTime = (date = new Date()) => {
@@ -93,15 +99,25 @@ export function ActionForm({
   onDone,
   auth = false,
   tone = "primary",
+  photoSelection,
+  onAuthRequired,
+  onBusyChange,
 }: {
   op: Operation | string;
   fixed?: Payload;
   fields?: Field[];
   label?: string;
   photos?: boolean;
-  onDone: () => void;
+  onDone: (result?: { signed_in?: boolean }) => void;
   auth?: boolean;
   tone?: string;
+  photoSelection?: {
+    file: File;
+    source: "camera_web" | "upload";
+    captured_at?: string;
+  }[];
+  onAuthRequired?: () => void;
+  onBusyChange?: (busy: boolean) => void;
 }) {
   const prefix = useId();
   const [busy, setBusy] = useState(false),
@@ -110,7 +126,7 @@ export function ActionForm({
     [success, setSuccess] = useState(false);
   const key = useRef<string | null>(null),
     lastPayload = useRef(""),
-    photoIds = useRef<string[]>([]);
+    uploadedPhotos = useRef(new Map<File, string>());
   const inFlight = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
   async function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -118,12 +134,14 @@ export function ActionForm({
     if (inFlight.current) return;
     inFlight.current = true;
     setBusy(true);
+    onBusyChange?.(true);
     setMessage("");
     setErrors({});
     setSuccess(false);
     const form = event.currentTarget,
       data = new FormData(form);
     const p: Payload = { ...fixed };
+    let completed;
     try {
       for (const field of fields) {
         const raw = data.get(field.name);
@@ -146,9 +164,22 @@ export function ActionForm({
       if (typeof p.weekdays === "string")
         p.weekdays = p.weekdays.split(",").map((day) => Number(day.trim()));
       if (photos) {
-        const files = data
-          .getAll("photos")
-          .filter((f): f is File => f instanceof File && f.size > 0);
+        if (op === "report.create" && fixed.evidence_mode === "direct") {
+          if (fixed.device_lat == null)
+            throw new ApiError(
+              "Lampirkan lokasi perangkat atau pilih bukti pendukung.",
+            );
+          if (!photoSelection?.some((photo) => photo.source === "camera_web"))
+            throw new ApiError(
+              "Ambil setidaknya satu foto melalui kamera web atau pilih bukti pendukung.",
+            );
+        }
+        const files =
+          photoSelection?.map((p) => p.file) ||
+          Array.from(
+            form.querySelector<HTMLInputElement>('input[name="photos"]')
+              ?.files || [],
+          );
         if (files.length < 1 || files.length > 3)
           throw new ApiError("Tambahkan 1–3 foto.", {
             photos: "Gunakan 1–3 foto JPG, PNG, atau WebP.",
@@ -163,13 +194,19 @@ export function ActionForm({
           throw new ApiError("Periksa berkas foto.", {
             photos: "Maksimal 5 MB per foto; gunakan JPG, PNG, atau WebP.",
           });
-        await uploadPhotoFiles(files, photoIds.current, (body) =>
-          api("/api/photos", body),
+        p.photos = await uploadPhotoFiles(
+          files,
+          uploadedPhotos.current,
+          (body) => api("/api/photos", body),
+          photoSelection?.map(({ source, captured_at }) => ({
+            source,
+            captured_at,
+          })),
         );
-        p.photos = photoIds.current;
       }
       if (auth) {
         const result = await api("/api/auth", { ...p, action: op });
+        completed = result;
         setMessage(result.message);
       } else {
         p.op = op;
@@ -185,19 +222,25 @@ export function ActionForm({
         setMessage(result.message);
       }
       setSuccess(true);
-      photoIds.current = [];
+      uploadedPhotos.current.clear();
       key.current = null;
       lastPayload.current = "";
       form.reset();
-      onDone();
+      onDone(completed);
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "Permintaan gagal. Coba lagi.",
       );
       if (error instanceof ApiError) setErrors(error.fields);
+      if (error instanceof ApiError && error.status === 401) onAuthRequired?.();
+      else
+        requestAnimationFrame(() =>
+          form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
+        );
     } finally {
       inFlight.current = false;
       setBusy(false);
+      onBusyChange?.(false);
     }
   }
   return (
@@ -223,6 +266,7 @@ export function ActionForm({
               id={prefix + "-" + field.name}
               name={field.name}
               rows={3}
+              disabled={busy}
               required={field.required}
               defaultValue={field.initial}
               aria-invalid={!!errors[field.name]}
@@ -234,6 +278,7 @@ export function ActionForm({
               id={prefix + "-" + field.name}
               name={field.name}
               required={field.required}
+              disabled={busy}
               defaultValue={field.initial || ""}
               aria-invalid={!!errors[field.name]}
               aria-describedby={prefix + "-" + field.name + "-help"}
@@ -252,6 +297,7 @@ export function ActionForm({
               id={prefix + "-" + field.name}
               name={field.name}
               type={field.type || "text"}
+              disabled={busy}
               step={
                 field.type === "number"
                   ? ["lat", "lng"].includes(field.name)
@@ -272,11 +318,14 @@ export function ActionForm({
               aria-invalid={!!errors[field.name]}
               aria-describedby={prefix + "-" + field.name + "-help"}
               autoComplete={
-                field.type === "password"
-                  ? "current-password"
+                field.autoComplete ||
+                (field.type === "password"
+                  ? auth && op === "signup"
+                    ? "new-password"
+                    : "current-password"
                   : field.type === "email"
                     ? "email"
-                    : undefined
+                    : undefined)
               }
             />
           )}
@@ -288,7 +337,7 @@ export function ActionForm({
           </div>
         </div>
       ))}
-      {photos && (
+      {photos && !photoSelection && (
         <div className="field">
           <label htmlFor={prefix + "-photos"}>Foto bukti (1–3) *</label>
           <input
@@ -300,7 +349,7 @@ export function ActionForm({
             required
             disabled={busy}
             onChange={() => {
-              photoIds.current = [];
+              uploadedPhotos.current.clear();
             }}
             aria-invalid={!!errors.photos}
             aria-describedby={prefix + "-photos-help"}
@@ -308,8 +357,8 @@ export function ActionForm({
           <div id={prefix + "-photos-help"}>
             <small>
               Maksimal 5 MB per foto. Foto besar diperkecil sebelum dikirim satu
-              per satu. Hindari wajah, pelat kendaraan, dan bagian
-              rumah yang tidak diperlukan.
+              per satu. Hindari wajah, pelat kendaraan, dan bagian rumah yang
+              tidak diperlukan.
             </small>
             {errors.photos && <p className="field-error">{errors.photos}</p>}
           </div>
@@ -323,6 +372,17 @@ export function ActionForm({
           {message}
         </p>
       )}
+      {Object.entries(errors)
+        .filter(
+          ([name]) =>
+            !fields.some((field) => field.name === name) &&
+            (name !== "photos" || !!photoSelection),
+        )
+        .map(([name, error]) => (
+          <p key={name} className="field-error" role="alert">
+            {error}
+          </p>
+        ))}
       <button type="submit" className={"button " + tone} disabled={busy}>
         {busy ? "Menyimpan…" : label}
       </button>

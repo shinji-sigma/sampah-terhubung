@@ -22,7 +22,8 @@ import {
 import type { PublicData, Workspace, Region } from "@/lib/types";
 import { dateTime, dateLabel } from "@/lib/types";
 import { jakartaDate } from "@/lib/rules";
-import { ActionForm, api, localDateTime } from "./forms";
+import { ActionForm, api } from "./forms";
+import { ReportEvidence } from "./report-evidence";
 import { Empty, SectionTitle, Status } from "./primitives";
 import { BrandLogo } from "./brand";
 import { HomeView } from "./home";
@@ -57,6 +58,7 @@ export type View =
   | "notifications"
   | "admin"
   | "login"
+  | "signup"
   | "region"
   | "prevention"
   | "api-docs"
@@ -106,6 +108,16 @@ export const viewToPath: Partial<Record<View, string>> = {
   region: "/wilayah",
 };
 
+function focusView() {
+  requestAnimationFrame(() => {
+    const heading = Array.from(
+      document.querySelectorAll<HTMLHeadingElement>("#main h1"),
+    ).find((element) => element.getClientRects().length);
+    (heading || document.getElementById("main"))?.focus({
+      preventScroll: true,
+    });
+  });
+}
 export default function Dashboard({
   configured,
   demo,
@@ -141,6 +153,12 @@ export default function Dashboard({
     ),
     [until, setUntil] = useState(() => jakartaDate(new Date(initialNow)));
   const [now, setNow] = useState(() => new Date(initialNow));
+  const [confirmationNotice, setConfirmationNotice] = useState("");
+  const [reportDraft, setReportDraft] = useState<{
+    region: Region;
+    actor: string;
+  } | null>(null);
+  const returnToReport = useRef(false);
   const sequence = useRef(0);
   const hadWorkspace = useRef(false);
   const menuButton = useRef<HTMLButtonElement>(null);
@@ -247,7 +265,11 @@ export default function Dashboard({
             }
             if (!stale()) {
               setW(workspace);
+              setReportDraft((draft) =>
+                draft && draft.actor !== workspace.profile.id ? null : draft,
+              );
               hadWorkspace.current = true;
+              return workspace as Workspace;
             }
           }
         } catch (error) {
@@ -275,14 +297,38 @@ export default function Dashboard({
     const handlePopState = () => {
       const currentPath = window.location.pathname;
       const matched = pathToView[currentPath];
-      if (matched) {
-        setView(matched);
-      }
+      if (matched) setView(matched);
     };
     window.addEventListener("popstate", handlePopState);
     return () => window.removeEventListener("popstate", handlePopState);
-  }, [initialView]);
-
+  }, []);
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search);
+    if (query.has("confirmation_failed"))
+      queueMicrotask(() =>
+        setConfirmationNotice(
+          "Konfirmasi belum berhasil atau tautan sudah kedaluwarsa. Masuk dengan akun yang sudah dikonfirmasi, atau hubungi pengelola demo untuk tautan konfirmasi baru.",
+        ),
+      );
+    else if (query.has("confirmed"))
+      queueMicrotask(() =>
+        setConfirmationNotice(
+          "Konfirmasi telah diproses. Gunakan Masuk bila sesi akun belum aktif.",
+        ),
+      );
+  }, []);
+  useEffect(() => {
+    if (view !== "report" || !w || !region?.active) return;
+    const reportRegion = region;
+    const actor = w.profile.id;
+    queueMicrotask(() =>
+      setReportDraft((previous) =>
+        previous?.actor === actor && previous.region.id === reportRegion.id
+          ? previous
+          : { region: reportRegion, actor },
+      ),
+    );
+  }, [view, w, region]);
   const refresh = () => {
     if (configured && !preview) {
       setBusy(true);
@@ -290,6 +336,16 @@ export default function Dashboard({
     }
   };
   const go = (next: View) => {
+    if (next === "report") {
+      if (!region?.active) return;
+      if (!w) {
+        returnToReport.current = true;
+        next = "login";
+      } else
+        setReportDraft(
+          (previous) => previous || { region, actor: w.profile.id },
+        );
+    }
     setView(next);
     setMenu(false);
     const path = viewToPath[next];
@@ -302,11 +358,19 @@ export default function Dashboard({
         ? "instant"
         : "smooth",
     });
-    requestAnimationFrame(() =>
-      document.getElementById("main")?.focus({ preventScroll: true }),
-    );
+    focusView();
   };
   const choose = (id: string) => {
+    if (id !== selected && reportDraft) {
+      if (
+        !window.confirm(
+          "Mengganti wilayah akan membuang draf laporan beserta foto pada halaman ini. Lanjutkan?",
+        )
+      )
+        return;
+      setReportDraft(null);
+      returnToReport.current = false;
+    }
     if (preview || id === selected) {
       setSelected(id);
       setGps(null);
@@ -382,7 +446,10 @@ export default function Dashboard({
       { timeout: 10000, enableHighAccuracy: false },
     );
   }
-  const login = () => go("login");
+  const login = () => {
+    if (reportDraft || view === "report") returnToReport.current = true;
+    go("login");
+  };
   const filteredIncidents =
     w?.incidents.filter(
       (i) =>
@@ -500,6 +567,9 @@ export default function Dashboard({
                 onClick={async () => {
                   try {
                     await api("/api/auth", { action: "logout" });
+                    setReportDraft(null);
+                    returnToReport.current = false;
+                    setCoords(null);
                     sequence.current++;
                     setW(null);
                     hadWorkspace.current = false;
@@ -577,6 +647,11 @@ export default function Dashboard({
               <a href="/preview">Lihat pratinjau antarmuka →</a>
             </div>
           )}
+          {confirmationNotice && (
+            <p className="notice info" role="status">
+              {confirmationNotice}
+            </p>
+          )}
           {busy && (
             <p role="status" className="loading-bar">
               Memuat informasi wilayah…
@@ -618,7 +693,7 @@ export default function Dashboard({
               loading={busy && !data.regions.length}
               onRegion={() => go("region")}
               onSchedule={() => go("schedule")}
-              onReport={() => go(w ? "report" : "login")}
+              onReport={() => go("report")}
               onEvents={() => go("events")}
               onApiDocs={() => go("api-docs")}
               onGuide={() => go("guide")}
@@ -744,174 +819,192 @@ export default function Dashboard({
               )}
             </>
           )}
-          {view === "login" && (
+
+          {(view === "login" || view === "signup") && (
             <>
               <SectionTitle
                 level={1}
-                title="Masuk ke lingkungan Anda"
+                title={
+                  view === "login"
+                    ? "Masuk ke lingkungan Anda"
+                    : "Buat akun pelapor"
+                }
                 description="Akun pelapor untuk laporan dan kegiatan. Pengelola ditunjuk administrator setelah pemeriksaan."
               />
               {configured ? (
-                <div className="auth-grid">
-                  <section className="panel">
-                    <h3>Masuk</h3>
-                    <ActionForm
-                      op="login"
-                      auth
-                      fields={[
-                        {
-                          name: "email",
-                          label: "Email",
-                          type: "email",
-                          required: true,
-                        },
-                        {
-                          name: "password",
-                          label: "Password",
-                          type: "password",
-                          required: true,
-                          hint: "Minimal 12 karakter untuk akun demo.",
-                        },
-                      ]}
-                      label="Masuk"
-                      onDone={() => {
-                        refresh();
-                        go("home");
-                      }}
-                    />
-                  </section>
-                  <section className="panel">
-                    <h3>Buat akun pelapor</h3>
-                    <ActionForm
-                      op="signup"
-                      auth
-                      fields={[
-                        {
-                          name: "display_name",
-                          label: "Nama tampilan",
-                          required: true,
-                        },
-                        {
-                          name: "email",
-                          label: "Email",
-                          type: "email",
-                          required: true,
-                        },
-                        {
-                          name: "password",
-                          label: "Password",
-                          type: "password",
-                          required: true,
-                          hint: "Minimal 12 karakter. Periksa email untuk konfirmasi.",
-                        },
-                      ]}
-                      label="Daftar sebagai pelapor"
-                      onDone={refresh}
-                    />
-                    <small>
-                      Foto dan kontak tidak tampil di halaman publik. Tidak
-                      perlu NIK.
-                    </small>
-                  </section>
-                </div>
+                <section className="panel auth-panel">
+                  <ActionForm
+                    key={view}
+                    op={view === "login" ? "login" : "signup"}
+                    auth
+                    fields={[
+                      ...(view === "signup"
+                        ? [
+                            {
+                              name: "display_name",
+                              label: "Nama tampilan",
+                              required: true,
+                              autoComplete: "nickname",
+                            },
+                          ]
+                        : []),
+                      {
+                        name: "email",
+                        label: "Email",
+                        type: "email",
+                        required: true,
+                        autoComplete: "username",
+                      },
+                      {
+                        name: "password",
+                        label: "Password",
+                        type: "password",
+                        required: true,
+                        autoComplete:
+                          view === "signup"
+                            ? "new-password"
+                            : "current-password",
+                        ...(view === "signup"
+                          ? {
+                              hint: "Minimal 12 karakter. Bila perlu konfirmasi, periksa email dan folder spam.",
+                            }
+                          : {}),
+                      },
+                    ]}
+                    label={
+                      view === "login" ? "Masuk" : "Daftar sebagai pelapor"
+                    }
+                    onDone={async (result) => {
+                      if (view === "signup" && !result?.signed_in) return;
+                      const workspace = await load(region?.id || "");
+                      if (!workspace) return;
+                      if (returnToReport.current && region?.active) {
+                        setReportDraft((previous) =>
+                          previous && previous.actor === workspace.profile.id
+                            ? previous
+                            : { region, actor: workspace.profile.id },
+                        );
+                        returnToReport.current = false;
+                        setView("report");
+                        if (window.location.pathname !== "/laporan/baru")
+                          window.history.pushState(null, "", "/laporan/baru");
+                        focusView();
+                      } else go("home");
+                    }}
+                  />
+                  <p>
+                    {view === "login"
+                      ? "Belum punya akun? "
+                      : "Sudah punya akun? "}
+                    <button
+                      className="text-button"
+                      onClick={() => go(view === "login" ? "signup" : "login")}
+                    >
+                      {view === "login" ? "Daftar" : "Masuk"}
+                    </button>
+                  </p>
+                  <small>
+                    Foto dan kontak tidak tampil di halaman publik. Tidak perlu
+                    NIK.
+                  </small>
+                </section>
               ) : (
                 <Empty>Akun tersedia setelah backend dikonfigurasi.</Empty>
               )}
             </>
           )}
-          {view === "report" &&
-            (w && region?.active ? (
-              <>
-                <SectionTitle
-                  level={1}
-                  eyebrow="LAPORAN BARU"
-                  title="Sampaikan yang Anda temukan"
-                  description="Laporan akan diperiksa koordinator wilayah sebelum dibagikan atau ditugaskan."
-                />
-                <div className="report-grid">
-                  <section className="panel">
-                    <p className="notice info">
-                      <MapPin size={18} /> Wilayah laporan: {region.name}
-                    </p>
-                    <ActionForm
-                      op="report.create"
-                      fixed={{ region_id: region.id, ...(coords || {}) }}
-                      fields={[
-                        {
-                          name: "category",
-                          label: "Kategori",
-                          type: "select",
-                          required: true,
-                          options: [
-                            "Penumpukan",
-                            "Tempat sampah penuh",
-                            "Sampah berserakan",
-                          ].map((s) => ({ value: s, label: s })),
-                        },
-                        {
-                          name: "observed_at",
-                          label: "Waktu pengamatan",
-                          type: "datetime-local",
-                          required: true,
-                          initial: localDateTime(now),
-                        },
-                        {
-                          name: "landmark",
-                          label: "Lokasi atau patokan",
-                          required: true,
-                          hint: "Contoh: dekat pagar sisi timur, tanpa kontak pribadi.",
-                        },
-                        {
-                          name: "description",
-                          label: "Apa yang Anda lihat?",
-                          type: "textarea",
-                          required: true,
-                          hint: "Minimal 10 karakter. Jelaskan kondisi dan akses lokasi.",
-                        },
-                      ]}
-                      photos
-                      label="Kirim laporan"
+          {reportDraft && (
+            <section
+              hidden={
+                view !== "report" || !w || w.profile.id !== reportDraft.actor
+              }
+            >
+              <SectionTitle
+                level={1}
+                eyebrow="LAPORAN BARU"
+                title="Sampaikan yang Anda temukan"
+                description="Laporan akan diperiksa koordinator wilayah sebelum dibagikan atau ditugaskan."
+              />
+              <div className="report-grid">
+                <section className="panel">
+                  <p className="notice info">
+                    <MapPin size={18} /> Wilayah laporan:{" "}
+                    {reportDraft.region.name}
+                  </p>
+                  {data.regions.find((r) => r.id === reportDraft.region.id)
+                    ?.active ? (
+                    <ReportEvidence
+                      key={reportDraft.actor + reportDraft.region.id}
+                      regionId={reportDraft.region.id}
+                      coords={coords}
+                      onLocation={pick}
+                      active={
+                        view === "report" &&
+                        !!w &&
+                        w.profile.id === reportDraft.actor
+                      }
+                      onAuthRequired={() => {
+                        setW(null);
+                        returnToReport.current = true;
+                        go("login");
+                      }}
                       onDone={() => {
+                        setReportDraft(null);
+                        setCoords(null);
                         refresh();
                         go("mine");
                       }}
                     />
-                  </section>
-                  <aside className="panel">
-                    <h3>Lokasi laporan</h3>
-                    <Map region={region} onPick={pick} />
-                    {coords && (
-                      <p className="notice good">
-                        Koordinat dipilih: {coords.lat.toFixed(5)},{" "}
-                        {coords.lng.toFixed(5)}{" "}
-                        <button
-                          className="text-button"
-                          onClick={() => setCoords(null)}
-                        >
-                          Hapus koordinat
-                        </button>
-                      </p>
-                    )}
-                    <p>
-                      Patokan manual tetap dapat digunakan tanpa GPS atau peta.
+                  ) : (
+                    <Empty>
+                      Wilayah ini belum terlayani. Laporan tidak dapat dikirim.
+                    </Empty>
+                  )}
+                </section>
+                <aside className="panel">
+                  <h3>Lokasi kejadian</h3>
+                  <Map region={reportDraft.region} onPick={pick} />
+                  {coords && (
+                    <p className="notice good">
+                      Pin kejadian: {coords.lat.toFixed(5)},{" "}
+                      {coords.lng.toFixed(5)}{" "}
+                      <button
+                        className="text-button"
+                        onClick={() => setCoords(null)}
+                      >
+                        Hapus pin
+                      </button>
                     </p>
-                    <p className="small-muted">
-                      Gunakan untuk sampah lingkungan biasa. Lokasi dan kategori
-                      akan ditinjau pengelola.
-                    </p>
-                  </aside>
-                </div>
-              </>
-            ) : (
-              <>
-                <SectionTitle level={1} title="Buat laporan" />
-                <Empty>
-                  {w
-                    ? "Wilayah ini belum terlayani."
-                    : "Masuk dahulu untuk mengirim laporan."}
-                </Empty>
-              </>
-            ))}
+                  )}
+                  <p>
+                    Geser pin untuk lokasi kejadian atau isi patokan manual. Pin
+                    tidak mengubah snapshot lokasi perangkat.
+                  </p>
+                </aside>
+              </div>
+            </section>
+          )}
+          {view === "report" && (!reportDraft || !w) && (
+            <>
+              <SectionTitle level={1} title="Buat laporan" />
+              <Empty>
+                {w
+                  ? "Wilayah ini belum terlayani."
+                  : "Masuk dahulu untuk mengirim laporan."}
+              </Empty>
+              {!w && (
+                <button
+                  className="button primary"
+                  onClick={() => {
+                    returnToReport.current = true;
+                    go("login");
+                  }}
+                >
+                  Masuk kembali
+                </button>
+              )}
+            </>
+          )}
           {view === "mine" &&
             (w ? (
               <>

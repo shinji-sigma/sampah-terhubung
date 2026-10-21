@@ -5,6 +5,12 @@ export async function GET(req: Request) {
   const url = new URL(req.url);
   const hash = url.searchParams.get("token_hash");
   const type = url.searchParams.get("type");
+  const code = url.searchParams.get("code");
+  if (code && !hash) {
+    const db = await userClient();
+    const { error } = await db.auth.exchangeCodeForSession(code);
+    if (!error) return NextResponse.redirect(new URL("/?confirmed=1", req.url));
+  }
   if (hash && ["signup", "email"].includes(type || "")) {
     const db = await userClient();
     const { error } = await db.auth.verifyOtp({

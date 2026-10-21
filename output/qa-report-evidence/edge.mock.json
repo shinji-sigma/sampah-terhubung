@@ -1,0 +1,14 @@
+{
+  "scope": "MOCK backend/camera/GPS only",
+  "browser": "Edge",
+  "passed": [
+    "GPS sintetis berakurasi rendah diterima tanpa radius pemblokiran",
+    "Preview/capture/retake/use menghentikan semua track",
+    "Retry memakai ID foto dan request key yang sama",
+    "Menghapus pin kejadian tidak mengganti snapshot perangkat",
+    "401 → login akun sama memulihkan teks/foto dan ID upload tanpa duplikasi",
+    "Permission kamera ditolak dan GPS timeout memiliki pesan spesifik",
+    "Jalur pendukung memakai backend/form yang sama dan menyertakan alasan",
+    "Menambah/menghapus foto pada draf gagal mempertahankan ID upload dan retry tidak mengunggah ulang"
+  ]
+}

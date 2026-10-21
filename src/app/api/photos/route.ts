@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { photoMetadata } from "@/lib/photo-input";
 import { NextResponse } from "next/server";
 import { userClient, storageAdmin } from "@/lib/supabase";
 import { validateImage } from "@/lib/uploads";
@@ -29,11 +30,12 @@ export async function POST(req: Request) {
         validateImage(Buffer.from(await file.arrayBuffer()), file.type),
       ),
     );
+    const metadata = photoMetadata(form.get("metadata"), files.length);
     const admin = storageAdmin();
     const ids: string[] = [];
     const paths: string[] = [];
     try {
-      for (const bytes of images) {
+      for (const [index, bytes] of images.entries()) {
         const id = randomUUID();
         const path = user.id + "/" + id + ".jpg";
         const { error } = await admin.storage
@@ -47,6 +49,8 @@ export async function POST(req: Request) {
           path,
           size: bytes.length,
           mime: "image/jpeg",
+          source: metadata[index].source,
+          captured_at: metadata[index].captured_at || null,
         });
         if (insertError) throw insertError;
         ids.push(id);

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { userClient } from "@/lib/supabase";
+import { userClient, storageAdmin } from "@/lib/supabase";
+import { withPhotoContext } from "@/lib/photo-context";
+import type { Photo } from "@/lib/types";
 import { failure, HttpError, privateHeaders } from "@/lib/http";
 export async function GET(req: Request) {
   try {
@@ -34,7 +36,9 @@ export async function GET(req: Request) {
         let query = db
           .from(table)
           .select(
-            table === "photos" ? "id,owner_id,report_id,task_id,event_id" : "*",
+            table === "photos"
+              ? "id,owner_id,report_id,task_id,event_id,source,captured_at,created_at"
+              : "*",
             { count: "exact" },
           );
         if (
@@ -65,6 +69,27 @@ export async function GET(req: Request) {
       }),
     );
     const result = Object.fromEntries(data);
+    const photoTasks = [
+      ...new Set(
+        (result.photos as Photo[]).flatMap((p) =>
+          p.task_id ? [p.task_id] : [],
+        ),
+      ),
+    ];
+    if (photoTasks.length) {
+      // RLS permits evidence but keeps task details private from reporters.
+      const { data: tasks, error } = await storageAdmin()
+        .from("tasks")
+        .select("id,incident_id")
+        .in("id", photoTasks)
+        .limit(1000);
+      if (error) throw error;
+      result.photos = withPhotoContext(
+        result.photos,
+        result.incidents,
+        tasks || [],
+      );
+    }
     result.profile = result.profiles.find(
       (p: { id: string }) => p.id === user.id,
     );

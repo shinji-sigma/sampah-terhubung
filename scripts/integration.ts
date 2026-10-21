@@ -57,7 +57,7 @@ async function login(email: string) {
   });
   if (error || !data.user)
     throw new Error(
-      "Auth demo gagal. Jalankan demo:seed dan periksa DEMO_PASSWORD.",
+      "Auth demo gagal. Periksa akun simulasi yang sudah tersedia dan DEMO_PASSWORD; jangan seed ulang proyek ini.",
     );
   return { db: client, id: data.user.id };
 }
@@ -100,12 +100,26 @@ const jpeg = await sharp({
 })
   .jpeg()
   .toBuffer();
-async function photo(request: Awaited<ReturnType<typeof httpSession>>) {
+async function photo(
+  request: Awaited<ReturnType<typeof httpSession>>,
+  source: "upload" | "camera_web" = "upload",
+) {
   const body = new FormData();
   body.append(
     "photos",
     new Blob([new Uint8Array(jpeg)], { type: "image/jpeg" }),
     "bukti-simulasi.jpg",
+  );
+  body.append(
+    "metadata",
+    JSON.stringify([
+      {
+        source,
+        ...(source === "camera_web"
+          ? { captured_at: new Date().toISOString() }
+          : {}),
+      },
+    ]),
   );
   const response = await request("/api/photos", body);
   assert.equal(response.status, 200);
@@ -123,6 +137,17 @@ async function command(
   if (error) throw new Error("RPC uji gagal (" + error.code + ").");
   return data as { id: string };
 }
+const { error: migrationError } = await admin
+  .from("reports")
+  .select(
+    "evidence_mode,device_lat,device_lng,device_accuracy_m,device_measured_at,location_confirmed",
+  )
+  .limit(0);
+if (migrationError)
+  throw new Error(
+    "Migrasi 005 belum tersedia atau akses skema gagal. Integrasi dihentikan sebelum login/unggahan/mutasi; jangan seed ulang. Kode: " +
+      migrationError.code,
+  );
 const [reporter, reporter2, coordinator, worker, coordinatorB] =
   await Promise.all([
     login(accounts.reporter),
@@ -178,6 +203,10 @@ try {
     async () => {
       const p = {
         op: "report.create",
+        evidence_mode: "supporting",
+        supporting_reason:
+          "Foto sintetis untuk uji integrasi, bukan foto lapangan",
+        location_confirmed: true,
         region_id: regionIds.a,
         category: "Penumpukan",
         landmark: stamp,
@@ -252,6 +281,10 @@ try {
       pointIds.push(pointId);
       const second = await command(reporter.db, {
         op: "report.create",
+        evidence_mode: "supporting",
+        supporting_reason:
+          "Foto sintetis untuk uji integrasi, bukan foto lapangan",
+        location_confirmed: true,
         region_id: regionIds.a,
         category: "Penumpukan",
         landmark: stamp,
@@ -410,6 +443,10 @@ try {
       ).toISOString();
       const later = await command(reporter.db, {
         op: "report.create",
+        evidence_mode: "supporting",
+        supporting_reason:
+          "Foto sintetis untuk uji integrasi, bukan foto lapangan",
+        location_confirmed: true,
         region_id: regionIds.a,
         category: "Penumpukan",
         landmark: stamp,
@@ -667,14 +704,28 @@ try {
       }
       const report = await send(httpReporter, {
         op: "report.create",
+        evidence_mode: "direct",
+        device_lat: -7.3,
+        device_lng: 112.7,
+        device_accuracy_m: 2500,
+        device_measured_at: new Date().toISOString(),
+        lat: -7.31,
+        lng: 112.71,
+        location_confirmed: true,
         region_id: regionIds.a,
         category: "Penumpukan",
         landmark: stamp,
         description: "Alur HTTP nyata dengan data simulasi.",
         observed_at: new Date(Date.now() - 60000).toISOString(),
-        photos: await photo(httpReporter),
+        photos: await photo(httpReporter, "camera_web"),
       });
       reportIds.push(report.id);
+      const evidence = (await workspace(httpCoordinator)).reports.find(
+        (r: { id: string }) => r.id === report.id,
+      );
+      assert.equal(evidence.evidence_mode, "direct");
+      assert.equal(evidence.device_lat, -7.3);
+      assert.equal(evidence.lat, -7.31);
       assert.ok(
         (await workspace(httpCoordinator)).reports.some(
           (r: { id: string }) => r.id === report.id,

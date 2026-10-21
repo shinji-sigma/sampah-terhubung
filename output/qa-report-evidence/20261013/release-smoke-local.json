@@ -1,0 +1,15 @@
+{
+  "at": "2026-10-13T11:30:31.093Z",
+  "host": "LAPTOP-6OQ8DJT5",
+  "target": "http://localhost:3001",
+  "origin": "http://localhost:3001",
+  "project": "jrozalhfgmzpxvpvzgcf",
+  "scope": "Real Supabase and new HTTP API; read-only application data, synthetic legacy photos; no physical sensors",
+  "passed": [
+    "005 present; existing Langgam report keeps unknown evidence metadata",
+    "New workspace HTTP returns correctly linked permitted completion photos with zero private task records",
+    "Reporter JPEG allowed; other region 404; anonymous 401; foreign Origin 403",
+    "Public projection still excludes reporter identity and device snapshot"
+  ],
+  "failed": null
+}
