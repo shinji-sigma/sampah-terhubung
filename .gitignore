@@ -8,6 +8,4 @@ supabase/.branches/
 output/playwright/.auth/
 .playwright-cli/
 output/private/
-
-.vercel
-.env*
+.vercel/

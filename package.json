@@ -12,7 +12,8 @@
     "test": "tsx --test tests/*.test.ts",
     "test:integration": "tsx --env-file=.env.local scripts/integration.ts",
     "demo:seed": "tsx --env-file=.env.local scripts/seed-demo.ts",
-    "check:env": "node scripts/check-env.mjs"
+    "check:env": "node scripts/check-env.mjs",
+    "deploy:env": "npm exec --yes --package=vercel@63.1.2 -- node scripts/deploy-env.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "0.12.7",

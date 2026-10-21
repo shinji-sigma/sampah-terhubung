@@ -1,0 +1,58 @@
+{
+  "origin": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app",
+  "checkedAt": "2026-10-11T20:26:07.123Z",
+  "commit": "28daddd",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200,
+      "result": "pass",
+      "backend": "Supabase Cloud"
+    },
+    {
+      "path": "/preview",
+      "status": 200,
+      "result": "pass",
+      "backend": "Supabase Cloud"
+    },
+    {
+      "path": "/ui-test",
+      "status": 404,
+      "result": "pass",
+      "backend": "Supabase Cloud"
+    },
+    {
+      "path": "/api/public",
+      "status": 200,
+      "result": "pass",
+      "backend": "Supabase Cloud"
+    },
+    {
+      "path": "/api/workspace",
+      "status": 401,
+      "result": "pass",
+      "backend": "Supabase Cloud"
+    },
+    {
+      "path": "/api/auth",
+      "method": "POST",
+      "origin": "untrusted",
+      "status": 403,
+      "result": "pass"
+    },
+    {
+      "path": "/api/commands",
+      "method": "POST",
+      "origin": "untrusted",
+      "status": 403,
+      "result": "pass"
+    },
+    {
+      "path": "/api/photos",
+      "method": "POST",
+      "origin": "untrusted",
+      "status": 403,
+      "result": "pass"
+    }
+  ]
+}

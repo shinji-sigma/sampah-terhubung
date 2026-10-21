@@ -1,0 +1,13 @@
+{
+  "at": "2026-10-11T20:28:39.602Z",
+  "origin": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app",
+  "backend": "Supabase Cloud",
+  "reportLargePhoto": true,
+  "coordinatorAssignment": true,
+  "workerAcceptance": true,
+  "workerEvidence": true,
+  "coordinatorReview": true,
+  "finalStatus": "closed",
+  "closedAt": "2026-10-11T20:28:25.406904+00:00",
+  "physicalDevices": false
+}

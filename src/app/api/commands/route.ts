@@ -16,10 +16,14 @@ export async function POST(req: Request) {
     const { data, error } = await db.rpc("command", { p, request_key });
     if (error)
       throw new HttpError(
-        ["42501", "40001", "22023", "P0001"].includes(error.code)
+        ["42501", "40001", "PT409", "22023", "P0001"].includes(error.code)
           ? error.message
           : "Isian tidak sah atau hubungan data sudah berubah.",
-        error.code === "42501" ? 403 : error.code === "40001" ? 409 : 422,
+        error.code === "42501"
+          ? 403
+          : ["40001", "PT409"].includes(error.code)
+            ? 409
+            : 422,
       );
     return NextResponse.json(data, { headers: privateHeaders });
   } catch (error) {

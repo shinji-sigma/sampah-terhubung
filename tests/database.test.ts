@@ -333,7 +333,11 @@ test("PostgreSQL migration, RPC transitions and RLS (isolated PGlite; not Supaba
       await assert.rejects(
         () =>
           command(ids.worker, { op: "task.accept", id: taskId, version: 1 }),
-        /sudah berubah/,
+        (error: unknown) => {
+          assert.match((error as Error).message, /sudah berubah/);
+          assert.equal((error as { code: string }).code, "PT409");
+          return true;
+        },
       );
       await command(ids.worker, {
         op: "task.block",

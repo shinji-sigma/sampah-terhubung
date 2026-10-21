@@ -1,0 +1,64 @@
+{
+  "at": "2026-10-11T20:23:07.162Z",
+  "backend": "Supabase Cloud",
+  "origin": "http://localhost:3001",
+  "results": [
+    {
+      "name": "Auth Cloud + sesi HTTP benar-benar terverifikasi",
+      "result": "Lulus"
+    },
+    {
+      "name": "Unggah foto sungguhan; SVG ditolak dan bucket privat",
+      "result": "Lulus"
+    },
+    {
+      "name": "Laporan tersimpan; pengiriman ulang menghasilkan ID yang sama",
+      "result": "Lulus"
+    },
+    {
+      "name": "RLS lintas wilayah, petugas belum ditugaskan, dan akses foto ditebak ditolak",
+      "result": "Lulus"
+    },
+    {
+      "name": "Validasi + dua laporan pendukung untuk satu insiden",
+      "result": "Lulus"
+    },
+    {
+      "name": "Penugasan belum bekerja; penolakan dan penugasan ulang mempertahankan riwayat",
+      "result": "Lulus"
+    },
+    {
+      "name": "Konkurensi penerimaan tugas: tepat satu transisi diterima",
+      "result": "Lulus"
+    },
+    {
+      "name": "Bukti + pemeriksaan koordinator menutup insiden; pelapor tidak dapat menutup",
+      "result": "Lulus"
+    },
+    {
+      "name": "Kejadian baru setelah penutupan terpisah dari laporan duplikat",
+      "result": "Lulus"
+    },
+    {
+      "name": "Jadwal Cloud: perubahan hanya satu tanggal dan aktual tidak ganda",
+      "result": "Lulus"
+    },
+    {
+      "name": "P1 pencegahan + draf kegiatan memerlukan konfirmasi pengangkutan",
+      "result": "Lulus"
+    },
+    {
+      "name": "Pendaftaran kursi terakhir bersamaan tidak melebihi kapasitas; tidak ganda",
+      "result": "Lulus"
+    },
+    {
+      "name": "CSV membatasi wilayah dan foto publik tidak dapat dibaca",
+      "result": "Lulus"
+    },
+    {
+      "name": "Alur HTTP tiga sesi: laporan + foto, penugasan, bukti, konflik 409, pembaruan dan logout",
+      "result": "Lulus"
+    }
+  ],
+  "cleanupFailures": []
+}

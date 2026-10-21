@@ -1,6 +1,7 @@
 "use client";
 import { useId, useRef, useState } from "react";
 import type { Operation } from "@/lib/validation";
+import { uploadPhotoFiles } from "@/lib/photo-client";
 export interface Field {
   name: string;
   label: string;
@@ -162,11 +163,9 @@ export function ActionForm({
           throw new ApiError("Periksa berkas foto.", {
             photos: "Maksimal 5 MB per foto; gunakan JPG, PNG, atau WebP.",
           });
-        if (!photoIds.current.length) {
-          const upload = new FormData();
-          for (const f of files) upload.append("photos", f);
-          photoIds.current = (await api("/api/photos", upload)).ids;
-        }
+        await uploadPhotoFiles(files, photoIds.current, (body) =>
+          api("/api/photos", body),
+        );
         p.photos = photoIds.current;
       }
       if (auth) {
@@ -299,6 +298,7 @@ export function ActionForm({
             accept="image/jpeg,image/png,image/webp"
             multiple
             required
+            disabled={busy}
             onChange={() => {
               photoIds.current = [];
             }}
@@ -307,7 +307,8 @@ export function ActionForm({
           />
           <div id={prefix + "-photos-help"}>
             <small>
-              Maksimal 5 MB per foto. Hindari wajah, pelat kendaraan, dan bagian
+              Maksimal 5 MB per foto. Foto besar diperkecil sebelum dikirim satu
+              per satu. Hindari wajah, pelat kendaraan, dan bagian
               rumah yang tidak diperlukan.
             </small>
             {errors.photos && <p className="field-error">{errors.photos}</p>}
