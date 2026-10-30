@@ -1,4 +1,5 @@
 "use client";
+import { SUS_RESPONDENT_URL } from "@/lib/sus-destination";
 import { useCallback, useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
@@ -39,6 +40,7 @@ import {
 import { Events } from "./events";
 import { ApiDocsView } from "./api-docs";
 import { GuideView } from "./guide";
+import { AdminDataTable } from "./admin-data-table";
 
 const Map = dynamic(() => import("./location-map"), {
   ssr: false,
@@ -79,7 +81,6 @@ const nav = [
   { key: "mine", label: "Laporan saya", icon: ClipboardList },
   { key: "events", label: "Kegiatan", icon: Users },
   { key: "api-docs", label: "Integrasi API", icon: ShieldCheck },
-  { key: "guide", label: "Panduan & SUS", icon: BarChart3 },
 ] as const;
 
 export const pathToView: Record<string, View> = {
@@ -1161,21 +1162,45 @@ export default function Dashboard({
               </p>
               <div className="card">
                 <h3>Insiden terbuka dan kendala</h3>
-                {w.incidents
-                  .filter((i) => i.status !== "closed")
-                  .map((i) => (
-                    <p key={i.id}>
-                      {i.public_label} · usia{" "}
-                      {Math.max(
-                        0,
-                        Math.floor(
-                          (now.getTime() - Date.parse(i.verified_at)) /
-                            86400000,
-                        ),
-                      )}{" "}
-                      hari · <Status value={i.status} />
-                    </p>
-                  ))}
+                {w.profile.is_admin ? (
+                  <AdminDataTable
+                    title="Insiden terbuka dan kendala"
+                    columns={["Patokan", "Usia (Hari)", "Status"]}
+                    filterColumns={[2]}
+                    rows={w.incidents
+                      .filter((i) => i.status !== "closed")
+                      .map((i) => ({
+                        id: i.id,
+                        cells: [
+                          i.public_label,
+                          Math.max(
+                            0,
+                            Math.floor(
+                              (now.getTime() - Date.parse(i.verified_at)) /
+                                86400000,
+                            ),
+                          ),
+                          i.status,
+                        ],
+                      }))}
+                  />
+                ) : (
+                  w.incidents
+                    .filter((i) => i.status !== "closed")
+                    .map((i) => (
+                      <p key={i.id}>
+                        {i.public_label} · usia{" "}
+                        {Math.max(
+                          0,
+                          Math.floor(
+                            (now.getTime() - Date.parse(i.verified_at)) /
+                              86400000,
+                          ),
+                        )}{" "}
+                        hari · <Status value={i.status} />
+                      </p>
+                    ))
+                )}
                 <p>
                   Tugas belum diterima:{" "}
                   {w.tasks.filter((t) => t.status === "offered").length}
@@ -1267,13 +1292,8 @@ export default function Dashboard({
               >
                 Integrasi API DLH
               </button>
-              <button
-                type="button"
-                className="text-teal-700 hover:text-teal-900 font-medium underline"
-                onClick={() => go("guide")}
-              >
-                Panduan & Evaluasi SUS
-              </button>
+              <a className="text-teal-700 hover:text-teal-900 font-medium underline" href="/uji-pengguna">Panduan akses fitur</a>
+              <a className="text-teal-700 hover:text-teal-900 font-medium underline" href={SUS_RESPONDENT_URL}>Isi evaluasi SUS</a>
             </div>
           </div>
           <small>

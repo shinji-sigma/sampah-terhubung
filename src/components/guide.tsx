@@ -1,4 +1,5 @@
 "use client";
+import { SUS_RESPONDENT_URL } from "@/lib/sus-destination";
 
 import { useState } from "react";
 import { BookOpen, Award, Users, FileText, ShieldCheck } from "lucide-react";
@@ -78,7 +79,7 @@ export function GuideView() {
           }`}
         >
           <Award size={16} />
-          Instrumen & Rencana SUS
+          Metode evaluasi
         </button>
         <button
           onClick={() => setActiveTab("roles")}
@@ -118,6 +119,7 @@ export function GuideView() {
       {/* Tab Content: SUS */}
       {activeTab === "sus" && (
         <div className="space-y-6">
+          <p><a href="/uji-pengguna">Panduan akses fitur</a> · <a className="button primary" href={SUS_RESPONDENT_URL}>Isi evaluasi SUS di Google Forms</a></p>
           <div className="grid md:grid-cols-3 gap-4">
             <Card className="p-4 bg-teal-50 border-teal-200 flex flex-col justify-between">
               <div>

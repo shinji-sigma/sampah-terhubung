@@ -159,6 +159,16 @@ select[aria-invalid="true"] {
   padding: 16px 48px;
   min-height: 88px;
 }
+@media (min-width: 1001px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+  }
+  .topbar .main-navigation {
+    max-width: none;
+    min-width: 0;
+  }
+}
 .header-identity {
   display: flex;
   align-items: center;
@@ -2028,6 +2038,113 @@ h3 {
 }
 
 /* Data Table Modern Styling */
+.admin-data-section {
+  min-width: 0;
+  max-width: 100%;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.admin-data-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  background: #f8fafc;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--line, #e2e8f0);
+}
+
+.admin-data-toolbar .field {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-data-toolbar input[type="search"],
+.admin-data-toolbar select {
+  padding: 0.45rem 0.75rem;
+  font-size: 13px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1e293b;
+  min-width: 150px;
+  max-width: 100%;
+}
+
+.admin-data-toolbar button {
+  align-self: flex-end;
+}
+
+.admin-sort {
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  font-weight: 600;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  text-align: left;
+}
+
+.admin-sort:hover {
+  color: var(--brand-dark, #0d9488);
+}
+
+.admin-data-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.875rem;
+  font-size: 13px;
+  color: #475569;
+}
+
+.admin-data-dialog {
+  border: 1px solid var(--line, #cbd5e1);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 1.5rem;
+  max-width: 720px;
+  width: min(92vw, 720px);
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.15);
+  margin: auto;
+}
+
+.admin-data-dialog::backdrop {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(2px);
+}
+
+.admin-dialog-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.admin-dialog-heading h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
 .admin-table-container {
   overflow-x: auto;
   border-radius: 12px;

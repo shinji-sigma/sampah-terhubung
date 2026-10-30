@@ -1,0 +1,619 @@
+{
+  "base": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app",
+  "results": [
+    {
+      "test": "admin login",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "test": "admin workspace",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "test": "tables 1440 /admin",
+      "pass": true,
+      "detail": {
+        "tables": 5
+      }
+    },
+    {
+      "test": "overflow 1440 /admin",
+      "pass": true,
+      "detail": {
+        "client": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "test": "empty search 1440 /admin 0",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 0",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 0",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 0",
+      "pass": true
+    },
+    {
+      "test": "detail opens /admin 0",
+      "pass": true
+    },
+    {
+      "test": "escape closes /admin 0",
+      "pass": true
+    },
+    {
+      "test": "empty search 1440 /admin 1",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 1",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 1",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 1",
+      "pass": true
+    },
+    {
+      "test": "empty search 1440 /admin 2",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 2",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 2",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 2",
+      "pass": true
+    },
+    {
+      "test": "detail opens /admin 2",
+      "pass": true
+    },
+    {
+      "test": "escape closes /admin 2",
+      "pass": true
+    },
+    {
+      "test": "empty search 1440 /admin 3",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 3",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 3",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 3",
+      "pass": true
+    },
+    {
+      "test": "empty search 1440 /admin 4",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 4",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 4",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 4",
+      "pass": true
+    },
+    {
+      "test": "tables 1440 /kelola",
+      "pass": true,
+      "detail": {
+        "tables": 3
+      }
+    },
+    {
+      "test": "overflow 1440 /kelola",
+      "pass": true,
+      "detail": {
+        "client": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "test": "empty search 1440 /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "sort asc /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "sort desc /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "detail opens /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "escape closes /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "empty search 1440 /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "sort asc /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "sort desc /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "detail opens /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "escape closes /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "empty search 1440 /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "sort asc /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "sort desc /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "detail opens /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "escape closes /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "tables 1440 /kegiatan",
+      "pass": true,
+      "detail": {
+        "tables": 1
+      }
+    },
+    {
+      "test": "overflow 1440 /kegiatan",
+      "pass": true,
+      "detail": {
+        "client": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "test": "empty search 1440 /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "sort asc /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "sort desc /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "detail opens /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "escape closes /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "tables 1440 /jadwal",
+      "pass": true,
+      "detail": {
+        "tables": 1
+      }
+    },
+    {
+      "test": "overflow 1440 /jadwal",
+      "pass": true,
+      "detail": {
+        "client": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "test": "empty search 1440 /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "sort asc /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "sort desc /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "detail opens /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "escape closes /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "tables 390 /admin",
+      "pass": true,
+      "detail": {
+        "tables": 5
+      }
+    },
+    {
+      "test": "overflow 390 /admin",
+      "pass": true,
+      "detail": {
+        "client": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "test": "empty search 390 /admin 0",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 0",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 0",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 0",
+      "pass": true
+    },
+    {
+      "test": "detail opens /admin 0",
+      "pass": true
+    },
+    {
+      "test": "escape closes /admin 0",
+      "pass": true
+    },
+    {
+      "test": "empty search 390 /admin 1",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 1",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 1",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 1",
+      "pass": true
+    },
+    {
+      "test": "empty search 390 /admin 2",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 2",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 2",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 2",
+      "pass": true
+    },
+    {
+      "test": "detail opens /admin 2",
+      "pass": true
+    },
+    {
+      "test": "escape closes /admin 2",
+      "pass": true
+    },
+    {
+      "test": "empty search 390 /admin 3",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 3",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 3",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 3",
+      "pass": true
+    },
+    {
+      "test": "empty search 390 /admin 4",
+      "pass": true
+    },
+    {
+      "test": "sort asc /admin 4",
+      "pass": true
+    },
+    {
+      "test": "sort desc /admin 4",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /admin 4",
+      "pass": true
+    },
+    {
+      "test": "tables 390 /kelola",
+      "pass": true,
+      "detail": {
+        "tables": 3
+      }
+    },
+    {
+      "test": "overflow 390 /kelola",
+      "pass": true,
+      "detail": {
+        "client": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "test": "empty search 390 /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "sort asc /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "sort desc /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "detail opens /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "escape closes /kelola 0",
+      "pass": true
+    },
+    {
+      "test": "empty search 390 /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "sort asc /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "sort desc /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "detail opens /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "escape closes /kelola 1",
+      "pass": true
+    },
+    {
+      "test": "empty search 390 /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "sort asc /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "sort desc /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "detail opens /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "escape closes /kelola 2",
+      "pass": true
+    },
+    {
+      "test": "tables 390 /kegiatan",
+      "pass": true,
+      "detail": {
+        "tables": 1
+      }
+    },
+    {
+      "test": "overflow 390 /kegiatan",
+      "pass": true,
+      "detail": {
+        "client": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "test": "empty search 390 /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "sort asc /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "sort desc /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "detail opens /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "escape closes /kegiatan 0",
+      "pass": true
+    },
+    {
+      "test": "tables 390 /jadwal",
+      "pass": true,
+      "detail": {
+        "tables": 1
+      }
+    },
+    {
+      "test": "overflow 390 /jadwal",
+      "pass": true,
+      "detail": {
+        "client": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "test": "empty search 390 /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "sort asc /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "sort desc /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "combined search filter /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "detail opens /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "escape closes /jadwal 0",
+      "pass": true
+    },
+    {
+      "test": "public unchanged /",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "test": "public unchanged /jadwal",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "test": "public unchanged /kegiatan",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "test": "public unchanged /laporan",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "test": "public unchanged /integrasi",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "test": "public unchanged /uji-pengguna",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "test": "no browser errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": []
+}

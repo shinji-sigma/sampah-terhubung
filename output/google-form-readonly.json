@@ -1,0 +1,86 @@
+{
+  "url": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform",
+  "questions": [
+    {
+      "title": "Persetujuan Partisipasi & Usia",
+      "type": 2,
+      "required": 1
+    },
+    {
+      "title": "Perangkat yang digunakan saat mencoba aplikasi:",
+      "type": 2,
+      "required": 1
+    },
+    {
+      "title": "Tugas 1: Memeriksa jadwal pengangkutan di wilayah Anda",
+      "type": 2,
+      "required": 1
+    },
+    {
+      "title": "Tugas 2: Mengirim laporan simulasi sampah dengan bukti pendukung",
+      "type": 2,
+      "required": 1
+    },
+    {
+      "title": "Tugas 3: Memeriksa daftar laporan dan status penanganan",
+      "type": 2,
+      "required": 1
+    },
+    {
+      "title": "1. Saya rasa saya ingin sering menggunakan aplikasi Sampah Terhubung ini.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "2. Saya mendapati aplikasi ini rumit secara tidak perlu.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "3. Saya rasa aplikasi ini mudah untuk digunakan.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "4. Saya rasa saya membutuhkan bantuan orang teknis untuk dapat menggunakan sistem ini.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "5. Saya melihat fungsi-fungsi dalam sistem ini terintegrasi dengan baik.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "6. Saya merasa ada terlalu banyak ketidakkonsistenan pada sistem ini.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "7. Saya memperkirakan sebagian besar orang akan belajar menggunakan sistem ini dengan sangat cepat.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "8. Saya mendapati sistem ini sangat merepotkan untuk digunakan.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "9. Saya merasa sangat percaya diri saat menggunakan aplikasi ini.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "10. Saya harus mempelajari banyak hal sebelum dapat mulai menggunakan sistem ini.",
+      "type": 5,
+      "required": 1
+    },
+    {
+      "title": "Kritik, Kendala, atau Saran untuk Aplikasi (Opsional):",
+      "type": 1,
+      "required": 0
+    }
+  ],
+  "text": "Evaluasi Kegunaan (System Usability Scale) — Sampah Terhubung\nStudi Akademik · Evaluasi Prototipe Sistem Koordinasi Lingkungan\n\nTerima kasih telah meluangkan waktu mencoba prototipe Sampah Terhubung:\n🌐 https://sampah-terhubung-langgamramadhan9-3266.vercel.app/\n\nKuesioner ini mengukur tingkat kebergunaan (usability) sistem menggunakan metode baku System Usability Scale (SUS) dari John Brooke (1996).\n\nKetentuan & Privasi:\n• Partisipasi bersifat sukarela dan anonim. Tidak ada data pribadi (nama, no HP, alamat rumah) yang dikumpulkan.\n• Berikan penilaian murni berdasarkan pengalaman Anda, termasuk jika Anda mengalami kendala atau gagal menyelesaikan tugas.\n• Estimasi waktu pengisian: 3 - 5 menit.\nLogin ke Google untuk menyimpan progres. Pelajari lebih lanjut\n* Menunjukkan pertanyaan yang wajib diisi\nPersetujuan Partisipasi & Usia\n*\nPenelitian ini diperuntukkan bagi responden berusia 18 tahun atau lebih secara sukarela.\nSaya berusia 18 tahun atau lebih dan bersedia berpartisipasi secara sukarela\nPerangkat yang digunakan saat mencoba aplikasi:\n*\nPonsel (Smartphone)\nLaptop / Komputer Desktop\nTablet\nLainnya\nTugas 1: Memeriksa jadwal pengangkutan di wilayah Anda\n*\nBerhasil mandiri tanpa kendala\nBerhasil setelah mencari-cari / butuh petunjuk\nTidak berhasil / mengalami kendala\nTidak sempat mencoba\nTugas 2: Mengirim laporan simulasi sampah dengan bukti pendukung\n*\nBerhasil mandiri tanpa kendala\nBerhasil setelah mencari-cari / butuh petunjuk\nTidak berhasil / mengalami kendala\nTidak sempat mencoba\nTugas 3: Memeriksa daftar laporan dan status penanganan\n*\nBerhasil mandiri tanpa kendala\nBerhasil setelah mencari-cari / butuh petunjuk\nTidak berhasil / mengalami kendala\nTidak sempat mencoba\n1. Saya rasa saya ingin sering menggunakan aplikasi Sampah Terhubung ini.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\n2. Saya mendapati aplikasi ini rumit secara tidak perlu.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\n3. Saya rasa aplikasi ini mudah untuk digunakan.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\n4. Saya rasa saya membutuhkan bantuan orang teknis untuk dapat menggunakan sistem ini.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\n5. Saya melihat fungsi-fungsi dalam sistem ini terintegrasi dengan baik.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\n6. Saya merasa ada terlalu banyak ketidakkonsistenan pada sistem ini.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\n7. Saya memperkirakan sebagian besar orang akan belajar menggunakan sistem ini dengan sangat cepat.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\n8. Saya mendapati sistem ini sangat merepotkan untuk digunakan.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\n9. Saya merasa sangat percaya diri saat menggunakan aplikasi ini.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\n10. Saya harus mempelajari banyak hal sebelum dapat mulai menggunakan sistem ini.\n*\nSangat Tidak Setuju\n1\n2\n3\n4\n5\nSangat Setuju\nKritik, Kendala, atau Saran untuk Aplikasi (Opsional):\nTuliskan kendala apa pun yang Anda temui saat mencoba, atau saran fitur.\nJawaban Anda\nKirim\nKosongkan formulir\nJangan pernah mengirimkan sandi melalui Google Formulir.\nKonten ini tidak dibuat atau didukung oleh Google. - Persyaratan Layanan - Kebijakan Privasi\n\nApakah formulir ini tampak mencurigakan? Laporkan\n\n Formulir\n \nBantuan dan masukan"
+}

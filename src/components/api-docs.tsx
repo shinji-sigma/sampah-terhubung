@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react"; const subscribeOrigin = () => () => {}; const browserOrigin = () => window.location.origin; const serverOrigin = () => "https://sampah-terhubung.id"; // Stable server snapshot prevents hydration mismatch.
 import { Terminal, Copy, Check, Play, Globe, Shield, RefreshCw } from "lucide-react";
 import { SectionTitle, Card } from "./primitives";
 import { MOCK_DATA, envelope } from "../app/api/v1/contracts";
@@ -38,9 +38,8 @@ export function ApiDocsView() {
   const [liveStatus, setLiveStatus] = useState<string | null>(null);
   const [liveLoading, setLiveLoading] = useState(false);
   const [liveResult, setLiveResult] = useState<string | null>(null);
-
   const endpoint = ENDPOINTS.find((e) => e.id === selectedId) || ENDPOINTS[0];
-  const host = typeof window !== "undefined" ? window.location.origin : "https://sampah-terhubung.id";
+  const host = useSyncExternalStore(subscribeOrigin, browserOrigin, serverOrigin);
 
   const getCurlCode = () => `curl -X GET "${host}${endpoint.path}" -H "Accept: application/json"`;
   const getJsCode = () => `const response = await fetch("${host}${endpoint.path}", { credentials: "omit" });\nconsole.log(response.status, await response.json());`;

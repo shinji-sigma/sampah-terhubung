@@ -1,0 +1,296 @@
+{
+  "base": "https://sampah-terhubung-langgamramadhan9-3266.vercel.app",
+  "destination": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform",
+  "at": "2026-10-22T02:32:23.613Z",
+  "count": 37,
+  "failed": 0,
+  "results": [
+    {
+      "test": "route /",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /jadwal",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /kegiatan",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /laporan",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /laporan/baru",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /integrasi",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /panduan",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /admin",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /kelola",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /wilayah",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /preview",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "route /uji-pengguna",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "legacy exact redirect",
+      "pass": true,
+      "details": {
+        "status": 307,
+        "location": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+      }
+    },
+    {
+      "test": "layout 390 /",
+      "pass": true,
+      "details": {
+        "client": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "test": "exact SUS links 390 /",
+      "pass": true,
+      "details": [
+        {
+          "text": "Isi evaluasi SUS",
+          "href": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+        }
+      ]
+    },
+    {
+      "test": "layout 390 /uji-pengguna",
+      "pass": true,
+      "details": {
+        "client": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "test": "exact SUS links 390 /uji-pengguna",
+      "pass": true,
+      "details": [
+        {
+          "text": "Isi evaluasi SUS di Google Forms",
+          "href": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+        }
+      ]
+    },
+    {
+      "test": "no study gate 390",
+      "pass": true
+    },
+    {
+      "test": "feature access 390",
+      "pass": true
+    },
+    {
+      "test": "layout 390 /panduan",
+      "pass": true,
+      "details": {
+        "client": 390,
+        "scroll": 390
+      }
+    },
+    {
+      "test": "exact SUS links 390 /panduan",
+      "pass": true,
+      "details": [
+        {
+          "text": "Isi evaluasi SUS di Google Forms",
+          "href": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+        },
+        {
+          "text": "Isi evaluasi SUS",
+          "href": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+        }
+      ]
+    },
+    {
+      "test": "layout 1440 /",
+      "pass": true,
+      "details": {
+        "client": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "test": "exact SUS links 1440 /",
+      "pass": true,
+      "details": [
+        {
+          "text": "Isi evaluasi SUS",
+          "href": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+        }
+      ]
+    },
+    {
+      "test": "layout 1440 /uji-pengguna",
+      "pass": true,
+      "details": {
+        "client": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "test": "exact SUS links 1440 /uji-pengguna",
+      "pass": true,
+      "details": [
+        {
+          "text": "Isi evaluasi SUS di Google Forms",
+          "href": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+        }
+      ]
+    },
+    {
+      "test": "no study gate 1440",
+      "pass": true
+    },
+    {
+      "test": "feature access 1440",
+      "pass": true
+    },
+    {
+      "test": "layout 1440 /panduan",
+      "pass": true,
+      "details": {
+        "client": 1440,
+        "scroll": 1440
+      }
+    },
+    {
+      "test": "exact SUS links 1440 /panduan",
+      "pass": true,
+      "details": [
+        {
+          "text": "Isi evaluasi SUS di Google Forms",
+          "href": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+        },
+        {
+          "text": "Isi evaluasi SUS",
+          "href": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+        }
+      ]
+    },
+    {
+      "test": "sample /uji-pengguna/foto-sebelum.jpg",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "sample /uji-pengguna/foto-sesudah.jpg",
+      "pass": true,
+      "details": {
+        "status": 200
+      }
+    },
+    {
+      "test": "invitation exact destination",
+      "pass": true,
+      "details": {
+        "text": "Halo! Bantu mencoba Sampah Terhubung selama 10–15 menit (sukarela). Ini simulasi akademik, bukan layanan pengangkutan nyata. Anda boleh berhenti kapan saja.\nPanduan akses fitur: https://sampah-terhubung-langgamramadhan9-3266.vercel.app/uji-pengguna. Cek jadwal Kawasan Hijau A · Simulasi, coba laporan dengan gambar contoh yang disediakan, lalu lihat status. Gunakan akun sendiri bila perlu masuk. Jangan bagikan GPS rumah atau foto pribadi; bila gagal, berhenti tanpa memaksakan pengiriman.\nSetelah mencoba, isi evaluasi SUS di https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform, termasuk jika tugas gagal atau perlu bantuan. Persetujuan ada pada Google Forms; kode peserta opsional. Balas pesan ini bila ada kendala."
+      }
+    },
+    {
+      "test": "browser follows legacy redirect",
+      "pass": true,
+      "details": {
+        "url": "https://docs.google.com/forms/d/e/1FAIpQLSejI-hRb7qXIi5l0FpdWy3V7i3b2Bbv7ONYPrFbPXfSDRDzyw/viewform"
+      }
+    },
+    {
+      "test": "Google Form read only 10 SUS questions",
+      "pass": true,
+      "details": {
+        "count": 10,
+        "titles": [
+          "1. Saya rasa saya ingin sering menggunakan aplikasi Sampah Terhubung ini.",
+          "2. Saya mendapati aplikasi ini rumit secara tidak perlu.",
+          "3. Saya rasa aplikasi ini mudah untuk digunakan.",
+          "4. Saya rasa saya membutuhkan bantuan orang teknis untuk dapat menggunakan sistem ini.",
+          "5. Saya melihat fungsi-fungsi dalam sistem ini terintegrasi dengan baik.",
+          "6. Saya merasa ada terlalu banyak ketidakkonsistenan pada sistem ini.",
+          "7. Saya memperkirakan sebagian besar orang akan belajar menggunakan sistem ini dengan sangat cepat.",
+          "8. Saya mendapati sistem ini sangat merepotkan untuk digunakan.",
+          "9. Saya merasa sangat percaya diri saat menggunakan aplikasi ini.",
+          "10. Saya harus mempelajari banyak hal sebelum dapat mulai menggunakan sistem ini."
+        ]
+      }
+    },
+    {
+      "test": "Google Form consent present",
+      "pass": true,
+      "details": "Persetujuan Partisipasi & Usia"
+    },
+    {
+      "test": "no legacy API used",
+      "pass": true,
+      "details": []
+    },
+    {
+      "test": "no uncaught errors",
+      "pass": true,
+      "details": []
+    }
+  ],
+  "errors": []
+}

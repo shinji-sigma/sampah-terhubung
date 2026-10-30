@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { AdminList, AdminDataTable } from "./admin-data-table";
 import { ActionForm, reasonField, localDateTime, type Field } from "./forms";
 import {
   Empty,
@@ -90,231 +91,310 @@ export function Coordinator({
       {pending.length === 0 ? (
         <Empty>Antrean validasi kosong.</Empty>
       ) : (
-        pending.map((r) => (
-          <article className="card" key={r.id}>
-            <div className="card-heading">
-              <h3>{r.landmark}</h3>
-              <Status value={r.status} />
-            </div>
-            <p>{r.description}</p>
-            <small>
-              #{shortId(r.id)} · Diamati {dateTime(r.observed_at)} ·{" "}
-              {r.category}
-            </small>
-            <EvidenceDetails report={r} />
-            <PhotoStrip photos={w.photos.filter((p) => p.report_id === r.id)} />
-            {r.hidden && (
-              <p className="notice warn">
-                Konten disembunyikan oleh moderator; tetap tersedia untuk
-                pemeriksaan operasional.
-              </p>
-            )}
-            <details>
-              <summary>Validasi atau tautkan duplikat</summary>
-              <p>
-                Gunakan insiden terbuka untuk kejadian yang sama. Titik lama
-                hanya untuk kejadian baru sesudah penanganan sebelumnya. Patokan
-                publik harus aman dibagikan.
-              </p>
-              <ActionForm
-                op="report.validate"
-                fixed={{ id: r.id, version: r.version }}
-                fields={[
-                  optional(
-                    "incident_id",
-                    "Tautkan ke insiden terbuka (duplikat)",
-                    open,
-                  ),
-                  optional(
-                    "point_id",
-                    "Titik yang sudah ada (kejadian baru)",
-                    points,
-                  ),
-                  {
-                    name: "public_label",
-                    label: "Patokan aman untuk publik",
-                    hint: "Wajib untuk insiden baru. Jangan cantumkan identitas, nomor rumah privat, atau kontak.",
-                  },
-                ]}
-                label="Validasi laporan"
-                onDone={refresh}
+        <AdminList
+          admin={w.profile.is_admin}
+          title="Antrean laporan"
+          columns={["Lokasi", "Referensi", "Kategori", "Status", "Diamati"]}
+          rows={pending.map((r) => ({
+            id: r.id,
+            cells: [
+              r.landmark,
+              shortId(r.id),
+              r.category,
+              r.status,
+              r.observed_at,
+            ],
+          }))}
+          filterColumns={[2, 3]}
+        >
+          {pending.map((r) => (
+            <article className="card" key={r.id}>
+              <div className="card-heading">
+                <h3>{r.landmark}</h3>
+                <Status value={r.status} />
+              </div>
+              <p>{r.description}</p>
+              <small>
+                #{shortId(r.id)} · Diamati {dateTime(r.observed_at)} ·{" "}
+                {r.category}
+              </small>
+              <EvidenceDetails report={r} />
+              <PhotoStrip
+                photos={w.photos.filter((p) => p.report_id === r.id)}
               />
-            </details>
-            <details>
-              <summary>Tolak dengan alasan</summary>
-              <ActionForm
-                op="report.reject"
-                fixed={{ id: r.id, version: r.version }}
-                fields={[reasonField]}
-                label="Tolak laporan"
-                tone="danger"
-                onDone={refresh}
-              />
-            </details>
-          </article>
-        ))
+              {r.hidden && (
+                <p className="notice warn">
+                  Konten disembunyikan oleh moderator; tetap tersedia untuk
+                  pemeriksaan operasional.
+                </p>
+              )}
+              <details>
+                <summary>Validasi atau tautkan duplikat</summary>
+                <p>
+                  Gunakan insiden terbuka untuk kejadian yang sama. Titik lama
+                  hanya untuk kejadian baru sesudah penanganan sebelumnya.
+                  Patokan publik harus aman dibagikan.
+                </p>
+                <ActionForm
+                  op="report.validate"
+                  fixed={{ id: r.id, version: r.version }}
+                  fields={[
+                    optional(
+                      "incident_id",
+                      "Tautkan ke insiden terbuka (duplikat)",
+                      open,
+                    ),
+                    optional(
+                      "point_id",
+                      "Titik yang sudah ada (kejadian baru)",
+                      points,
+                    ),
+                    {
+                      name: "public_label",
+                      label: "Patokan aman untuk publik",
+                      hint: "Wajib untuk insiden baru. Jangan cantumkan identitas, nomor rumah privat, atau kontak.",
+                    },
+                  ]}
+                  label="Validasi laporan"
+                  onDone={refresh}
+                />
+              </details>
+              <details>
+                <summary>Tolak dengan alasan</summary>
+                <ActionForm
+                  op="report.reject"
+                  fixed={{ id: r.id, version: r.version }}
+                  fields={[reasonField]}
+                  label="Tolak laporan"
+                  tone="danger"
+                  onDone={refresh}
+                />
+              </details>
+            </article>
+          ))}
+        </AdminList>
       )}
       <h3>Insiden wilayah</h3>
       {w.incidents.length === 0 ? (
         <Empty>Belum ada insiden tervalidasi.</Empty>
       ) : (
-        w.incidents.map((i) => (
-          <article className="card" key={i.id} id={"incident-" + i.id}>
-            <div className="card-heading">
-              <h3>{i.public_label}</h3>
-              <Status value={i.status} />
-            </div>
-            <small>
-              #
-              {incidentReference(
+        <AdminList
+          admin={w.profile.is_admin}
+          title="Insiden wilayah"
+          columns={["Lokasi", "Referensi", "Status", "Validasi"]}
+          rows={w.incidents.map((i) => ({
+            id: i.id,
+            cells: [
+              i.public_label,
+              incidentReference(
                 i.id,
                 w.incidents.map((x) => x.id),
-              )}{" "}
-              · {w.reports.filter((r) => r.incident_id === i.id).length} laporan
-              pendukung · Validasi {dateTime(i.verified_at)}
-            </small>
-            {w.tasks
-              .filter((t) => t.incident_id === i.id)
-              .map((t) => (
-                <div className="inset" key={t.id}>
-                  <strong>
-                    {w.profiles.find((p) => p.id === t.worker_id)
-                      ?.display_name || "Petugas wilayah"}{" "}
-                    ·{" "}
-                    {t.status === "verified"
-                      ? "Pekerjaan diperiksa"
-                      : undefined}
-                  </strong>
-                  <Status value={t.status} />
-                  <p>
-                    Perkiraan tindak lanjut {dateTime(t.due_at)}. Bukan jaminan
-                    waktu layanan.
-                  </p>
-                  {t.reason && <p>Alasan: {t.reason}</p>}
-                  {t.blocker && (
-                    <p className="notice warn">Kendala: {t.blocker}</p>
-                  )}
-                  {t.action_taken && (
+              ),
+              i.status,
+              i.verified_at,
+            ],
+          }))}
+          filterColumns={[2]}
+        >
+          {w.incidents.map((i) => (
+            <article className="card" key={i.id} id={"incident-" + i.id}>
+              <div className="card-heading">
+                <h3>{i.public_label}</h3>
+                <Status value={i.status} />
+              </div>
+              <small>
+                #
+                {incidentReference(
+                  i.id,
+                  w.incidents.map((x) => x.id),
+                )}{" "}
+                · {w.reports.filter((r) => r.incident_id === i.id).length}{" "}
+                laporan pendukung · Validasi {dateTime(i.verified_at)}
+              </small>
+              {w.tasks
+                .filter((t) => t.incident_id === i.id)
+                .map((t) => (
+                  <div className="inset" key={t.id}>
+                    <strong>
+                      {w.profiles.find((p) => p.id === t.worker_id)
+                        ?.display_name || "Petugas wilayah"}{" "}
+                      ·{" "}
+                      {t.status === "verified"
+                        ? "Pekerjaan diperiksa"
+                        : undefined}
+                    </strong>
+                    <Status value={t.status} />
                     <p>
-                      Tindakan: {t.action_taken} · {dateTime(t.performed_at)}
+                      Perkiraan tindak lanjut {dateTime(t.due_at)}. Bukan
+                      jaminan waktu layanan.
                     </p>
+                    {t.reason && <p>Alasan: {t.reason}</p>}
+                    {t.blocker && (
+                      <p className="notice warn">Kendala: {t.blocker}</p>
+                    )}
+                    {t.action_taken && (
+                      <p>
+                        Tindakan: {t.action_taken} · {dateTime(t.performed_at)}
+                      </p>
+                    )}
+                    {t.destination && (
+                      <p>Tujuan pengangkutan: {t.destination}</p>
+                    )}
+                    <PhotoStrip
+                      photos={w.photos.filter((p) => p.task_id === t.id)}
+                    />
+                  </div>
+                ))}
+              {["verified", "assigned", "working"].includes(i.status) && (
+                <details>
+                  <summary>
+                    {i.status === "verified"
+                      ? "Tugaskan petugas"
+                      : "Alihkan penugasan"}
+                  </summary>
+                  {!workers.length ? (
+                    <p className="notice warn">
+                      Belum ada petugas aktif. Koordinator wilayah bertanggung
+                      jawab menindaklanjuti kapasitas; administrator dapat
+                      menetapkan petugas.
+                    </p>
+                  ) : (
+                    <ActionForm
+                      op="incident.assign"
+                      fixed={{ id: i.id, version: i.version }}
+                      fields={[
+                        {
+                          name: "worker_id",
+                          label: "Petugas aktif",
+                          type: "select",
+                          options: workers,
+                          required: true,
+                        },
+                        {
+                          ...required(
+                            "due_at",
+                            "Perkiraan waktu tindak lanjut",
+                            "datetime-local",
+                          ),
+                          initial: localDateTime(
+                            new Date(now.getTime() + 86400000),
+                          ),
+                        },
+                        reasonField,
+                      ]}
+                      label="Tugaskan petugas"
+                      onDone={refresh}
+                    />
                   )}
-                  {t.destination && <p>Tujuan pengangkutan: {t.destination}</p>}
-                  <PhotoStrip
-                    photos={w.photos.filter((p) => p.task_id === t.id)}
-                  />
-                </div>
-              ))}
-            {["verified", "assigned", "working"].includes(i.status) && (
-              <details>
-                <summary>
-                  {i.status === "verified"
-                    ? "Tugaskan petugas"
-                    : "Alihkan penugasan"}
-                </summary>
-                {!workers.length ? (
-                  <p className="notice warn">
-                    Belum ada petugas aktif. Koordinator wilayah bertanggung
-                    jawab menindaklanjuti kapasitas; administrator dapat
-                    menetapkan petugas.
-                  </p>
-                ) : (
+                </details>
+              )}
+              {i.status === "awaiting_review" && (
+                <details open>
+                  <summary>Periksa bukti penanganan</summary>
                   <ActionForm
-                    op="incident.assign"
+                    op="incident.review"
                     fixed={{ id: i.id, version: i.version }}
                     fields={[
-                      {
-                        name: "worker_id",
-                        label: "Petugas aktif",
-                        type: "select",
-                        options: workers,
-                        required: true,
-                      },
-                      {
-                        ...required(
-                          "due_at",
-                          "Perkiraan waktu tindak lanjut",
-                          "datetime-local",
-                        ),
-                        initial: localDateTime(
-                          new Date(now.getTime() + 86400000),
-                        ),
-                      },
                       reasonField,
+                      {
+                        name: "approved",
+                        label:
+                          "Bukti cukup: tutup sebagai Selesai terverifikasi",
+                        type: "checkbox",
+                        hint: "Jika tidak dicentang, kembalikan untuk perbaikan dengan alasan.",
+                      },
                     ]}
-                    label="Tugaskan petugas"
+                    label="Simpan hasil pemeriksaan"
                     onDone={refresh}
                   />
-                )}
-              </details>
-            )}
-            {i.status === "awaiting_review" && (
-              <details open>
-                <summary>Periksa bukti penanganan</summary>
-                <ActionForm
-                  op="incident.review"
-                  fixed={{ id: i.id, version: i.version }}
-                  fields={[
-                    reasonField,
-                    {
-                      name: "approved",
-                      label: "Bukti cukup: tutup sebagai Selesai terverifikasi",
-                      type: "checkbox",
-                      hint: "Jika tidak dicentang, kembalikan untuk perbaikan dengan alasan.",
-                    },
-                  ]}
-                  label="Simpan hasil pemeriksaan"
-                  onDone={refresh}
-                />
-              </details>
-            )}
-            {i.status === "closed" && (
+                </details>
+              )}
+              {i.status === "closed" && (
+                <details>
+                  <summary>Buka kembali kejadian lama</summary>
+                  <p>
+                    Hanya jika pemeriksaan membuktikan pekerjaan lama belum
+                    selesai. Ini tidak menambah kejadian baru.
+                  </p>
+                  <ActionForm
+                    op="incident.reopen"
+                    fixed={{ id: i.id, version: i.version }}
+                    fields={[reasonField]}
+                    label="Buka kembali pekerjaan"
+                    onDone={refresh}
+                  />
+                </details>
+              )}
               <details>
-                <summary>Buka kembali kejadian lama</summary>
-                <p>
-                  Hanya jika pemeriksaan membuktikan pekerjaan lama belum
-                  selesai. Ini tidak menambah kejadian baru.
-                </p>
-                <ActionForm
-                  op="incident.reopen"
-                  fixed={{ id: i.id, version: i.version }}
-                  fields={[reasonField]}
-                  label="Buka kembali pekerjaan"
-                  onDone={refresh}
+                <summary>Riwayat penanganan</summary>
+                <Timeline
+                  history={w.history.filter(
+                    (h) => h.entity_type === "incident" && h.entity_id === i.id,
+                  )}
                 />
               </details>
-            )}
-            <details>
-              <summary>Riwayat penanganan</summary>
-              <Timeline
-                history={w.history.filter(
-                  (h) => h.entity_type === "incident" && h.entity_id === i.id,
-                )}
-              />
-            </details>
-          </article>
-        ))
+            </article>
+          ))}
+        </AdminList>
+      )}
+      {w.profile.is_admin && (
+        <AdminDataTable
+          title="Penugasan wilayah"
+          columns={["Lokasi", "Petugas", "Status", "Tindak lanjut", "Kendala"]}
+          filterColumns={[1, 2]}
+          rows={w.tasks.map((t) => ({
+            id: t.id,
+            cells: [
+              w.incidents.find((i) => i.id === t.incident_id)?.public_label,
+              w.profiles.find((p) => p.id === t.worker_id)?.display_name ||
+                shortId(t.worker_id),
+              t.status,
+              t.due_at,
+              t.blocker || "—",
+            ],
+            detail: (
+              <>
+                <p>{t.action_taken}</p>
+                <p>{t.reason}</p>
+                <p>{t.destination}</p>
+                <PhotoStrip
+                  photos={w.photos.filter((p) => p.task_id === t.id)}
+                />
+              </>
+            ),
+          }))}
+        />
       )}
       <h3>Tanggapan pelapor</h3>
       {w.feedback.filter((f) => !f.reviewed_at).length === 0 ? (
         <Empty>Belum ada tanggapan yang perlu ditinjau.</Empty>
       ) : (
-        w.feedback
-          .filter((f) => !f.reviewed_at)
-          .map((f) => (
-            <article className="card" key={f.id}>
-              <p>
-                #{shortId(f.report_id)}: {f.note}
-              </p>
-              <ActionForm
-                op="feedback.review"
-                fixed={{ id: f.id }}
-                fields={[reasonField]}
-                label="Catat peninjauan"
-                onDone={refresh}
-              />
-            </article>
-          ))
+        <AdminList
+          admin={w.profile.is_admin}
+          title="Tanggapan pelapor"
+          columns={["Referensi", "Tanggapan"]}
+          rows={w.feedback
+            .filter((f) => !f.reviewed_at)
+            .map((f) => ({ id: f.id, cells: [shortId(f.report_id), f.note] }))}
+          filterColumns={[]}
+        >
+          {w.feedback
+            .filter((f) => !f.reviewed_at)
+            .map((f) => (
+              <article className="card" key={f.id}>
+                <p>
+                  #{shortId(f.report_id)}: {f.note}
+                </p>
+                <ActionForm
+                  op="feedback.review"
+                  fixed={{ id: f.id }}
+                  fields={[reasonField]}
+                  label="Catat peninjauan"
+                  onDone={refresh}
+                />
+              </article>
+            ))}
+        </AdminList>
       )}
     </>
   );
@@ -461,68 +541,80 @@ export function MyReports({
       {!reports.length ? (
         <Empty>Anda belum mengirim laporan di wilayah ini.</Empty>
       ) : (
-        reports.map((r) => {
-          const i = w.incidents.find((i) => i.id === r.incident_id);
-          return (
-            <article className="card" key={r.id}>
-              <div className="card-heading">
-                <h3>{r.landmark}</h3>
-                <Status value={i?.status || r.status} />
-              </div>
-              <p>{r.description}</p>
-              <EvidenceDetails report={r} />
-              <small>
-                #{shortId(r.id)} · Dikirim {dateTime(r.created_at)} · Diamati{" "}
-                {dateTime(r.observed_at)}
-              </small>
-              {r.reason && (
-                <p className="notice bad">Alasan penolakan: {r.reason}</p>
-              )}
-              <PhotoStrip
-                photos={w.photos.filter(
-                  (p) =>
-                    p.report_id === r.id ||
-                    (!!i &&
-                      (p.incident_id === i.id ||
-                        w.tasks.some(
-                          (t) => t.id === p.task_id && t.incident_id === i.id,
-                        ))),
+        <AdminList
+          admin={w.profile.is_admin}
+          title="Laporan saya"
+          columns={["Lokasi", "Referensi", "Status", "Dikirim"]}
+          rows={reports.map((r) => ({
+            id: r.id,
+            cells: [r.landmark, shortId(r.id), r.status, r.created_at],
+          }))}
+          filterColumns={[2]}
+        >
+          {reports.map((r) => {
+            const i = w.incidents.find((i) => i.id === r.incident_id);
+            return (
+              <article className="card" key={r.id}>
+                <div className="card-heading">
+                  <h3>{r.landmark}</h3>
+                  <Status value={i?.status || r.status} />
+                </div>
+                <p>{r.description}</p>
+                <EvidenceDetails report={r} />
+                <small>
+                  #{shortId(r.id)} · Dikirim {dateTime(r.created_at)} · Diamati{" "}
+                  {dateTime(r.observed_at)}
+                </small>
+                {r.reason && (
+                  <p className="notice bad">Alasan penolakan: {r.reason}</p>
                 )}
-              />
-              <Timeline
-                history={w.history.filter(
-                  (h) => h.entity_id === r.id || h.entity_id === r.incident_id,
+                <PhotoStrip
+                  photos={w.photos.filter(
+                    (p) =>
+                      p.report_id === r.id ||
+                      (!!i &&
+                        (p.incident_id === i.id ||
+                          w.tasks.some(
+                            (t) => t.id === p.task_id && t.incident_id === i.id,
+                          ))),
+                  )}
+                />
+                <Timeline
+                  history={w.history.filter(
+                    (h) =>
+                      h.entity_id === r.id || h.entity_id === r.incident_id,
+                  )}
+                />
+                {r.status === "validated" && (
+                  <details>
+                    <summary>Beri tanggapan penanganan</summary>
+                    <p>
+                      Tanggapan masuk ke antrean koordinator dan tidak mengubah
+                      status pekerjaan secara otomatis.
+                    </p>
+                    <ActionForm
+                      op="report.feedback"
+                      fixed={{ id: r.id }}
+                      fields={[reasonField]}
+                      label="Kirim tanggapan"
+                      onDone={refresh}
+                    />
+                    {w.feedback
+                      .filter((f) => f.report_id === r.id)
+                      .map((f) => (
+                        <p key={f.id}>
+                          {f.note} ·{" "}
+                          {f.reviewed_at
+                            ? "Ditinjau: " + f.review_note
+                            : "Menunggu peninjauan"}
+                        </p>
+                      ))}
+                  </details>
                 )}
-              />
-              {r.status === "validated" && (
-                <details>
-                  <summary>Beri tanggapan penanganan</summary>
-                  <p>
-                    Tanggapan masuk ke antrean koordinator dan tidak mengubah
-                    status pekerjaan secara otomatis.
-                  </p>
-                  <ActionForm
-                    op="report.feedback"
-                    fixed={{ id: r.id }}
-                    fields={[reasonField]}
-                    label="Kirim tanggapan"
-                    onDone={refresh}
-                  />
-                  {w.feedback
-                    .filter((f) => f.report_id === r.id)
-                    .map((f) => (
-                      <p key={f.id}>
-                        {f.note} ·{" "}
-                        {f.reviewed_at
-                          ? "Ditinjau: " + f.review_note
-                          : "Menunggu peninjauan"}
-                      </p>
-                    ))}
-                </details>
-              )}
-            </article>
-          );
-        })
+              </article>
+            );
+          })}
+        </AdminList>
       )}
     </>
   );
@@ -552,27 +644,42 @@ export function PreventionPanel({
       {!recurrent.length ? (
         <Empty>Belum ada titik yang mencapai ambang tinjauan.</Empty>
       ) : (
-        recurrent.map((p) => (
-          <article key={p.id} className="card">
-            <h3>{p.label}</h3>
-            <p>
-              {counts.get(p.id)?.length} kejadian tervalidasi dalam{" "}
-              {region.recurrence_days} hari terakhir.
-            </p>
-            <ul>
-              {counts.get(p.id)?.map((i) => (
-                <li key={i.id}>
-                  #
-                  {incidentReference(
-                    i.id,
-                    w.incidents.map((x) => x.id),
-                  )}{" "}
-                  · {dateTime(i.verified_at)} · <Status value={i.status} />
-                </li>
-              ))}
-            </ul>
-          </article>
-        ))
+        <AdminList
+          admin={w.profile.is_admin}
+          title="Titik berulang"
+          columns={["Titik", "Kejadian", "Periode hari"]}
+          rows={recurrent.map((p) => ({
+            id: p.id,
+            cells: [
+              p.label,
+              counts.get(p.id)?.length ?? 0,
+              region.recurrence_days,
+            ],
+          }))}
+          filterColumns={[]}
+        >
+          {recurrent.map((p) => (
+            <article key={p.id} className="card">
+              <h3>{p.label}</h3>
+              <p>
+                {counts.get(p.id)?.length} kejadian tervalidasi dalam{" "}
+                {region.recurrence_days} hari terakhir.
+              </p>
+              <ul>
+                {counts.get(p.id)?.map((i) => (
+                  <li key={i.id}>
+                    #
+                    {incidentReference(
+                      i.id,
+                      w.incidents.map((x) => x.id),
+                    )}{" "}
+                    · {dateTime(i.verified_at)} · <Status value={i.status} />
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </AdminList>
       )}
       <details>
         <summary>Catat tindakan pencegahan</summary>
@@ -600,31 +707,50 @@ export function PreventionPanel({
           onDone={refresh}
         />
       </details>
-      {w.preventions.map((p) => (
-        <article className="card" key={p.id}>
-          <h3>{w.points.find((x) => x.id === p.point_id)?.label}</h3>
-          <span className="badge warn">Dugaan penyebab: perlu konfirmasi</span>
-          <p>{p.hypothesis}</p>
-          <p>Dasar: {p.basis}</p>
-          <p>Tindakan: {p.action}</p>
-          <small>
-            PIC: {p.pic} · Evaluasi {p.evaluate_on}
-          </small>
-          {p.result ? (
-            <p className="notice good">Hasil evaluasi: {p.result}</p>
-          ) : (
-            <ActionForm
-              op="prevention.evaluate"
-              fixed={{ id: p.id, version: p.version }}
-              fields={[
-                required("result", "Hasil pengamatan evaluasi", "textarea"),
-              ]}
-              label="Catat evaluasi"
-              onDone={refresh}
-            />
-          )}
-        </article>
-      ))}
+      <AdminList
+        admin={w.profile.is_admin}
+        title="Tindakan pencegahan"
+        columns={["Titik", "Tindakan", "PIC", "Evaluasi", "Status"]}
+        rows={w.preventions.map((p) => ({
+          id: p.id,
+          cells: [
+            w.points.find((x) => x.id === p.point_id)?.label,
+            p.action,
+            p.pic,
+            p.evaluate_on,
+            p.result ? "Dievaluasi" : "Belum dievaluasi",
+          ],
+        }))}
+        filterColumns={[2, 4]}
+      >
+        {w.preventions.map((p) => (
+          <article className="card" key={p.id}>
+            <h3>{w.points.find((x) => x.id === p.point_id)?.label}</h3>
+            <span className="badge warn">
+              Dugaan penyebab: perlu konfirmasi
+            </span>
+            <p>{p.hypothesis}</p>
+            <p>Dasar: {p.basis}</p>
+            <p>Tindakan: {p.action}</p>
+            <small>
+              PIC: {p.pic} · Evaluasi {p.evaluate_on}
+            </small>
+            {p.result ? (
+              <p className="notice good">Hasil evaluasi: {p.result}</p>
+            ) : (
+              <ActionForm
+                op="prevention.evaluate"
+                fixed={{ id: p.id, version: p.version }}
+                fields={[
+                  required("result", "Hasil pengamatan evaluasi", "textarea"),
+                ]}
+                label="Catat evaluasi"
+                onDone={refresh}
+              />
+            )}
+          </article>
+        ))}
+      </AdminList>
     </>
   );
 }
@@ -702,134 +828,167 @@ export function ScheduleManager({
           />
         </details>
       )}
-      {w.schedules.map((s) => (
-        <article className="card" key={s.id}>
-          <h3>
-            {s.service} · {s.zone}
-          </h3>
-          <p>
-            {s.valid_from} — {s.valid_until}
-          </p>
-          {isCoord && (
-            <details>
-              <summary>Konfirmasi / ganti aturan mulai tanggal baru</summary>
-              <p>
-                Aturan lama dan pelaksanaan historis tetap disimpan. Untuk
-                perubahan satu hari, gunakan bagian perubahan tanggal.
-              </p>
-              <ActionForm
-                op="schedule.save"
-                fixed={{
-                  id: s.id,
-                  version: s.version,
-                  region_id: region.id,
-                  service: s.service,
-                  zone: s.zone,
-                  ...(s.worker_id ? { worker_id: s.worker_id } : {}),
-                }}
-                fields={[
-                  {
-                    ...required(
-                      "weekdays",
-                      "Hari berulang (angka dipisahkan koma)",
-                    ),
-                    initial: s.weekdays.join(","),
-                    hint: "0 Minggu, 1 Senin, 2 Selasa, 3 Rabu, 4 Kamis, 5 Jumat, 6 Sabtu.",
-                  },
-                  {
-                    ...required("start_time", "Mulai", "time"),
-                    initial: s.start_time.slice(0, 5),
-                  },
-                  {
-                    ...required("end_time", "Sampai", "time"),
-                    initial: s.end_time.slice(0, 5),
-                  },
-                  {
-                    ...required(
-                      "valid_from",
-                      "Aturan baru berlaku mulai",
-                      "date",
-                    ),
-                    initial: jakartaDate(new Date(now.getTime() + 86400000)),
-                  },
-                  {
-                    ...required("valid_until", "Berlaku sampai", "date"),
-                    initial: s.valid_until,
-                  },
-                  {
-                    ...required("source", "Sumber konfirmasi"),
-                    initial: s.source,
-                  },
-                  {
-                    name: "confirmed",
-                    label: "Sumber dan jam layanan sudah dikonfirmasi",
-                    type: "checkbox",
-                    initial: "true",
-                  },
-                ]}
-                label="Simpan aturan pengganti"
-                onDone={refresh}
-              />
-            </details>
-          )}
-          {isCoord && (
-            <details>
-              <summary>Perubahan satu tanggal</summary>
-              <ActionForm
-                op="schedule.exception"
-                fixed={{ id: s.id }}
-                fields={[
-                  required("date", "Tanggal layanan", "date"),
-                  {
-                    name: "cancelled",
-                    label: "Dibatalkan / ditunda tanpa jam pengganti",
-                    type: "checkbox",
-                  },
-                  {
-                    name: "start_time",
-                    label: "Jam pengganti mulai",
-                    type: "time",
-                  },
-                  { name: "end_time", label: "Sampai", type: "time" },
-                  reasonField,
-                ]}
-                label="Catat perubahan"
-                onDone={refresh}
-              />
-            </details>
-          )}
-          {(isCoord || s.worker_id === w.profile.id) && (
-            <details>
-              <summary>Catat pelaksanaan aktual</summary>
-              <ActionForm
-                op="schedule.run"
-                fixed={{ id: s.id }}
-                fields={[
-                  required("date", "Tanggal layanan", "date"),
-                  {
-                    ...required("actual_at", "Waktu aktual", "datetime-local"),
-                    initial: localDateTime(now),
-                  },
-                  reasonField,
-                ]}
-                label="Simpan pelaksanaan"
-                onDone={refresh}
-              />
-            </details>
-          )}
-          {w.exceptions
-            .filter((e) => e.schedule_id === s.id)
-            .map((e) => (
-              <p key={e.id}>
-                <small>
-                  Riwayat perubahan {e.date}: {e.reason} (
-                  {e.cancelled ? "Dibatalkan" : e.start_time + "–" + e.end_time}
-                  )
-                </small>
-              </p>
-            ))}
-        </article>
-      ))}
+      <AdminList
+        admin={w.profile.is_admin}
+        title="Aturan jadwal"
+        columns={[
+          "Layanan",
+          "Zona",
+          "Mulai",
+          "Sampai",
+          "Berlaku mulai",
+          "Berlaku sampai",
+          "Konfirmasi",
+        ]}
+        rows={w.schedules.map((s) => ({
+          id: s.id,
+          cells: [
+            s.service,
+            s.zone,
+            s.start_time,
+            s.end_time,
+            s.valid_from,
+            s.valid_until,
+            s.confirmed_at ? "Dikonfirmasi" : "Belum dikonfirmasi",
+          ],
+        }))}
+        filterColumns={[1, 6]}
+      >
+        {w.schedules.map((s) => (
+          <article className="card" key={s.id}>
+            <h3>
+              {s.service} · {s.zone}
+            </h3>
+            <p>
+              {s.valid_from} — {s.valid_until}
+            </p>
+            {isCoord && (
+              <details>
+                <summary>Konfirmasi / ganti aturan mulai tanggal baru</summary>
+                <p>
+                  Aturan lama dan pelaksanaan historis tetap disimpan. Untuk
+                  perubahan satu hari, gunakan bagian perubahan tanggal.
+                </p>
+                <ActionForm
+                  op="schedule.save"
+                  fixed={{
+                    id: s.id,
+                    version: s.version,
+                    region_id: region.id,
+                    service: s.service,
+                    zone: s.zone,
+                    ...(s.worker_id ? { worker_id: s.worker_id } : {}),
+                  }}
+                  fields={[
+                    {
+                      ...required(
+                        "weekdays",
+                        "Hari berulang (angka dipisahkan koma)",
+                      ),
+                      initial: s.weekdays.join(","),
+                      hint: "0 Minggu, 1 Senin, 2 Selasa, 3 Rabu, 4 Kamis, 5 Jumat, 6 Sabtu.",
+                    },
+                    {
+                      ...required("start_time", "Mulai", "time"),
+                      initial: s.start_time.slice(0, 5),
+                    },
+                    {
+                      ...required("end_time", "Sampai", "time"),
+                      initial: s.end_time.slice(0, 5),
+                    },
+                    {
+                      ...required(
+                        "valid_from",
+                        "Aturan baru berlaku mulai",
+                        "date",
+                      ),
+                      initial: jakartaDate(new Date(now.getTime() + 86400000)),
+                    },
+                    {
+                      ...required("valid_until", "Berlaku sampai", "date"),
+                      initial: s.valid_until,
+                    },
+                    {
+                      ...required("source", "Sumber konfirmasi"),
+                      initial: s.source,
+                    },
+                    {
+                      name: "confirmed",
+                      label: "Sumber dan jam layanan sudah dikonfirmasi",
+                      type: "checkbox",
+                      initial: "true",
+                    },
+                  ]}
+                  label="Simpan aturan pengganti"
+                  onDone={refresh}
+                />
+              </details>
+            )}
+            {isCoord && (
+              <details>
+                <summary>Perubahan satu tanggal</summary>
+                <ActionForm
+                  op="schedule.exception"
+                  fixed={{ id: s.id }}
+                  fields={[
+                    required("date", "Tanggal layanan", "date"),
+                    {
+                      name: "cancelled",
+                      label: "Dibatalkan / ditunda tanpa jam pengganti",
+                      type: "checkbox",
+                    },
+                    {
+                      name: "start_time",
+                      label: "Jam pengganti mulai",
+                      type: "time",
+                    },
+                    { name: "end_time", label: "Sampai", type: "time" },
+                    reasonField,
+                  ]}
+                  label="Catat perubahan"
+                  onDone={refresh}
+                />
+              </details>
+            )}
+            {(isCoord || s.worker_id === w.profile.id) && (
+              <details>
+                <summary>Catat pelaksanaan aktual</summary>
+                <ActionForm
+                  op="schedule.run"
+                  fixed={{ id: s.id }}
+                  fields={[
+                    required("date", "Tanggal layanan", "date"),
+                    {
+                      ...required(
+                        "actual_at",
+                        "Waktu aktual",
+                        "datetime-local",
+                      ),
+                      initial: localDateTime(now),
+                    },
+                    reasonField,
+                  ]}
+                  label="Simpan pelaksanaan"
+                  onDone={refresh}
+                />
+              </details>
+            )}
+            {w.exceptions
+              .filter((e) => e.schedule_id === s.id)
+              .map((e) => (
+                <p key={e.id}>
+                  <small>
+                    Riwayat perubahan {e.date}: {e.reason} (
+                    {e.cancelled
+                      ? "Dibatalkan"
+                      : e.start_time + "–" + e.end_time}
+                    )
+                  </small>
+                </p>
+              ))}
+          </article>
+        ))}
+      </AdminList>
     </>
   );
 }
@@ -862,7 +1021,9 @@ export function Admin({ w, refresh }: { w: Workspace; refresh: () => void }) {
       {/* 1. MASTER WILAYAH LAYANAN */}
       <section className="space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <h3 className="text-base font-bold text-slate-800">Daftar Wilayah Layanan</h3>
+          <h3 className="text-base font-bold text-slate-800">
+            Daftar Wilayah Layanan
+          </h3>
           <details className="text-sm">
             <summary className="button secondary text-xs py-1.5 px-3">
               + Tambah Wilayah Baru
@@ -876,7 +1037,11 @@ export function Admin({ w, refresh }: { w: Workspace; refresh: () => void }) {
                   required("owner_label", "Pemilik operasional"),
                   required("lat", "Lintang pusat", "number"),
                   required("lng", "Bujur pusat", "number"),
-                  { name: "active", label: "Aktifkan layanan", type: "checkbox" },
+                  {
+                    name: "active",
+                    label: "Aktifkan layanan",
+                    type: "checkbox",
+                  },
                   reasonField,
                 ]}
                 label="Simpan wilayah baru"
@@ -886,57 +1051,65 @@ export function Admin({ w, refresh }: { w: Workspace; refresh: () => void }) {
           </details>
         </div>
 
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Nama Wilayah</th>
-                <th>Cakupan Wilayah</th>
-                <th>Pemilik / PIC</th>
-                <th>Koordinat (Lat, Lng)</th>
-                <th>Ambang Kejadian</th>
-                <th>Status Layanan</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {w.regions.map((r) => (
-                <tr key={r.id}>
-                  <td className="font-semibold text-slate-900">{r.name}</td>
-                  <td className="text-slate-600 text-xs">{r.coverage}</td>
-                  <td className="text-slate-700 text-xs">{r.owner_label}</td>
-                  <td className="font-mono text-xs text-slate-500">
-                    {r.lat.toFixed(4)}, {r.lng.toFixed(4)}
-                  </td>
-                  <td className="text-xs text-slate-600">
-                    {r.recurrence_count}x / {r.recurrence_days} hari
-                  </td>
-                  <td>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                        r.active
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-slate-100 text-slate-600"
-                      }`}
-                    >
-                      {r.active ? "Aktif" : "Non-Aktif"}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="button secondary text-xs py-1 px-2.5"
-                      onClick={() =>
-                        setEditingRegion(editingRegion === r.id ? null : r.id)
-                      }
-                    >
-                      {editingRegion === r.id ? "Tutup" : "Kelola"}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <AdminDataTable
+          title="Wilayah layanan"
+          columns={[
+            "Nama Wilayah",
+            "Cakupan",
+            "Pemilik / PIC",
+            "Koordinat",
+            "Ambang",
+            "Status",
+          ]}
+          filterColumns={[5]}
+          rows={w.regions.map((r) => ({
+            id: r.id,
+            cells: [
+              r.name,
+              r.coverage,
+              r.owner_label,
+              `${r.lat.toFixed(4)}, ${r.lng.toFixed(4)}`,
+              `${r.recurrence_count}x / ${r.recurrence_days}h`,
+              r.active ? "Aktif" : "Non-Aktif",
+            ],
+            detail: (
+              <div>
+                <h4>Ubah Konfigurasi: {r.name}</h4>
+                <ActionForm
+                  op="admin.region"
+                  fixed={{ id: r.id, version: r.version }}
+                  fields={[
+                    {
+                      name: "active",
+                      label: "Layanan aktif",
+                      type: "checkbox",
+                      initial: String(r.active),
+                    },
+                    {
+                      ...required(
+                        "recurrence_count",
+                        "Ambang jumlah kejadian",
+                        "number",
+                      ),
+                      initial: String(r.recurrence_count),
+                      min: 2,
+                      max: 20,
+                    },
+                    {
+                      ...required("recurrence_days", "Periode hari", "number"),
+                      initial: String(r.recurrence_days),
+                      min: 1,
+                      max: 365,
+                    },
+                    reasonField,
+                  ]}
+                  label="Perbarui wilayah"
+                  onDone={refresh}
+                />
+              </div>
+            ),
+          }))}
+        />
 
         {/* Modal/Drawer Edit Wilayah Terpilih */}
         {editingRegion && (
@@ -978,7 +1151,11 @@ export function Admin({ w, refresh }: { w: Workspace; refresh: () => void }) {
                         max: 20,
                       },
                       {
-                        ...required("recurrence_days", "Periode hari", "number"),
+                        ...required(
+                          "recurrence_days",
+                          "Periode hari",
+                          "number",
+                        ),
                         initial: String(r.recurrence_days),
                         min: 1,
                         max: 365,
@@ -1001,7 +1178,9 @@ export function Admin({ w, refresh }: { w: Workspace; refresh: () => void }) {
       {/* 2. TABEL HAK AKSES DAN PENUGASAN (MEMBERSHIP) */}
       <section className="space-y-3 mt-6">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <h3 className="text-base font-bold text-slate-800">Penunjukan Hak Akses Pengelola</h3>
+          <h3 className="text-base font-bold text-slate-800">
+            Penunjukan Hak Akses Pengelola
+          </h3>
           <details className="text-sm">
             <summary className="button secondary text-xs py-1.5 px-3">
               + Tetapkan Akses Akun
@@ -1012,7 +1191,10 @@ export function Admin({ w, refresh }: { w: Workspace; refresh: () => void }) {
                 fields={[
                   {
                     ...required("region_id", "Wilayah", "select"),
-                    options: w.regions.map((r) => ({ value: r.id, label: r.name })),
+                    options: w.regions.map((r) => ({
+                      value: r.id,
+                      label: r.name,
+                    })),
                   },
                   {
                     ...required("user_id", "Akun pengguna", "select"),
@@ -1043,140 +1225,107 @@ export function Admin({ w, refresh }: { w: Workspace; refresh: () => void }) {
           </details>
         </div>
 
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Nama Pengguna</th>
-                <th>Wilayah Penugasan</th>
-                <th>Peran</th>
-                <th>Status Akses</th>
-              </tr>
-            </thead>
-            <tbody>
-              {w.memberships.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="text-center py-4 text-slate-400 text-xs">
-                    Belum ada penugasan anggota.
-                  </td>
-                </tr>
-              ) : (
-                w.memberships.map((m) => {
-                  const prof = w.profiles.find((p) => p.id === m.user_id);
-                  const reg = w.regions.find((r) => r.id === m.region_id);
-                  return (
-                    <tr key={`${m.user_id}-${m.region_id}`}>
-                      <td className="font-medium text-slate-900">
-                        {prof?.display_name || "Akun (" + shortId(m.user_id) + ")"}
-                      </td>
-                      <td className="text-slate-600 text-xs">{reg?.name || m.region_id}</td>
-                      <td>
-                        <span
-                          className={`px-2 py-0.5 rounded text-[11px] font-bold ${
-                            m.role === "coordinator"
-                              ? "bg-purple-100 text-purple-800"
-                              : "bg-blue-100 text-blue-800"
-                          }`}
-                        >
-                          {m.role === "coordinator" ? "Koordinator" : "Petugas"}
-                        </span>
-                      </td>
-                      <td>
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                            m.active
-                              ? "bg-emerald-100 text-emerald-800"
-                              : "bg-rose-100 text-rose-800"
-                          }`}
-                        >
-                          {m.active ? "Aktif" : "Dicabut"}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
+        <AdminDataTable
+          title="Hak akses pengelola"
+          columns={["Nama Pengguna", "Wilayah", "Peran", "Status"]}
+          filterColumns={[1, 2, 3]}
+          rows={w.memberships.map((m) => {
+            const prof = w.profiles.find((p) => p.id === m.user_id);
+            const reg = w.regions.find((r) => r.id === m.region_id);
+            return {
+              id: `${m.user_id}-${m.region_id}`,
+              cells: [
+                prof?.display_name || "Akun (" + shortId(m.user_id) + ")",
+                reg?.name || m.region_id,
+                m.role === "coordinator" ? "Koordinator" : "Petugas",
+                m.active ? "Aktif" : "Dicabut",
+              ],
+            };
+          })}
+        />
       </section>
 
       {/* 3. TABEL MODERASI KONTEN */}
       <section className="space-y-3 mt-6">
-        <h3 className="text-base font-bold text-slate-800">Tabel Moderasi Konten Wilayah</h3>
+        <h3 className="text-base font-bold text-slate-800">
+          Tabel Moderasi Konten Wilayah
+        </h3>
         <p className="text-xs text-slate-500">
-          Admin dapat menyembunyikan aduan fiktif atau foto tak pantas dari pandangan publik.
+          Admin dapat menyembunyikan aduan fiktif atau foto tak pantas dari
+          pandangan publik.
         </p>
 
-        <div className="admin-table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Tipe Entitas</th>
-                <th>Label / Lokasi</th>
-                <th>Status Moderasi</th>
-                <th>Tindakan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {moderationItems.length === 0 ? (
-                <tr>
-                  <td colSpan={4} className="text-center py-4 text-slate-400 text-xs">
-                    Tidak ada konten untuk dimoderasi.
-                  </td>
-                </tr>
-              ) : (
-                moderationItems.map((item) => (
-                  <tr key={item.id}>
-                    <td>
-                      <span className="text-xs font-mono uppercase font-semibold text-slate-500">
-                        {item.type === "report" ? "Laporan Warga" : "Insiden Publik"}
-                      </span>
-                    </td>
-                    <td className="font-medium text-slate-800 text-xs">{item.label}</td>
-                    <td>
-                      <span
-                        className={`px-2 py-0.5 rounded-full text-[11px] font-semibold ${
-                          item.hidden
-                            ? "bg-rose-100 text-rose-800"
-                            : "bg-emerald-100 text-emerald-800"
-                        }`}
-                      >
-                        {item.hidden ? "Disembunyikan" : "Terlihat Publik"}
-                      </span>
-                    </td>
-                    <td>
-                      <details className="inline-block">
-                        <summary className="button secondary text-xs py-0.5 px-2">
-                          {item.hidden ? "Pulihkan" : "Sembunyikan"}
-                        </summary>
-                        <div className="card p-3 mt-1 absolute z-10 bg-white shadow-lg max-w-sm">
-                          <ActionForm
-                            op="admin.moderate"
-                            fixed={{
-                              id: item.id,
-                              entity_type: item.type,
-                              hidden: !item.hidden,
-                            }}
-                            fields={[reasonField]}
-                            label={item.hidden ? "Konfirmasi Pulihkan" : "Konfirmasi Sembunyikan"}
-                            onDone={refresh}
-                          />
-                        </div>
-                      </details>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <AdminDataTable
+          title="Moderasi konten"
+          columns={["Tipe Entitas", "Label / Lokasi", "Status Moderasi"]}
+          filterColumns={[0, 2]}
+          rows={moderationItems.map((item) => ({
+            id: item.id,
+            cells: [
+              item.type === "report" ? "Laporan Warga" : "Insiden Publik",
+              item.label,
+              item.hidden ? "Disembunyikan" : "Terlihat Publik",
+            ],
+            detail: (
+              <div>
+                <h4>Moderasi: {item.label}</h4>
+                <p>
+                  Status saat ini:{" "}
+                  {item.hidden
+                    ? "Disembunyikan dari publik"
+                    : "Terlihat oleh publik"}
+                </p>
+                <ActionForm
+                  op="admin.moderate"
+                  fixed={{
+                    id: item.id,
+                    entity_type: item.type,
+                    hidden: !item.hidden,
+                  }}
+                  fields={[reasonField]}
+                  label={
+                    item.hidden
+                      ? "Konfirmasi Pulihkan"
+                      : "Konfirmasi Sembunyikan"
+                  }
+                  onDone={refresh}
+                />
+              </div>
+            ),
+          }))}
+        />
       </section>
 
       {/* 4. RIWAYAT AUDIT ADMINISTRATIF */}
       <section className="space-y-3 mt-6">
-        <h3 className="text-base font-bold text-slate-800">Riwayat Audit Administratif</h3>
-        <Timeline history={w.history.filter((h) => h.entity_type === "admin")} />
+        <h3 className="text-base font-bold text-slate-800">
+          Riwayat Audit Administratif
+        </h3>
+        <AdminDataTable
+          title="Audit administratif"
+          columns={["Tanggal", "Aksi", "Catatan", "Referensi"]}
+          filterColumns={[1]}
+          rows={w.history
+            .filter((h) => h.entity_type === "admin")
+            .map((h) => ({
+              id: String(h.id),
+              cells: [h.created_at, h.action, h.note, h.entity_id],
+            }))}
+        />
+        <AdminDataTable
+          title="Titik wilayah layanan"
+          columns={["Nama Titik", "Wilayah", "Lintang", "Bujur"]}
+          filterColumns={[1]}
+          rows={w.points.map((p) => ({
+            id: p.id,
+            cells: [
+              p.label,
+              w.regions.find((r) => r.id === p.region_id)?.name || p.region_id,
+              p.lat !== null ? p.lat.toFixed(4) : "—",
+              p.lng !== null ? p.lng.toFixed(4) : "—",
+            ],
+          }))}
+        />
       </section>
     </>
   );

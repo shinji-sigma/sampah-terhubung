@@ -1,4 +1,5 @@
 "use client";
+import { AdminList } from "./admin-data-table";
 import type { CleanupEvent, Region, Workspace } from "@/lib/types";
 import { dateTime, incidentReference, shortId } from "@/lib/types";
 import { ActionForm, localDateTime, type Field } from "./forms";
@@ -29,7 +30,8 @@ export function Events({
   preview?: boolean;
   onSchedule: () => void;
 }) {
-  const visible = coordinator && w ? w.events : events;
+  const isCoord = coordinator || !!w?.profile.is_admin;
+  const visible = isCoord && w ? w.events : events;
   return (
     <>
       <SectionTitle
@@ -38,7 +40,7 @@ export function Events({
         title="Kegiatan lingkungan"
         description="Pembersihan terencana, dengan penanggung jawab dan tujuan pengangkutan yang jelas."
       />
-      {coordinator && w && region && (
+      {isCoord && w && region && (
         <details>
           <summary>Rencanakan kegiatan</summary>
           <ActionForm
@@ -109,274 +111,299 @@ export function Events({
           <button className="text-button" onClick={onSchedule}>
             Lihat jadwal pengangkutan →
           </button>
-          {coordinator && (
+          {isCoord && (
             <p className="small-muted">
               Gunakan “Rencanakan kegiatan” untuk menyiapkan draf.
             </p>
           )}
         </div>
       ) : (
-        visible.map((e) => {
-          const joined = w?.registrations.some(
-            (r) => r.event_id === e.id && r.user_id === w.profile.id,
-          );
-          const members =
-            w?.registrations.filter((r) => r.event_id === e.id) || [];
-          const count = coordinator ? members.length : e.participants;
-          const isPast = new Date(e.starts_at) <= now;
-          const displayCount = count || 0;
-          const isFull = displayCount >= e.capacity;
+        <AdminList
+          admin={!!w?.profile.is_admin}
+          title="Kegiatan lingkungan"
+          columns={[
+            "Kegiatan",
+            "Lokasi",
+            "Jadwal",
+            "PIC",
+            "Status",
+            "Kapasitas",
+          ]}
+          filterColumns={[3, 4]}
+          rows={visible.map((e) => ({
+            id: e.id,
+            cells: [
+              e.title,
+              e.location,
+              e.starts_at,
+              e.pic,
+              e.status,
+              e.capacity,
+            ],
+          }))}
+        >
+          {visible.map((e) => {
+            const joined = w?.registrations.some(
+              (r) => r.event_id === e.id && r.user_id === w.profile.id,
+            );
+            const members =
+              w?.registrations.filter((r) => r.event_id === e.id) || [];
+            const count = isCoord ? members.length : e.participants;
+            const isPast = new Date(e.starts_at) <= now;
+            const displayCount = count || 0;
+            const isFull = displayCount >= e.capacity;
 
-          return (
-            <article className="card event-card" key={e.id}>
-              <div className="card-heading">
-                <h3>{e.title}</h3>
-                {isPast ? (
-                  <span className="badge muted">
-                    Pendaftaran Ditutup (Selesai)
-                  </span>
-                ) : isFull ? (
-                  <span className="badge warn">Kuota Penuh</span>
-                ) : (
-                  <Status value={e.status} />
-                )}
-              </div>
-              <p className="event-location">{e.location}</p>
-              <dl className="facts">
-                <div>
-                  <dt>Jadwal</dt>
-                  <dd>{dateTime(e.starts_at)}</dd>
+            return (
+              <article className="card event-card" key={e.id}>
+                <div className="card-heading">
+                  <h3>{e.title}</h3>
+                  {isPast ? (
+                    <span className="badge muted">
+                      Pendaftaran Ditutup (Selesai)
+                    </span>
+                  ) : isFull ? (
+                    <span className="badge warn">Kuota Penuh</span>
+                  ) : (
+                    <Status value={e.status} />
+                  )}
                 </div>
-                <div>
-                  <dt>Peserta</dt>
-                  <dd>
-                    {displayCount} / {e.capacity}
-                  </dd>
-                </div>
-                <div>
-                  <dt>PIC</dt>
-                  <dd>{e.pic}</dd>
-                </div>
-                <div>
-                  <dt>Tugas & alat</dt>
-                  <dd>
-                    {e.duties}
-                    <br />
-                    {e.equipment}
-                  </dd>
-                </div>
-              </dl>
-              <div className="transport">
-                <strong>Rencana pengangkutan</strong>
-                <p>
-                  {e.transporter || "Pengangkut belum dikonfirmasi"} ·{" "}
-                  {dateTime(e.pickup_at)}
-                </p>
-                <p>Tujuan: {e.destination || "Belum ditetapkan"}</p>
-                <span
-                  className={
-                    "badge " + (e.transport_confirmed ? "good" : "warn")
-                  }
-                >
-                  {e.transport_confirmed
-                    ? "✓ Rencana dikonfirmasi"
-                    : "! Belum dikonfirmasi"}
-                </span>
-              </div>
-
-              {/* Status Pendaftaran & Tombol Aksi */}
-              {isPast ? (
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
-                  Jadwal kegiatan telah berlalu. Pendaftaran relawan ditutup
-                  otomatis.
-                </div>
-              ) : e.status === "published" ? (
-                w ? (
-                  <>
-                    <ActionForm
-                      op={joined ? "event.leave" : "event.join"}
-                      fixed={{ id: e.id }}
-                      label={
-                        joined ? "Batalkan keikutsertaan" : "Daftar kegiatan"
-                      }
-                      tone={joined ? "secondary" : "teal"}
-                      onDone={refresh}
-                    />
-                    {joined && (
-                      <p className="notice good">
-                        Anda terdaftar. Tugas:{" "}
-                        {members.find((r) => r.user_id === w.profile.id)
-                          ?.duty || "Relawan Pelaksana"}
-                      </p>
-                    )}
-                  </>
-                ) : (
-                  <div className="flex flex-wrap gap-2 pt-2">
-                    <p className="notice info">
-                      Pendaftaran tamu belum tersedia. Data tamu tidak
-                      dikumpulkan atau disimpan. Masuk dengan akun untuk
-                      mengakses pendaftaran kegiatan.
-                    </p>
-                    <button
-                      className="button secondary"
-                      onClick={login}
-                      disabled={preview}
-                    >
-                      Masuk dengan Akun
-                    </button>
+                <p className="event-location">{e.location}</p>
+                <dl className="facts">
+                  <div>
+                    <dt>Jadwal</dt>
+                    <dd>{dateTime(e.starts_at)}</dd>
                   </div>
-                )
-              ) : null}
-
-              {preview && (
-                <p className="small-muted" id={"event-preview-" + e.id}>
-                  Pendaftaran tidak tersedia di pratinjau statis.
-                </p>
-              )}
-              {coordinator && w && e.status === "draft" && (
-                <>
-                  <details>
-                    <summary>Lengkapi konfirmasi pengangkutan</summary>
-                    <ActionForm
-                      op="event.transport"
-                      fixed={{ id: e.id, version: e.version }}
-                      fields={[
-                        {
-                          ...required("transporter", "Pengangkut"),
-                          initial: e.transporter,
-                        },
-                        {
-                          ...required(
-                            "pickup_at",
-                            "Waktu pengambilan",
-                            "datetime-local",
-                          ),
-                          initial: e.pickup_at
-                            ? localDateTime(new Date(e.pickup_at))
-                            : undefined,
-                        },
-                        {
-                          ...required("destination", "Tujuan"),
-                          initial: e.destination,
-                        },
-                        {
-                          name: "transport_confirmed",
-                          label: "Ketiga hal sudah dikonfirmasi",
-                          type: "checkbox",
-                          initial: String(e.transport_confirmed),
-                        },
-                      ]}
-                      label="Simpan rencana"
-                      onDone={refresh}
-                    />
-                  </details>
-                  <ActionForm
-                    op="event.publish"
-                    fixed={{ id: e.id, version: e.version }}
-                    label="Terbitkan kegiatan"
-                    onDone={refresh}
-                  />
-                </>
-              )}
-              {coordinator && w && e.status === "published" && (
-                <>
-                  <details>
-                    <summary>Peserta dan pembagian tugas</summary>
-                    {!members.length ? (
-                      <p>Belum ada peserta.</p>
-                    ) : (
-                      members.map((m) => (
-                        <div className="inset" key={m.user_id}>
-                          <p>
-                            {w.profiles.find((p) => p.id === m.user_id)
-                              ?.display_name ||
-                              "Peserta #" + shortId(m.user_id)}{" "}
-                            · {m.duty}
-                          </p>
-                          <ActionForm
-                            op="event.duty"
-                            fixed={{
-                              id: e.id,
-                              version: e.version,
-                              user_id: m.user_id,
-                            }}
-                            fields={[
-                              {
-                                ...required("duty", "Tugas peserta"),
-                                initial: m.duty,
-                              },
-                            ]}
-                            label="Tetapkan tugas"
-                            onDone={refresh}
-                          />
-                        </div>
-                      ))
-                    )}
-                  </details>
-                  <details>
-                    <summary>Catat hasil kegiatan</summary>
-                    <p>
-                      Penyelesaian kegiatan tidak menutup insiden. Koordinator
-                      tetap memeriksa bukti penanganan insiden.
-                    </p>
-                    <ActionForm
-                      op="event.complete"
-                      fixed={{ id: e.id, version: e.version }}
-                      fields={[
-                        {
-                          ...required(
-                            "performed_at",
-                            "Waktu pelaksanaan",
-                            "datetime-local",
-                          ),
-                          initial: localDateTime(now),
-                        },
-                        required(
-                          "completion_note",
-                          "Tindakan dan hasil",
-                          "textarea",
-                        ),
-                        {
-                          ...required(
-                            "transport_status",
-                            "Status pengangkutan",
-                            "select",
-                          ),
-                          options: [
-                            {
-                              value: "Sudah diangkut",
-                              label: "Sudah diangkut",
-                            },
-                            {
-                              value: "Tertunda — perlu tindak lanjut",
-                              label: "Tertunda — perlu tindak lanjut",
-                            },
-                          ],
-                        },
-                      ]}
-                      photos
-                      label="Simpan hasil kegiatan"
-                      onDone={refresh}
-                    />
-                  </details>
-                </>
-              )}
-              {e.status === "completed" && (
-                <>
-                  <p className="notice info">
-                    Pengangkutan: {e.transport_status}
+                  <div>
+                    <dt>Peserta</dt>
+                    <dd>
+                      {displayCount} / {e.capacity}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>PIC</dt>
+                    <dd>{e.pic}</dd>
+                  </div>
+                  <div>
+                    <dt>Tugas & alat</dt>
+                    <dd>
+                      {e.duties}
+                      <br />
+                      {e.equipment}
+                    </dd>
+                  </div>
+                </dl>
+                <div className="transport">
+                  <strong>Rencana pengangkutan</strong>
+                  <p>
+                    {e.transporter || "Pengangkut belum dikonfirmasi"} ·{" "}
+                    {dateTime(e.pickup_at)}
                   </p>
-                  <p>{e.completion_note}</p>
-                </>
-              )}
-              {coordinator && w && (
-                <PhotoStrip
-                  photos={w.photos.filter((p) => p.event_id === e.id)}
-                />
-              )}
-            </article>
-          );
-        })
+                  <p>Tujuan: {e.destination || "Belum ditetapkan"}</p>
+                  <span
+                    className={
+                      "badge " + (e.transport_confirmed ? "good" : "warn")
+                    }
+                  >
+                    {e.transport_confirmed
+                      ? "✓ Rencana dikonfirmasi"
+                      : "! Belum dikonfirmasi"}
+                  </span>
+                </div>
+
+                {/* Status Pendaftaran & Tombol Aksi */}
+                {isPast ? (
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600">
+                    Jadwal kegiatan telah berlalu. Pendaftaran relawan ditutup
+                    otomatis.
+                  </div>
+                ) : e.status === "published" ? (
+                  w ? (
+                    <>
+                      <ActionForm
+                        op={joined ? "event.leave" : "event.join"}
+                        fixed={{ id: e.id }}
+                        label={
+                          joined ? "Batalkan keikutsertaan" : "Daftar kegiatan"
+                        }
+                        tone={joined ? "secondary" : "teal"}
+                        onDone={refresh}
+                      />
+                      {joined && (
+                        <p className="notice good">
+                          Anda terdaftar. Tugas:{" "}
+                          {members.find((r) => r.user_id === w.profile.id)
+                            ?.duty || "Relawan Pelaksana"}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      <p className="notice info">
+                        Pendaftaran tamu belum tersedia. Data tamu tidak
+                        dikumpulkan atau disimpan. Masuk dengan akun untuk
+                        mengakses pendaftaran kegiatan.
+                      </p>
+                      <button
+                        className="button secondary"
+                        onClick={login}
+                        disabled={preview}
+                      >
+                        Masuk dengan Akun
+                      </button>
+                    </div>
+                  )
+                ) : null}
+
+                {preview && (
+                  <p className="small-muted" id={"event-preview-" + e.id}>
+                    Pendaftaran tidak tersedia di pratinjau statis.
+                  </p>
+                )}
+                {isCoord && w && e.status === "draft" && (
+                  <>
+                    <details>
+                      <summary>Lengkapi konfirmasi pengangkutan</summary>
+                      <ActionForm
+                        op="event.transport"
+                        fixed={{ id: e.id, version: e.version }}
+                        fields={[
+                          {
+                            ...required("transporter", "Pengangkut"),
+                            initial: e.transporter,
+                          },
+                          {
+                            ...required(
+                              "pickup_at",
+                              "Waktu pengambilan",
+                              "datetime-local",
+                            ),
+                            initial: e.pickup_at
+                              ? localDateTime(new Date(e.pickup_at))
+                              : undefined,
+                          },
+                          {
+                            ...required("destination", "Tujuan"),
+                            initial: e.destination,
+                          },
+                          {
+                            name: "transport_confirmed",
+                            label: "Ketiga hal sudah dikonfirmasi",
+                            type: "checkbox",
+                            initial: String(e.transport_confirmed),
+                          },
+                        ]}
+                        label="Simpan rencana"
+                        onDone={refresh}
+                      />
+                    </details>
+                    <ActionForm
+                      op="event.publish"
+                      fixed={{ id: e.id, version: e.version }}
+                      label="Terbitkan kegiatan"
+                      onDone={refresh}
+                    />
+                  </>
+                )}
+                {isCoord && w && e.status === "published" && (
+                  <>
+                    <details>
+                      <summary>Peserta dan pembagian tugas</summary>
+                      {!members.length ? (
+                        <p>Belum ada peserta.</p>
+                      ) : (
+                        members.map((m) => (
+                          <div className="inset" key={m.user_id}>
+                            <p>
+                              {w.profiles.find((p) => p.id === m.user_id)
+                                ?.display_name ||
+                                "Peserta #" + shortId(m.user_id)}{" "}
+                              · {m.duty}
+                            </p>
+                            <ActionForm
+                              op="event.duty"
+                              fixed={{
+                                id: e.id,
+                                version: e.version,
+                                user_id: m.user_id,
+                              }}
+                              fields={[
+                                {
+                                  ...required("duty", "Tugas peserta"),
+                                  initial: m.duty,
+                                },
+                              ]}
+                              label="Tetapkan tugas"
+                              onDone={refresh}
+                            />
+                          </div>
+                        ))
+                      )}
+                    </details>
+                    <details>
+                      <summary>Catat hasil kegiatan</summary>
+                      <p>
+                        Penyelesaian kegiatan tidak menutup insiden. Koordinator
+                        tetap memeriksa bukti penanganan insiden.
+                      </p>
+                      <ActionForm
+                        op="event.complete"
+                        fixed={{ id: e.id, version: e.version }}
+                        fields={[
+                          {
+                            ...required(
+                              "performed_at",
+                              "Waktu pelaksanaan",
+                              "datetime-local",
+                            ),
+                            initial: localDateTime(now),
+                          },
+                          required(
+                            "completion_note",
+                            "Tindakan dan hasil",
+                            "textarea",
+                          ),
+                          {
+                            ...required(
+                              "transport_status",
+                              "Status pengangkutan",
+                              "select",
+                            ),
+                            options: [
+                              {
+                                value: "Sudah diangkut",
+                                label: "Sudah diangkut",
+                              },
+                              {
+                                value: "Tertunda — perlu tindak lanjut",
+                                label: "Tertunda — perlu tindak lanjut",
+                              },
+                            ],
+                          },
+                        ]}
+                        photos
+                        label="Simpan hasil kegiatan"
+                        onDone={refresh}
+                      />
+                    </details>
+                  </>
+                )}
+                {e.status === "completed" && (
+                  <>
+                    <p className="notice info">
+                      Pengangkutan: {e.transport_status}
+                    </p>
+                    <p>{e.completion_note}</p>
+                  </>
+                )}
+                {isCoord && w && (
+                  <PhotoStrip
+                    photos={w.photos.filter((p) => p.event_id === e.id)}
+                  />
+                )}
+              </article>
+            );
+          })}
+        </AdminList>
       )}
     </>
   );

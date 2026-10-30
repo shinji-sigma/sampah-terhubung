@@ -13,7 +13,7 @@ try {
  await page.getByRole('button',{name:'Kegiatan',exact:true}).click();
  await page.getByRole('heading',{name:'Kegiatan lingkungan',exact:true}).waitFor();
  results.push({test:'preview events renders',pass:true});
- for (const name of ['Beranda','Jadwal angkut','Laporan saya','Kegiatan','Integrasi API','Panduan & SUS']) {
+ for (const name of ['Beranda','Jadwal angkut','Laporan saya','Kegiatan','Integrasi API']) {
   await page.getByRole('button',{name:'Buka navigasi',exact:true}).click();
   await page.getByRole('button',{name,exact:true}).first().click();
   await page.waitForTimeout(300);

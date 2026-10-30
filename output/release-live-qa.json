@@ -1,0 +1,418 @@
+[
+  {
+    "test": "route /",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": []
+    }
+  },
+  {
+    "test": "route /jadwal",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Jadwal pengangkutan"
+      ]
+    }
+  },
+  {
+    "test": "route /kegiatan",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Kegiatan lingkungan"
+      ]
+    }
+  },
+  {
+    "test": "route /laporan",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Laporan saya"
+      ]
+    }
+  },
+  {
+    "test": "route /laporan/baru",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Buat laporan"
+      ]
+    }
+  },
+  {
+    "test": "route /integrasi",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Dokumentasi REST API Sampah Terhubung"
+      ]
+    }
+  },
+  {
+    "test": "route /panduan",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Panduan Sistem & Rencana Evaluasi Kegunaan"
+      ]
+    }
+  },
+  {
+    "test": "route /admin",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Ruang kerja belum tersedia"
+      ]
+    }
+  },
+  {
+    "test": "route /kelola",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Ruang kerja belum tersedia"
+      ]
+    }
+  },
+  {
+    "test": "route /wilayah",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Temukan lingkungan Anda"
+      ]
+    }
+  },
+  {
+    "test": "route /preview",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Dari laporan warga, ke lingkungan terawat."
+      ]
+    }
+  },
+  {
+    "test": "route /uji-pengguna",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Mencoba Sampah Terhubung dari rumah"
+      ]
+    }
+  },
+  {
+    "test": "route /evaluasi",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "h1": [
+        "Penilaian System Usability Scale (SUS)"
+      ]
+    }
+  },
+  {
+    "test": "layout 320 /",
+    "pass": true,
+    "details": {
+      "client": 320,
+      "scroll": 320
+    }
+  },
+  {
+    "test": "Masuk visible 320",
+    "pass": true,
+    "details": {
+      "x": 189.09375,
+      "y": 11.5,
+      "width": 67.8125,
+      "height": 44
+    }
+  },
+  {
+    "test": "layout 320 /uji-pengguna",
+    "pass": true,
+    "details": {
+      "client": 320,
+      "scroll": 320
+    }
+  },
+  {
+    "test": "layout 320 /evaluasi",
+    "pass": true,
+    "details": {
+      "client": 320,
+      "scroll": 320
+    }
+  },
+  {
+    "test": "layout 375 /",
+    "pass": true,
+    "details": {
+      "client": 375,
+      "scroll": 375
+    }
+  },
+  {
+    "test": "Masuk visible 375",
+    "pass": true,
+    "details": {
+      "x": 239.1875,
+      "y": 11.5,
+      "width": 67.8125,
+      "height": 44
+    }
+  },
+  {
+    "test": "layout 375 /uji-pengguna",
+    "pass": true,
+    "details": {
+      "client": 375,
+      "scroll": 375
+    }
+  },
+  {
+    "test": "layout 375 /evaluasi",
+    "pass": true,
+    "details": {
+      "client": 375,
+      "scroll": 375
+    }
+  },
+  {
+    "test": "layout 390 /",
+    "pass": true,
+    "details": {
+      "client": 390,
+      "scroll": 390
+    }
+  },
+  {
+    "test": "Masuk visible 390",
+    "pass": true,
+    "details": {
+      "x": 254.1875,
+      "y": 11.5,
+      "width": 67.8125,
+      "height": 44
+    }
+  },
+  {
+    "test": "layout 390 /uji-pengguna",
+    "pass": true,
+    "details": {
+      "client": 390,
+      "scroll": 390
+    }
+  },
+  {
+    "test": "layout 390 /evaluasi",
+    "pass": true,
+    "details": {
+      "client": 390,
+      "scroll": 390
+    }
+  },
+  {
+    "test": "layout 1024 /",
+    "pass": true,
+    "details": {
+      "client": 1024,
+      "scroll": 1024
+    }
+  },
+  {
+    "test": "Masuk visible 1024",
+    "pass": true,
+    "details": {
+      "x": 918.21875,
+      "y": 42.390625,
+      "width": 81.78125,
+      "height": 44.390625
+    }
+  },
+  {
+    "test": "layout 1024 /uji-pengguna",
+    "pass": true,
+    "details": {
+      "client": 1024,
+      "scroll": 1024
+    }
+  },
+  {
+    "test": "layout 1024 /evaluasi",
+    "pass": true,
+    "details": {
+      "client": 1024,
+      "scroll": 1024
+    }
+  },
+  {
+    "test": "layout 1200 /",
+    "pass": true,
+    "details": {
+      "client": 1200,
+      "scroll": 1200
+    }
+  },
+  {
+    "test": "Masuk visible 1200",
+    "pass": true,
+    "details": {
+      "x": 1094.21875,
+      "y": 21.296875,
+      "width": 81.78125,
+      "height": 44.390625
+    }
+  },
+  {
+    "test": "layout 1200 /uji-pengguna",
+    "pass": true,
+    "details": {
+      "client": 1200,
+      "scroll": 1200
+    }
+  },
+  {
+    "test": "layout 1200 /evaluasi",
+    "pass": true,
+    "details": {
+      "client": 1200,
+      "scroll": 1200
+    }
+  },
+  {
+    "test": "layout 1440 /",
+    "pass": true,
+    "details": {
+      "client": 1440,
+      "scroll": 1440
+    }
+  },
+  {
+    "test": "Masuk visible 1440",
+    "pass": true,
+    "details": {
+      "x": 1310.21875,
+      "y": 23.796875,
+      "width": 81.78125,
+      "height": 44.390625
+    }
+  },
+  {
+    "test": "layout 1440 /uji-pengguna",
+    "pass": true,
+    "details": {
+      "client": 1440,
+      "scroll": 1440
+    }
+  },
+  {
+    "test": "layout 1440 /evaluasi",
+    "pass": true,
+    "details": {
+      "client": 1440,
+      "scroll": 1440
+    }
+  },
+  {
+    "test": "code remains visible",
+    "pass": true
+  },
+  {
+    "test": "participant code survives reload",
+    "pass": true
+  },
+  {
+    "test": "live browser SUS submit",
+    "pass": true,
+    "details": {
+      "status": 201,
+      "body": {
+        "status": "created"
+      },
+      "code": "P-53034EDC",
+      "id": "42236ed2-64b1-4f49-a205-74ee1c0ccb26"
+    }
+  },
+  {
+    "test": "Cloud persistence",
+    "pass": true,
+    "details": {
+      "rows": 1,
+      "score": 50
+    }
+  },
+  {
+    "test": "anon responses read denied",
+    "pass": true,
+    "details": {
+      "status": 401
+    }
+  },
+  {
+    "test": "/api/v1/events",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "cors": "*"
+    }
+  },
+  {
+    "test": "/api/v1/incidents",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "cors": "*"
+    }
+  },
+  {
+    "test": "/api/v1/schedules",
+    "pass": true,
+    "details": {
+      "status": 200,
+      "cors": "*"
+    }
+  },
+  {
+    "test": "missing age rejected live",
+    "pass": true,
+    "details": {
+      "status": 422
+    }
+  },
+  {
+    "test": "no uncaught browser errors",
+    "pass": true,
+    "details": []
+  },
+  {
+    "test": "cleanup exact QA row",
+    "pass": true,
+    "details": {
+      "deleted": 1,
+      "id": "42236ed2-64b1-4f49-a205-74ee1c0ccb26",
+      "code": "P-53034EDC"
+    }
+  },
+  {
+    "test": "QA row absent after cleanup",
+    "pass": true
+  }
+]
