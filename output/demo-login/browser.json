@@ -1,0 +1,16 @@
+[
+  {
+    "width": 1440,
+    "autofill": "both accounts pass",
+    "authRequests": 0,
+    "overflow": false,
+    "backend": "public data mocked; no Cloud auth"
+  },
+  {
+    "width": 360,
+    "autofill": "both accounts pass",
+    "authRequests": 0,
+    "overflow": false,
+    "backend": "public data mocked; no Cloud auth"
+  }
+]

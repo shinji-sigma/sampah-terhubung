@@ -1,6 +1,16 @@
 # Kemajuan dan handoff
 
-## Checkpoint audit dan perbaikan — 11 Oktober 2026
+## Checkpoint autofill demo login presentasi — 30 Oktober 2026
+
+Persetujuan eksplisit pengguna: tombol autofill "Admin Demo" (`admin@demo.invalid`) dan "User Demo" (`pelapor.a@demo.invalid`) untuk presentasi kompetisi. Fitur ini berpagar ganda pada server (`DEMO_MODE=true` dan `DEMO_LOGIN_ENABLED=true`), dilindungi origin checker dan pembatas payload body, serta hanya mengisi isian input tanpa auto-submit atau bypass autentikasi. Kredensial dibaca dari konfigurasi server (`DEMO_PASSWORD`), tidak di-commit atau dicetak ke log.
+
+Verifikasi yang dilakukan:
+- Unit & contract test `tests/demo-login.test.ts` (100% pass): verifikasi matriks gate (mode/enabled toggles), proteksi origin (403), role allowlist (422), fallback password absen (503), dan header `private, no-store`.
+- Playwright headless browser check `scripts/demo-login-browser.mjs` pada viewport desktop 1440×900 dan mobile 360×900: autofill kedua tombol terverifikasi mengisi input form, tidak ada permintaan HTTP `/api/auth` sebelum klik tombol submit manual, dan tidak ada overflow horizontal. Screenshot dan log tersimpan di `output/demo-login/`.
+- Seluruh 71 tes lokal lulus, `eslint` 0 error, `tsc` lulus tanpa error, dan `npm run build` sukses.
+- Tidak ada database reset atau reseed dijalankan. Belum dilakukan git push atau deploy Vercel sesuai instruksi.
+
+
 
 Baseline bersih `541a2ad`; perbaikan utama `9d67c3a`, kode akhir `0f9d055` menutup heading tiga fallback terakhir. Reviewer dan Security benar-benar berjalan paralel, kemudian membaca diff dan menguji ulang snapshot yang sama. Perbaikan mencakup izin jadwal SQL NULL, waktu bukti/nonfinite, notifikasi petugas nonaktif, proyeksi jadwal privat, cache error, sesi habis, heading dan recovery API. Migrasi tambahan `202610100003_audit_controls.sql` belum diterapkan ke Cloud; 001/002 dan data lama dipertahankan.
 

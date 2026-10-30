@@ -1,5 +1,5 @@
 "use client";
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { Operation } from "@/lib/validation";
 import { uploadPhotoFiles } from "@/lib/photo-client";
 export interface Field {
@@ -129,6 +129,47 @@ export function ActionForm({
     uploadedPhotos = useRef(new Map<File, string>());
   const inFlight = useRef(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const [demoLogin, setDemoLogin] = useState({
+    enabled: false,
+    available: false,
+  });
+  useEffect(() => {
+    if (!auth || op !== "login") return;
+    const controller = new AbortController();
+    fetch("/api/demo-login", { cache: "no-store", signal: controller.signal })
+      .then((response) => (response.ok ? response.json() : null))
+      .then((result) => {
+        if (result && !controller.signal.aborted) setDemoLogin(result);
+      })
+      .catch(() => {});
+    return () => controller.abort();
+  }, [auth, op]);
+  async function fillDemo(role: "admin" | "user") {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setBusy(true);
+    setMessage("");
+    setErrors({});
+    setSuccess(false);
+    try {
+      const result = await api("/api/demo-login", { role });
+      const form = formRef.current;
+      if (!form) return;
+      const email = form.elements.namedItem("email") as HTMLInputElement;
+      const password = form.elements.namedItem("password") as HTMLInputElement;
+      email.value = result.email;
+      password.value = result.password;
+      setMessage("Akun simulasi terisi. Tekan Masuk untuk melanjutkan.");
+      setSuccess(true);
+    } catch {
+      setMessage(
+        "Demo belum tersedia. Hubungi pengelola atau masuk secara manual.",
+      );
+    } finally {
+      inFlight.current = false;
+      setBusy(false);
+    }
+  }
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (inFlight.current) return;
@@ -250,6 +291,37 @@ export function ActionForm({
       className="action-form"
       aria-busy={busy}
     >
+      {auth && op === "login" && demoLogin.enabled && (
+        <div>
+          <p>
+            Data simulasi · Akun bersama untuk presentasi, bukan akun pribadi.
+            Jangan isi data pribadi. Pilih akun, lalu tekan Masuk.
+          </p>
+          <div className="button-row">
+            <button
+              type="button"
+              className="button secondary"
+              disabled={busy || !demoLogin.available}
+              onClick={() => fillDemo("admin")}
+            >
+              Admin Demo
+            </button>
+            <button
+              type="button"
+              className="button secondary"
+              disabled={busy || !demoLogin.available}
+              onClick={() => fillDemo("user")}
+            >
+              User Demo
+            </button>
+          </div>
+          {!demoLogin.available && (
+            <p role="status">
+              Kredensial demo belum dikonfigurasi. Masuk manual tetap tersedia.
+            </p>
+          )}
+        </div>
+      )}
       {fields.map((field) => (
         <div
           className={
